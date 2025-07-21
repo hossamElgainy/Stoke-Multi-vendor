@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة المخزون - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li class="active"><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">إدارة المخزون</span>
+                    </div>
+                    <select class="vendor-dropdown" id="companyDropdown">
+                        <option value="all">جميع الشركات</option>
+                    </select>
+                    <select class="warehouse-dropdown" id="warehouseDropdown">
+                        <option value="all">جميع المخازن</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span id="userNameDisplay">سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="/Superadmin/login.html">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>إدارة المخزون</h3>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="products">المنتجات</div>
+                        <div class="tab" data-tab="taxes">الضرائب</div>
+                        <div class="tab" data-tab="categories">الفئات</div>
+                        <div class="tab" data-tab="inventory">إدارة الجرد</div>
+                    </div>
+                    <div class="tab-content active" id="products">
+                        <div class="list-header">
+                            <div class="page-size-selector">
+                                <label>عدد السجلات لكل صفحة:</label>
+                                <select id="pageSizeSelect" onchange="changePageSize()">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                            <div class="list-header">
+                                <a href="/Superadmin/stock/products/add-item.html" class="btn btn-primary">إضافة مخزون</a>
+                                <button class="btn btn-info" onclick="showTransferModal()">نقل مخزون</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>الصنف</th>
+                                        <th>الكمية</th>
+                                        <th>الفئة</th>
+                                        <th>الشركة</th>
+                                        <th>المخزن</th>
+                                        <th>المورد</th>
+                                        <th>سعر الوحدة</th>
+                                        <th>الحالة</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stockTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="prevPage" onclick="changePage(-1)" disabled><i class="fas fa-chevron-right"></i> السابق</button>
+                                <div id="pageNumbers"></div>
+                                <button class="pagination-btn" id="nextPage" onclick="changePage(1)">التالي <i class="fas fa-chevron-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="taxes">
+                        <div class="list-header">
+                            <a href="/Superadmin/stock/taxs/add-tax.html" class="btn btn-primary">إضافة ضريبة</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>اسم الضريبة</th>
+                                        <th>النسبة (%)</th>
+                                        <th>الوصف</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="taxTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="categories">
+                        <div class="list-header">
+                            <a href="/Superadmin/stock/categories/add-category.html" class="btn btn-primary">إضافة فئة</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>اسم الفئة</th>
+                                        <th>الوصف</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoryTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="inventory">
+                        <div class="list-header">
+                            <button class="btn btn-primary" onclick="startInventoryAudit()">بدء جرد جديد</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>رقم الجرد</th>
+                                        <th>التاريخ</th>
+                                        <th>المخزن</th>
+                                        <th>الحالة</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryTableBody"></tbody>
+                            </table>
+                        </div>
+                        <!-- Audit Details Table (Displayed on Start) -->
+                        <div class="audit-details" id="auditDetails" style="display: none;">
+                            <h4>تفاصيل الجرد</h4>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>الصنف</th>
+                                            <th>الكمية الحالية</th>
+                                            <th>الكمية المسجلة</th>
+                                            <th>الفرق</th>
+                                            <th>إجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="auditDetailsBody"></tbody>
+                                </table>
+                            </div>
+                            <div class="form-group full-width" style="margin-top: 10px;">
+                                <button class="btn btn-success" onclick="completeAudit()">إكمال الجرد</button>
+                                <button class="btn btn-danger" onclick="closeAuditDetails()">إلغاء</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تأكيد الحذف</h3>
+                <span class="close" onclick="closeDeleteConfirm()">×</span>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirmDeleteBtn">حذف</button>
+                <button class="btn btn-primary" onclick="closeDeleteConfirm()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Stock Modal -->
+    <div class="modal" id="transferModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>نقل مخزون</h3>
+                <span class="close" onclick="closeTransferModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <form id="transferForm">
+                    <div class="form-group">
+                        <label for="itemId">الصنف</label>
+                        <select class="form-control" id="itemId" required>
+                            <option value="">اختر الصنف</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceWarehouse">المخزن المصدر</label>
+                        <select class="form-control" id="sourceWarehouse" required>
+                            <option value="">اختر المخزن</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="destinationWarehouse">المخزن الوجهة</label>
+                        <select class="form-control" id="destinationWarehouse" required>
+                            <option value="">اختر المخزن</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transferQuantity">الكمية</label>
+                        <input type="number" class="form-control" id="transferQuantity" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transferNotes">ملاحظات</label>
+                        <textarea class="form-control" id="transferNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="transferStock()">نقل</button>
+                <button type="button" class="btn btn-danger" onclick="closeTransferModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Audit Modal -->
+    <div class="modal" id="inventoryAuditModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>بدء جرد جديد</h3>
+                <span class="close" onclick="closeInventoryAuditModal()">×</span>
+            </div>
+            <div class="modal-body">
+                <form id="inventoryAuditForm">
+                    <div class="form-group">
+                        <label for="auditWarehouse">المخزن</label>
+                        <select class="form-control" id="auditWarehouse" required>
+                            <option value="">اختر المخزن</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="auditNotes">ملاحظات</label>
+                        <textarea class="form-control" id="auditNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="startInventoryAudit()">بدء</button>
+                <button class="btn btn-danger" onclick="closeInventoryAuditModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let stockItems = JSON.parse(localStorage.getItem('stockItems')) || [
+            {
+                id: 1,
+                name: "لابتوب ديل",
+                quantity: 10,
+                category: "إلكترونيات",
+                companyId: 1,
+                companyName: "شركة المستقبل",
+                warehouseId: 1,
+                warehouseName: "المخزن الرئيسي",
+                supplierId: 1,
+                supplierName: "مورد التقنية",
+                unitPrice: 5000,
+                status: "منخفض",
+                notes: ""
+            }
+        ];
+        let companies = JSON.parse(localStorage.getItem('companies')) || [
+            { id: 1, name: "شركة المستقبل" },
+            { id: 2, name: "شركة التقدم" }
+        ];
+        let warehouses = JSON.parse(localStorage.getItem('warehouses')) || [
+            { id: 1, name: "المخزن الرئيسي", companyId: 1 },
+            { id: 2, name: "مخزن الفرع الشمالي", companyId: 1 }
+        ];
+        let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [
+            { id: 1, name: "مورد التقنية" }
+        ];
+        let taxes = JSON.parse(localStorage.getItem('taxes')) || [
+            { id: 1, name: "ضريبة القيمة المضافة", rate: 14, description: "ضريبة القيمة المضافة القياسية" }
+        ];
+        let categories = JSON.parse(localStorage.getItem('categories')) || [
+            { id: 1, name: "إلكترونيات", description: "الأجهزة الإلكترونية والملحقات" }
+        ];
+        let inventoryAudits = JSON.parse(localStorage.getItem('inventoryAudits')) || [];
+        let auditDetails = JSON.parse(localStorage.getItem('auditDetails')) || {};
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { 
+            role: "Super Admin",
+            name: "سوبر أدمن",
+            email: "superadmin@example.com",
+            password: "admin123",
+            plan: {
+                name: "SuperGrok",
+                status: "نشط",
+                expiryDate: "2026-07-17"
+            }
+        };
+
+        let currentPage = 1;
+        let pageSize = 10;
+        let itemToDelete = null;
+        let deleteType = null;
+
+        // Load user info
+        function loadUserInfo() {
+            document.getElementById('userNameDisplay').textContent = currentUser.name || "سوبر أدمن";
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+                if (tab.dataset.tab === 'products') {
+                    renderStockItems();
+                } else if (tab.dataset.tab === 'taxes') {
+                    renderTaxes();
+                } else if (tab.dataset.tab === 'categories') {
+                    renderCategories();
+                } else if (tab.dataset.tab === 'inventory') {
+                    renderInventoryAudits();
+                }
+            });
+        });
+
+        // Update dropdowns
+        function updateDropdowns() {
+            const companyDropdown = document.getElementById('companyDropdown');
+            const warehouseDropdown = document.getElementById('warehouseDropdown');
+            companyDropdown.innerHTML = '<option value="all">جميع الشركات</option>';
+            warehouseDropdown.innerHTML = '<option value="all">جميع المخازن</option>';
+
+            companies.forEach(company => {
+                const option = document.createElement('option');
+                option.value = company.id;
+                option.textContent = company.name;
+                companyDropdown.appendChild(option);
+            });
+
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseDropdown.appendChild(option);
+            });
+        }
+
+        // Render stock items
+        function renderStockItems() {
+            const tableBody = document.getElementById('stockTableBody');
+            tableBody.innerHTML = '';
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const filteredItems = filterStockItems();
+            const paginatedItems = filteredItems.slice(start, end);
+
+            paginatedItems.forEach(item => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-item-id', item.id);
+                const statusClass = item.quantity <= 10 ? 'badge-danger' : item.quantity <= 50 ? 'badge-warning' : 'badge-success';
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.category}</td>
+                    <td>${item.companyName}</td>
+                    <td>${item.warehouseName}</td>
+                    <td>${item.supplierName}</td>
+                    <td>${item.unitPrice.toLocaleString()} ج.م</td>
+                    <td><span class="badge ${statusClass}">${item.status}</span></td>
+                    <td>
+                        <a href="/Superadmin/stock/products/add-item.html?id=${item.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${item.id}, 'product')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            updatePagination(filteredItems.length);
+        }
+
+        // Filter stock items based on dropdowns
+        function filterStockItems() {
+            const companyId = document.getElementById('companyDropdown').value;
+            const warehouseId = document.getElementById('warehouseDropdown').value;
+            return stockItems.filter(item => {
+                const companyMatch = companyId === 'all' || item.companyId === parseInt(companyId);
+                const warehouseMatch = warehouseId === 'all' || item.warehouseId === parseInt(warehouseId);
+                return companyMatch && warehouseMatch;
+            });
+        }
+
+        // Render taxes
+        function renderTaxes() {
+            const tableBody = document.getElementById('taxTableBody');
+            tableBody.innerHTML = '';
+            taxes.forEach(tax => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-tax-id', tax.id);
+                row.innerHTML = `
+                    <td>${tax.name}</td>
+                    <td>${tax.rate}%</td>
+                    <td>${tax.description || '-'}</td>
+                    <td>
+                        <a href="/Superadmin/stock/taxs/add-tax.html?id=${tax.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${tax.id}, 'tax')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Render categories
+        function renderCategories() {
+            const tableBody = document.getElementById('categoryTableBody');
+            tableBody.innerHTML = '';
+            categories.forEach(category => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-category-id', category.id);
+                row.innerHTML = `
+                    <td>${category.name}</td>
+                    <td>${category.description || '-'}</td>
+                    <td>
+                        <a href="/Superadmin/stock/products/add-category.html?id=${category.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${category.id}, 'category')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Render inventory audits
+        function renderInventoryAudits() {
+            const tableBody = document.getElementById('inventoryTableBody');
+            tableBody.innerHTML = '';
+            inventoryAudits.forEach(audit => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-audit-id', audit.id);
+                const statusClass = audit.status === 'مكتمل' ? 'badge-success' : 'badge-warning';
+                row.innerHTML = `
+                    <td>${audit.id}</td>
+                    <td>${formatDate(audit.date)}</td>
+                    <td>${audit.warehouseName}</td>
+                    <td><span class="badge ${statusClass}">${audit.status}</span></td>
+                    <td>
+                        <a href="/Superadmin/stock/products/audit-details.html?auditId=${audit.id}" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i> عرض التفاصيل</a>
+                        <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${audit.id}, 'audit')"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update pagination
+        function updatePagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / pageSize);
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                button.textContent = i;
+                button.onclick = () => {
+                    currentPage = i;
+                    renderStockItems();
+                };
+                pageNumbers.appendChild(button);
+            }
+
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        // Change page size
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSizeSelect').value);
+            currentPage = 1;
+            renderStockItems();
+        }
+
+        // Change page
+        function changePage(direction) {
+            const totalPages = Math.ceil(filterStockItems().length / pageSize);
+            currentPage = Math.min(Math.max(currentPage + direction, 1), totalPages);
+            renderStockItems();
+        }
+
+        // Show delete confirmation modal
+        function showDeleteConfirm(id, type) {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بحذف هذا العنصر');
+                return;
+            }
+            itemToDelete = id;
+            deleteType = type;
+            document.getElementById('deleteConfirmModal').classList.add('active');
+        }
+
+        // Close delete confirmation modal
+        function closeDeleteConfirm() {
+            document.getElementById('deleteConfirmModal').classList.remove('active');
+            itemToDelete = null;
+            deleteType = null;
+        }
+
+        // Delete item
+        function deleteItem() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بحذف هذا العنصر');
+                return;
+            }
+            if (itemToDelete !== null && deleteType !== null) {
+                let action = '';
+                if (deleteType === 'product') {
+                    const item = stockItems.find(i => i.id === itemToDelete);
+                    action = `حذف صنف: ${item.name}`;
+                    stockItems = stockItems.filter(item => item.id !== itemToDelete);
+                    localStorage.setItem('stockItems', JSON.stringify(stockItems));
+                    currentPage = Math.min(currentPage, Math.ceil(filterStockItems().length / pageSize) || 1);
+                    renderStockItems();
+                } else if (deleteType === 'tax') {
+                    const tax = taxes.find(t => t.id === itemToDelete);
+                    action = `حذف ضريبة: ${tax.name}`;
+                    taxes = taxes.filter(tax => tax.id !== itemToDelete);
+                    localStorage.setItem('taxes', JSON.stringify(taxes));
+                    renderTaxes();
+                } else if (deleteType === 'category') {
+                    const category = categories.find(c => c.id === itemToDelete);
+                    action = `حذف فئة: ${category.name}`;
+                    categories = categories.filter(category => category.id !== itemToDelete);
+                    localStorage.setItem('categories', JSON.stringify(categories));
+                    renderCategories();
+                } else if (deleteType === 'audit') {
+                    const audit = inventoryAudits.find(a => a.id === itemToDelete);
+                    action = `حذف جرد رقم: ${audit.id}`;
+                    delete auditDetails[itemToDelete];
+                    inventoryAudits = inventoryAudits.filter(audit => audit.id !== itemToDelete);
+                    localStorage.setItem('inventoryAudits', JSON.stringify(inventoryAudits));
+                    localStorage.setItem('auditDetails', JSON.stringify(auditDetails));
+                    renderInventoryAudits();
+                }
+
+                // Log transaction
+                const transaction = {
+                    id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                    date: new Date().toISOString(),
+                    user: currentUser.name || "سوبر أدمن",
+                    action
+                };
+                transactions.push(transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+
+                closeDeleteConfirm();
+                alert('تم الحذف بنجاح');
+            }
+        }
+
+        // Show transfer modal
+        function showTransferModal() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بنقل المخزون');
+                return;
+            }
+            const itemSelect = document.getElementById('itemId');
+            const sourceSelect = document.getElementById('sourceWarehouse');
+            const destSelect = document.getElementById('destinationWarehouse');
+            itemSelect.innerHTML = '<option value="">اختر الصنف</option>';
+            sourceSelect.innerHTML = '<option value="">اختر المخزن</option>';
+            destSelect.innerHTML = '<option value="">اختر المخزن</option>';
+
+            stockItems.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.textContent = item.name;
+                itemSelect.appendChild(option);
+            });
+
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                sourceSelect.appendChild(option);
+                destSelect.appendChild(option.cloneNode(true));
+            });
+
+            document.getElementById('transferModal').classList.add('active');
+        }
+
+        // Close transfer modal
+        function closeTransferModal() {
+            document.getElementById('transferModal').classList.remove('active');
+            document.getElementById('transferForm').reset();
+        }
+
+        // Transfer stock
+        function transferStock() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بنقل المخزون');
+                return;
+            }
+            const itemId = parseInt(document.getElementById('itemId').value);
+            const sourceWarehouse = parseInt(document.getElementById('sourceWarehouse').value);
+            const destinationWarehouse = parseInt(document.getElementById('destinationWarehouse').value);
+            const quantity = parseInt(document.getElementById('transferQuantity').value);
+            const notes = document.getElementById('transferNotes').value.trim();
+
+            if (!itemId || !sourceWarehouse || !destinationWarehouse || !quantity) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            if (sourceWarehouse === destinationWarehouse) {
+                alert('المخزن المصدر والوجهة لا يمكن أن يكونا نفس المخزن');
+                return;
+            }
+
+            const item = stockItems.find(item => item.id === itemId);
+            if (!item || item.quantity < quantity) {
+                alert('الكمية غير كافية في المخزن المصدر');
+                return;
+            }
+
+            item.quantity -= quantity;
+            item.status = item.quantity <= 10 ? 'منخفض' : item.quantity <= 50 ? 'متوسط' : 'كافٍ';
+
+            const destItem = stockItems.find(i => i.name === item.name && i.warehouseId === destinationWarehouse);
+            if (destItem) {
+                destItem.quantity += quantity;
+                destItem.status = destItem.quantity <= 10 ? 'منخفض' : destItem.quantity <= 50 ? 'متوسط' : 'كافٍ';
+            } else {
+                stockItems.push({
+                    id: stockItems.length ? Math.max(...stockItems.map(i => i.id)) + 1 : 1,
+                    name: item.name,
+                    quantity,
+                    category: item.category,
+                    companyId: item.companyId,
+                    companyName: item.companyName,
+                    warehouseId: destinationWarehouse,
+                    warehouseName: warehouses.find(w => w.id === destinationWarehouse).name,
+                    supplierId: item.supplierId,
+                    supplierName: item.supplierName,
+                    unitPrice: item.unitPrice,
+                    status: quantity <= 10 ? 'منخفض' : quantity <= 50 ? 'متوسط' : 'كافٍ',
+                    notes
+                });
+            }
+
+            localStorage.setItem('stockItems', JSON.stringify(stockItems));
+
+            // Log transaction
+            const transaction = {
+                id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                date: new Date().toISOString(),
+                user: currentUser.name || "سوبر أدمن",
+                action: `نقل ${quantity} من ${item.name} من ${warehouses.find(w => w.id === sourceWarehouse).name} إلى ${warehouses.find(w => w.id === destinationWarehouse).name}`
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            renderStockItems();
+            closeTransferModal();
+            alert('تم نقل المخزون بنجاح');
+        }
+
+        // Show inventory audit modal
+        function showInventoryAuditModal() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك ببدء جرد جديد');
+                return;
+            }
+            const warehouseSelect = document.getElementById('auditWarehouse');
+            warehouseSelect.innerHTML = '<option value="">اختر المخزن</option>';
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseSelect.appendChild(option);
+            });
+            document.getElementById('inventoryAuditForm').reset();
+            document.getElementById('inventoryAuditModal').classList.add('active');
+        }
+
+        // Close inventory audit modal
+        function closeInventoryAuditModal() {
+            document.getElementById('inventoryAuditModal').classList.remove('active');
+        }
+
+        // Start inventory audit
+        function startInventoryAudit() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك ببدء جرد جديد');
+                return;
+            }
+            const warehouseId = parseInt(document.getElementById('auditWarehouse').value);
+            const notes = document.getElementById('auditNotes').value.trim();
+
+            if (!warehouseId) {
+                alert('يرجى اختيار المخزن');
+                return;
+            }
+
+            const auditId = inventoryAudits.length ? Math.max(...inventoryAudits.map(a => a.id)) + 1 : 1;
+            const audit = {
+                id: auditId,
+                date: new Date().toISOString().split('T')[0],
+                warehouseId,
+                warehouseName: warehouses.find(w => w.id === warehouseId).name,
+                status: 'قيد التنفيذ',
+                notes
+            };
+            inventoryAudits.push(audit);
+            auditDetails[auditId] = stockItems
+                .filter(item => item.warehouseId === warehouseId)
+                .map(item => ({ itemId: item.id, name: item.name, currentQuantity: item.quantity, auditedQuantity: 0 }));
+            localStorage.setItem('inventoryAudits', JSON.stringify(inventoryAudits));
+            localStorage.setItem('auditDetails', JSON.stringify(auditDetails));
+
+            // Log transaction
+            const transaction = {
+                id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                date: new Date().toISOString(),
+                user: currentUser.name || "سوبر أدمن",
+                action: `بدء جرد جديد رقم ${auditId} لمخزن ${audit.warehouseName}`
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            closeInventoryAuditModal();
+            viewAuditDetails(auditId); // Display details immediately
+            alert('تم بدء الجرد بنجاح');
+        }
+
+        // View audit details on current page
+        function viewAuditDetails(auditId) {
+            const audit = inventoryAudits.find(a => a.id === auditId);
+            if (audit && audit.status === 'قيد التنفيذ') {
+                const details = auditDetails[auditId] || [];
+                const tableBody = document.getElementById('auditDetailsBody');
+                tableBody.innerHTML = '';
+                details.forEach(detail => {
+                    const item = stockItems.find(i => i.id === detail.itemId);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${detail.name}</td>
+                        <td>${item ? item.quantity : 0}</td>
+                        <td><input type="number" class="form-control audit-input" data-item-id="${detail.itemId}" value="${detail.auditedQuantity}" min="0"></td>
+                        <td>${item ? (item.quantity - detail.auditedQuantity) : 0}</td>
+                        <td><button class="btn btn-sm btn-success" onclick="updateAuditQuantity(${detail.itemId})">تحديث</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                document.getElementById('auditDetails').style.display = 'block';
+            } else {
+                alert('الجرد إما مكتمل أو غير موجود');
+            }
+        }
+
+        // Update audited quantity
+        function updateAuditQuantity(itemId) {
+            const input = document.querySelector(`.audit-input[data-item-id="${itemId}"]`);
+            const auditedQuantity = parseInt(input.value) || 0;
+            if (currentAuditId) {
+                const details = auditDetails[currentAuditId];
+                const detail = details.find(d => d.itemId === itemId);
+                if (detail) {
+                    detail.auditedQuantity = auditedQuantity;
+                    localStorage.setItem('auditDetails', JSON.stringify(auditDetails));
+                    viewAuditDetails(currentAuditId); // Refresh to update the difference
+                }
+            }
+        }
+
+        // Complete audit
+        function completeAudit() {
+            if (currentAuditId) {
+                const audit = inventoryAudits.find(a => a.id === currentAuditId);
+                if (audit) {
+                    audit.status = 'مكتمل';
+                    const details = auditDetails[currentAuditId];
+                    details.forEach(detail => {
+                        const item = stockItems.find(i => i.id === detail.itemId);
+                        if (item) {
+                            item.quantity = detail.auditedQuantity;
+                            item.status = item.quantity <= 10 ? 'منخفض' : item.quantity <= 50 ? 'متوسط' : 'كافٍ';
+                        }
+                    });
+                    localStorage.setItem('inventoryAudits', JSON.stringify(inventoryAudits));
+                    localStorage.setItem('stockItems', JSON.stringify(stockItems));
+                    renderStockItems();
+                    closeAuditDetails();
+                    alert('تم إكمال الجرد بنجاح');
+                }
+            }
+        }
+
+        // Close audit details
+        function closeAuditDetails() {
+            document.getElementById('auditDetails').style.display = 'none';
+        }
+
+        // Edit tax
+        function editTax(id) {
+            window.location.href = `/Superadmin/stock/taxs/add-tax.html?id=${id}`;
+        }
+
+        // Edit category
+        function editCategory(id) {
+            window.location.href = `/Superadmin/stock/products/add-category.html?id=${id}`;
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+        document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Event listeners
+        document.getElementById('confirmDeleteBtn').addEventListener('click', deleteItem);
+        document.getElementById('companyDropdown').addEventListener('change', () => { currentPage = 1; renderStockItems(); });
+        document.getElementById('warehouseDropdown').addEventListener('change', () => { currentPage = 1; renderStockItems(); });
+
+        // Initial setup
+        updateDropdowns();
+        loadUserInfo();
+        renderStockItems();
+        renderTaxes();
+        renderCategories();
+        renderInventoryAudits();
+        console.log('stock.html: Initialized with companies:', companies, 'warehouses:', warehouses, 'suppliers:', suppliers, 'taxes:', taxes, 'categories:', categories, 'inventoryAudits:', inventoryAudits, 'stockItems:', stockItems, 'auditDetails:', auditDetails);
+    </script>
+</body>
+</html>

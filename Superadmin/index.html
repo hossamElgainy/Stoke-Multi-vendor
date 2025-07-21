@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة المخازن - لوحة التحكم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3c8dbc;
+            --primary-dark: #367fa9;
+            --danger: #dd4b39;
+            --danger-dark: #c23321;
+            --info: #00c0ef;
+            --info-dark: #00a7d0;
+            --success: #00a65a;
+            --warning: #f39c12;
+            --light: #f5f7fa;
+            --dark: #2c3e50;
+            --sidebar: #2c3e50;
+            --sidebar-dark: #1a252f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            right: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: var(--sidebar-dark);
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            overflow-y: auto;
+            height: calc(100vh - 60px);
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 20px;
+            color: #b8c7ce;
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .sidebar-menu li a:hover {
+            color: #fff;
+            background-color: #1e282c;
+        }
+
+        .sidebar-menu li a i {
+            margin-left: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li.active a {
+            color: #fff;
+            background-color: var(--primary);
+        }
+
+        .sidebar-menu li.active a:before {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: white;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-right: 250px;
+            transition: all 0.3s;
+        }
+
+        .header {
+            padding: 15px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mobile-header-title {
+            display: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-info .dropdown {
+            position: relative;
+        }
+
+        .user-info .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+            top: 100%;
+            right: 0;
+        }
+
+        .user-info .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .user-info .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: right;
+        }
+
+        .user-info .dropdown-content a:hover {
+            background-color: var(--light);
+        }
+
+        .menu-toggle-container {
+            display: none;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            color: var(--primary);
+            border: none;
+            padding: 5px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sidebar-close {
+            display: none;
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-card {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .dashboard-card h4 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .dashboard-card p {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+
+        table th {
+            background-color: #f9f9f9;
+            font-weight: 500;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .recent-activity {
+            margin-top: 20px;
+        }
+
+        .recent-activity ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .recent-activity li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .quick-actions {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .inventory-status {
+            margin-top: 20px;
+        }
+
+        .inventory-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .inventory-card {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .inventory-card p {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .inventory-card.total-items p {
+            color: var(--primary);
+        }
+
+        .inventory-card.low-stock p {
+            color: var(--warning);
+        }
+
+        .inventory-card.out-of-stock p {
+            color: var(--danger);
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #fff;
+        }
+
+        .badge-success {
+            background-color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: var(--warning);
+        }
+
+        .badge-danger {
+            background-color: var(--danger);
+        }
+
+        .vendor-dropdown, .warehouse-dropdown {
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main-content {
+                margin-right: 220px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+                width: 280px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-right: 0;
+                width: 100%;
+            }
+
+            .menu-toggle-container {
+                display: flex;
+                align-items: center;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .sidebar-close {
+                display: block;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .card {
+                margin: 10px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-header h3 {
+                margin-bottom: 10px;
+            }
+
+            .dashboard-grid, .inventory-status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-left {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            .vendor-dropdown, .warehouse-dropdown {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 260px;
+            }
+
+            .mobile-header-title {
+                display: block;
+                font-size: 1rem;
+                margin-right: 10px;
+            }
+
+            table th, table td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                   <li class="active"><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li ><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>                    
+                    <li ><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">لوحة التحكم</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorSelect">
+                        <option value="all">جميع الشركات</option>
+                        <option value="1">شركة المستقبل</option>
+                        <option value="2">شركة التقدم</option>
+                    </select>
+                    <select class="warehouse-dropdown" id="warehouseSelect">
+                        <option value="all">جميع المخازن</option>
+                        <option value="1">المخزن الرئيسي</option>
+                        <option value="2">مخزن الفرع الشمالي</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>لوحة التحكم</h3>
+                    <div>
+                        <a href="/Superadmin/vendor/add-vendor.html" class="btn btn-primary">إضافة شركة</a>
+                        <a href="/Superadmin/employee/add-employee.html" class="btn btn-primary">إضافة موظف</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h4>عدد الشركات</h4>
+                            <p id="vendorCount">5</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>عدد المخازن</h4>
+                            <p id="warehouseCount">12</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>إجمالي الموظفين</h4>
+                            <p id="employeeCount">50</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>المخزون المنخفض</h4>
+                            <p id="lowStockCount">8</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>عدد الفواتير</h4>
+                            <p id="invoiceCount">25</p>
+                        </div>
+                        <div class="dashboard-card">
+                            <h4>عدد العهد</h4>
+                            <p id="custodyCount">10</p>
+                        </div>
+                    </div>
+                    <div class="quick-actions">
+                        <h3>إجراءات سريعة</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <a href="/Superadmin/warehouse/add-warehouse.html" class="btn btn-primary"><i class="fas fa-warehouse"></i> إضافة مخزن</a>
+                            <a href="/Superadmin/suppliers/invoice/add-invoice.html" class="btn btn-primary"><i class="fas fa-file-invoice"></i> إضافة فاتورة</a>
+                            <a href="/Superadmin/custody/add.html" class="btn btn-primary"><i class="fas fa-hand-holding"></i> إضافة عهدة</a>
+                        </div>
+                    </div>
+                    <div class="inventory-status">
+                        <h3>نظرة عامة على حالة المخزون</h3>
+                        <div class="inventory-status-grid">
+                            <div class="inventory-card total-items">
+                                <h4>إجمالي الأصناف</h4>
+                                <p id="totalItemsCount">100</p>
+                            </div>
+                            <div class="inventory-card low-stock">
+                                <h4>مخزون منخفض</h4>
+                                <p id="lowStockItemsCount">8</p>
+                            </div>
+                            <div class="inventory-card out-of-stock">
+                                <h4>نفاد المخزون</h4>
+                                <p id="outOfStockCount">3</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recent-activity">
+                        <h3>الأنشطة الأخيرة</h3>
+                        <ul id="recentActivityList">
+                            <li>تمت إضافة موظف جديد: أحمد محمد</li>
+                            <li>تم تحديث المخزون في المخزن الرئيسي</li>
+                            <li>تم إصدار فاتورة رقم #1234</li>
+                        </ul>
+                    </div>
+                    <div class="recent-transactions">
+                        <h3>المعاملات الأخيرة</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>نوع المعاملة</th>
+                                        <th>المعرف</th>
+                                        <th>التاريخ</th>
+                                        <th>الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentTransactionsTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        const vendors = [
+            { id: 1, name: 'شركة المستقبل' },
+            { id: 2, name: 'شركة التقدم' }
+        ];
+
+        const warehouses = [
+            { id: 1, name: 'المخزن الرئيسي', vendorId: 1 },
+            { id: 2, name: 'مخزن الفرع الشمالي', vendorId: 2 }
+        ];
+
+        const transactions = [
+            { id: 'INV-001', type: 'فاتورة', date: '2025-07-15', status: 'مدفوع', vendorId: 1, warehouseId: 1 },
+            { id: 'CST-001', type: 'عهدة', date: '2025-07-14', status: 'نشطة', vendorId: 1, warehouseId: 1 },
+            { id: 'INV-002', type: 'فاتورة', date: '2025-07-13', status: 'غير مدفوع', vendorId: 2, warehouseId: 2 },
+            { id: 'CST-002', type: 'عهدة', date: '2025-07-12', status: 'مرجعة', vendorId: 1, warehouseId: 1 }
+        ];
+
+        const inventory = [
+            { id: 1, name: 'لابتوب ديل', quantity: 50, status: 'متوفر', vendorId: 1, warehouseId: 1 },
+            { id: 2, name: 'طابعة', quantity: 5, status: 'منخفض', vendorId: 1, warehouseId: 1 },
+            { id: 3, name: 'كرسي مكتب', quantity: 0, status: 'نفاد', vendorId: 2, warehouseId: 2 },
+            { id: 4, name: 'شاشة', quantity: 3, status: 'منخفض', vendorId: 2, warehouseId: 2 }
+        ];
+
+        // State
+        let filters = {
+            vendorId: 'all',
+            warehouseId: 'all'
+        };
+
+        // Initialize the app
+        function init() {
+            loadDropdowns();
+            setupMobileSidebar();
+            applyFilters();
+            document.getElementById('vendorSelect').addEventListener('change', applyFilters);
+            document.getElementById('warehouseSelect').addEventListener('change', applyFilters);
+        }
+
+        // Load dropdowns
+        function loadDropdowns() {
+            const vendorSelect = document.getElementById('vendorSelect');
+            const warehouseSelect = document.getElementById('warehouseSelect');
+            vendorSelect.innerHTML = '<option value="all">جميع الشركات</option>';
+            warehouseSelect.innerHTML = '<option value="all">جميع المخازن</option>';
+
+            vendors.forEach(vendor => {
+                const option = document.createElement('option');
+                option.value = vendor.id;
+                option.textContent = vendor.name;
+                vendorSelect.appendChild(option);
+            });
+
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseSelect.appendChild(option);
+            });
+
+            vendorSelect.value = filters.vendorId;
+            warehouseSelect.value = filters.warehouseId;
+        }
+
+        // Setup mobile sidebar
+        function setupMobileSidebar() {
+            document.getElementById('menuToggle').addEventListener('click', function () {
+                document.getElementById('sidebar').classList.add('active');
+                document.getElementById('sidebarOverlay').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+
+            document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 768) {
+                    closeSidebar();
+                }
+            });
+        }
+
+        // Close sidebar
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Apply filters
+        function applyFilters() {
+            filters.vendorId = document.getElementById('vendorSelect').value;
+            filters.warehouseId = document.getElementById('warehouseSelect').value;
+            updateDashboard();
+            updateInventoryStatus();
+            updateRecentTransactions();
+        }
+
+        // Update dashboard counts
+        function updateDashboard() {
+            let filteredVendors = vendors;
+            let filteredWarehouses = warehouses;
+            let filteredInventory = inventory;
+
+            if (filters.vendorId !== 'all') {
+                filteredVendors = vendors.filter(v => v.id == filters.vendorId);
+                filteredWarehouses = warehouses.filter(w => w.vendorId == filters.vendorId);
+                filteredInventory = inventory.filter(i => i.vendorId == filters.vendorId);
+            }
+
+            if (filters.warehouseId !== 'all') {
+                filteredInventory = filteredInventory.filter(i => i.warehouseId == filters.warehouseId);
+            }
+
+            document.getElementById('vendorCount').textContent = filteredVendors.length;
+            document.getElementById('warehouseCount').textContent = filteredWarehouses.length;
+            document.getElementById('lowStockCount').textContent = filteredInventory.filter(i => i.status === 'منخفض').length;
+        }
+
+        // Update inventory status
+        function updateInventoryStatus() {
+            let filteredInventory = inventory;
+
+            if (filters.vendorId !== 'all') {
+                filteredInventory = inventory.filter(i => i.vendorId == filters.vendorId);
+            }
+
+            if (filters.warehouseId !== 'all') {
+                filteredInventory = filteredInventory.filter(i => i.warehouseId == filters.warehouseId);
+            }
+
+            const totalItems = filteredInventory.length;
+            const lowStockItems = filteredInventory.filter(i => i.status === 'منخفض').length;
+            const outOfStockItems = filteredInventory.filter(i => i.status === 'نفاد').length;
+
+            document.getElementById('totalItemsCount').textContent = totalItems;
+            document.getElementById('lowStockItemsCount').textContent = lowStockItems;
+            document.getElementById('outOfStockCount').textContent = outOfStockItems;
+        }
+
+        // Update recent transactions
+        function updateRecentTransactions() {
+            const tableBody = document.getElementById('recentTransactionsTable');
+            tableBody.innerHTML = '';
+
+            let filteredTransactions = transactions;
+
+            if (filters.vendorId !== 'all') {
+                filteredTransactions = transactions.filter(t => t.vendorId == filters.vendorId);
+            }
+
+            if (filters.warehouseId !== 'all') {
+                filteredTransactions = filteredTransactions.filter(t => t.warehouseId == filters.warehouseId);
+            }
+
+            filteredTransactions.forEach(t => {
+                let statusClass = 'badge-warning';
+                if (t.status === 'مدفوع' || t.status === 'نشطة') statusClass = 'badge-success';
+                if (t.status === 'مرجعة') statusClass = 'badge-info';
+                if (t.status === 'غير مدفوع') statusClass = 'badge-danger';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${t.type}</td>
+                    <td>${t.id}</td>
+                    <td>${formatDate(t.date)}</td>
+                    <td><span class="badge ${statusClass}">${t.status}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredTransactions.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4">لا توجد معاملات</td></tr>';
+            }
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Initialize the app
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة مخزن - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3c8dbc;
+            --primary-dark: #367fa9;
+            --danger: #dd4b39;
+            --danger-dark: #c23321;
+            --info: #00c0ef;
+            --info-dark: #00a7d0;
+            --success: #00a65a;
+            --warning: #f39c12;
+            --light: #f5f7fa;
+            --dark: #2c3e50;
+            --sidebar: #2c3e50;
+            --sidebar-dark: #1a252f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            right: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: var(--sidebar-dark);
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            overflow-y: auto;
+            height: calc(100vh - 60px);
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 20px;
+            color: #b8c7ce;
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .sidebar-menu li a:hover {
+            color: #fff;
+            background-color: #1e282c;
+        }
+
+        .sidebar-menu li a i {
+            margin-left: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li.active a {
+            color: #fff;
+            background-color: var(--primary);
+        }
+
+        .sidebar-menu li.active a:before {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: white;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-right: 250px;
+            transition: all 0.3s;
+        }
+
+        .header {
+            padding: 15px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mobile-header-title {
+            display: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-info .dropdown {
+            position: relative;
+        }
+
+        .user-info .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+            top: 100%;
+            right: 0;
+        }
+
+        .user-info .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .user-info .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: right;
+        }
+
+        .user-info .dropdown-content a:hover {
+            background-color: var(--light);
+        }
+
+        .menu-toggle-container {
+            display: none;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            color: var(--primary);
+            border: none;
+            padding: 5px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sidebar-close {
+            display: none;
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+            padding: 10px 20px;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-dark);
+        }
+
+        .vendor-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #fff;
+        }
+
+        .vendor-dropdown:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(60, 141, 188, 0.2);
+        }
+
+        /* Custom Checkbox Styles */
+        .checkbox-container {
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            padding: 10px;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .checkbox-option:hover {
+            background-color: var(--light);
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            margin-left: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-option input[type="checkbox"]:checked {
+            accent-color: var(--primary);
+        }
+
+        .checkbox-option label {
+            margin: 0;
+            font-weight: 400;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main-content {
+                margin-right: 220px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+                width: 280px;
+            }
+
+            .main-content {
+                margin-right: 0;
+                width: 100%;
+            }
+
+            .menu-toggle-container {
+                display: flex;
+                align-items: center;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .sidebar-close {
+                display: block;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .card {
+                margin: 10px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-header h3 {
+                margin-bottom: 10px;
+            }
+
+            .vendor-dropdown {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .checkbox-container {
+                max-height: 150px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 260px;
+            }
+
+            .mobile-header-title {
+                display: block;
+                font-size: 1rem;
+                margin-right: 10px;
+            }
+
+            .checkbox-container {
+                max-height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+         <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li class="active"><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                                        <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li ><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title" id="headerTitle">إضافة مخزن</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorDropdown">
+                        <option value="all">جميع الشركات</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="cardTitle">إضافة مخزن جديد</h3>
+                </div>
+                <div class="card-body">
+                    <form id="warehouseForm">
+                        <input type="hidden" id="warehouseId">
+                        <div class="form-group">
+                            <label for="vendorId">الشركة</label>
+                            <select class="form-control" id="vendorId" required>
+                                <option value="">اختر الشركة</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="warehouseName">اسم المخزن</label>
+                            <input type="text" class="form-control" id="warehouseName" placeholder="أدخل اسم المخزن" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">الموقع</label>
+                            <input type="text" class="form-control" id="location" placeholder="أدخل الموقع" required>
+                        </div>
+                        <div class="form-group">
+                            <label>أمناء المخزن</label>
+                            <div class="checkbox-container" id="keeperCheckboxes">
+                                <!-- Checkboxes will be populated by JavaScript -->
+                            </div>
+                            <input type="hidden" id="keeperIds" name="keeperIds">
+                        </div>
+                        <button type="submit" class="btn btn-primary">حفظ</button>
+                        <a href="/Superadmin//warehouse/warehouses.html" class="btn btn-danger">إلغاء</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let warehouses = JSON.parse(localStorage.getItem('warehouses')) || [];
+        let vendors = JSON.parse(localStorage.getItem('vendors')) || [
+            { id: 1, name: "شركة المستقبل" },
+            { id: 2, name: "شركة التقدم" }
+        ];
+        let employees = JSON.parse(localStorage.getItem('employees')) || [
+            { id: 1, name: "أحمد محمد" },
+            { id: 2, name: "محمد علي" },
+            { id: 3, name: "خالد سعيد" }
+        ];
+
+        // Save employees to localStorage if not already present
+        if (!localStorage.getItem('employees')) {
+            localStorage.setItem('employees', JSON.stringify(employees));
+        }
+
+        // Update vendor and keeper checkboxes
+        function updateDropdowns() {
+            const vendorDropdown = document.getElementById('vendorDropdown');
+            const vendorSelect = document.getElementById('vendorId');
+            const keeperCheckboxes = document.getElementById('keeperCheckboxes');
+
+            // Populate vendor dropdowns
+            vendorDropdown.innerHTML = '<option value="all">جميع الشركات</option>';
+            vendorSelect.innerHTML = '<option value="">اختر الشركة</option>';
+            vendors.forEach(vendor => {
+                const option1 = document.createElement('option');
+                option1.value = vendor.id;
+                option1.textContent = vendor.name;
+                vendorDropdown.appendChild(option1);
+                const option2 = document.createElement('option');
+                option2.value = vendor.id;
+                option2.textContent = vendor.name;
+                vendorSelect.appendChild(option2);
+            });
+
+            // Populate keeper checkboxes
+            keeperCheckboxes.innerHTML = '';
+            employees.forEach(employee => {
+                const option = document.createElement('div');
+                option.className = 'checkbox-option';
+                option.innerHTML = `
+                    <input type="checkbox" id="keeper-${employee.id}" value="${employee.id}">
+                    <label for="keeper-${employee.id}">${employee.name}</label>
+                `;
+                keeperCheckboxes.appendChild(option);
+                option.querySelector('input').addEventListener('change', updateHiddenInput);
+            });
+        }
+
+        // Update hidden input with selected keeper IDs
+        function updateHiddenInput() {
+            const selectedIds = Array.from(document.querySelectorAll('#keeperCheckboxes input:checked'))
+                .map(input => parseInt(input.value));
+            document.getElementById('keeperIds').value = selectedIds.join(',');
+        }
+
+        // Parse query parameters
+        const params = new URLSearchParams(window.location.search);
+        const warehouseId = params.get('id');
+
+        // Handle edit mode
+        if (warehouseId) {
+            const warehouse = warehouses.find(w => w.id === parseInt(warehouseId));
+            if (warehouse) {
+                document.getElementById('cardTitle').textContent = 'تعديل مخزن';
+                document.getElementById('headerTitle').textContent = 'تعديل مخزن';
+                document.getElementById('warehouseId').value = warehouse.id;
+                document.getElementById('vendorId').value = warehouse.vendorId;
+                document.getElementById('warehouseName').value = warehouse.name;
+                document.getElementById('location').value = warehouse.location;
+                if (warehouse.keeperIds && warehouse.keeperIds.length > 0) {
+                    warehouse.keeperIds.forEach(id => {
+                        const checkbox = document.getElementById(`keeper-${id}`);
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+                    });
+                    document.getElementById('keeperIds').value = warehouse.keeperIds.join(',');
+                }
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('warehouseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('warehouseId').value) || (warehouses.length ? Math.max(...warehouses.map(w => w.id)) + 1 : 1);
+            const vendorId = parseInt(document.getElementById('vendorId').value);
+            const warehouseName = document.getElementById('warehouseName').value;
+            const location = document.getElementById('location').value;
+            const keeperIds = document.getElementById('keeperIds').value
+                ? document.getElementById('keeperIds').value.split(',').map(id => parseInt(id)).filter(id => !isNaN(id))
+                : [];
+            const keeperNames = keeperIds.length > 0
+                ? keeperIds.map(id => employees.find(e => e.id === id).name)
+                : [];
+
+            if (!vendorId || !warehouseName || !location) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            const warehouse = {
+                id: id,
+                name: warehouseName,
+                vendorId: vendorId,
+                vendorName: vendors.find(v => v.id === vendorId).name,
+                location: location,
+                keeperIds: keeperIds.length > 0 ? keeperIds : null,
+                keeperNames: keeperNames.length > 0 ? keeperNames : null
+            };
+
+            if (warehouseId) {
+                const index = warehouses.findIndex(w => w.id === parseInt(warehouseId));
+                warehouses[index] = warehouse;
+            } else {
+                warehouses.push(warehouse);
+            }
+
+            localStorage.setItem('warehouses', JSON.stringify(warehouses));
+            window.location.href = '/Superadmin/warehouses.html';
+        });
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        });
+
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+
+        // Initial setup
+        updateDropdowns();
+    </script>
+</body>
+</html>

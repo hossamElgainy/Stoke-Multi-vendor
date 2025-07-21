@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة شركة - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li class="active"><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                                        <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li ><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">إضافة شركة</span>
+                    </div>
+                    <select class="vendor-dropdown">
+                        <option value="all">جميع الشركات</option>
+                        <option value="1">شركة المستقبل</option>
+                        <option value="2">شركة التقدم</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>إضافة شركة جديدة</h3>
+                </div>
+                <div class="card-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="vendorName">اسم الشركة</label>
+                            <input type="text" class="form-control" id="vendorName" placeholder="أدخل اسم الشركة">
+                        </div>
+                        <div class="form-group">
+                            <label for="vendorAddress">العنوان</label>
+                            <input type="text" class="form-control" id="vendorAddress" placeholder="أدخل عنوان الشركة">
+                        </div>
+                        <div class="form-group">
+                            <label for="vendorPhone">رقم الهاتف</label>
+                            <input type="text" class="form-control" id="vendorPhone" placeholder="أدخل رقم الهاتف">
+                        </div>
+                        <div class="form-group">
+                            <label for="vendorEmail">البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="vendorEmail" placeholder="أدخل البريد الإلكتروني">
+                        </div>
+                        <div class="form-group">
+                            <label for="vendorNotes">ملاحظات</label>
+                            <textarea class="form-control" id="vendorNotes" rows="4" placeholder="أدخل ملاحظات إن وجدت"></textarea>
+                        </div>
+                        <a href="vendors.html" class="btn btn-primary">حفظ</a>
+                        <a href="vendors.html" class="btn btn-danger">إلغاء</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

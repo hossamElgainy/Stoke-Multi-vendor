@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الموظفين - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li class="active"><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                                        <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">إدارة الموظفين</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorDropdown">
+                        <option value="all">جميع الشركات</option>
+                    </select>
+                    <select class="warehouse-dropdown" id="warehouseDropdown">
+                        <option value="all">جميع المخازن</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>قائمة الموظفين</h3>
+                    <a href="/Superadmin/employee/add-employee.html" class="btn btn-primary">تسجيل موظف جديد</a>
+                </div>
+                <div class="card-body">
+                    <div class="list-header">
+                        <div class="page-size-selector">
+                            <label>عدد السجلات لكل صفحة:</label>
+                            <select id="pageSizeSelect">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="employeeTable">
+                            <thead>
+                                <tr>
+                                    <th>الصورة</th>
+                                    <th>كود الموظف</th>
+                                    <th>الاسم</th>
+                                    <th>الرقم القومي</th>
+                                    <th>تاريخ التعيين</th>
+                                    <th>الدور</th>
+                                    <th>المخازن</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-controls">
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="deleteModal">
+        <div class="modal-content" style="width: 400px;">
+            <div class="modal-header">
+                <h3>تأكيد الحذف</h3>
+                <span class="close" onclick="closeModal('deleteModal')">×</span>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد أنك تريد حذف هذا الموظف؟</p>
+                <input type="hidden" id="deleteEmployeeId">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="deleteEmployee()">حذف</button>
+                <button type="button" class="btn btn-primary" onclick="closeModal('deleteModal')">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let employees = JSON.parse(localStorage.getItem('employees')) || [
+            { id: 1, name: "أحمد محمد", code: "EMP-001", nationalId: "29901010101010", hireDate: "2020-01-15", role: "manager", companyId: 1, warehouseIds: [1, 2], position: "مدير مخازن", department: "إدارة", salary: 5000, phone: "0123456789", email: "ahmed@example.com", address: "القاهرة", image: "https://via.placeholder.com/50" }
+        ];
+        let companies = JSON.parse(localStorage.getItem('companies')) || [
+            { id: 1, name: "شركة المستقبل" },
+            { id: 2, name: "شركة التقدم" }
+        ];
+        let warehouses = JSON.parse(localStorage.getItem('warehouses')) || [
+            { id: 1, name: "المخزن الرئيسي", companyId: 1 },
+            { id: 2, name: "مخزن الفرع الشمالي", companyId: 1 }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 5;
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+        document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Populate dropdowns
+        function populateDropdowns() {
+            const vendorDropdown = document.getElementById('vendorDropdown');
+            const warehouseDropdown = document.getElementById('warehouseDropdown');
+
+            vendorDropdown.innerHTML = '<option value="all">جميع الشركات</option>';
+            companies.forEach(company => {
+                const option = document.createElement('option');
+                option.value = company.id;
+                option.textContent = company.name;
+                vendorDropdown.appendChild(option);
+            });
+
+            warehouseDropdown.innerHTML = '<option value="all">جميع المخازن</option>';
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseDropdown.appendChild(option);
+            });
+        }
+
+        // Populate employee table
+        function populateEmployeeTable() {
+            const tbody = document.getElementById('employeeTable').querySelector('tbody');
+            const vendorId = document.getElementById('vendorDropdown').value;
+            const warehouseId = document.getElementById('warehouseDropdown').value;
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+
+            let filteredEmployees = employees;
+            if (vendorId !== 'all') {
+                filteredEmployees = filteredEmployees.filter(emp => emp.companyId == vendorId);
+            }
+            if (warehouseId !== 'all') {
+                filteredEmployees = filteredEmployees.filter(emp => emp.warehouseIds && emp.warehouseIds.includes(parseInt(warehouseId)));
+            }
+
+            tbody.innerHTML = '';
+            filteredEmployees.slice(start, end).forEach(emp => {
+                const warehouseNames = emp.warehouseIds && emp.warehouseIds.length > 0
+                    ? emp.warehouseIds.map(id => warehouses.find(w => w.id === id)?.name || '').join(', ')
+                    : '-';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><img src="${emp.image || 'https://via.placeholder.com/50'}" class="employee-avatar" alt="Employee"></td>
+                    <td>${emp.code}</td>
+                    <td>${emp.name}</td>
+                    <td>${emp.nationalId}</td>
+                    <td>${formatDate(emp.hireDate)}</td>
+                    <td>${emp.role || '-'}</td>
+                    <td>${warehouseNames}</td>
+                    <td>
+                        <a href="/Superadmin/employee/employee-custody.html?id=${emp.id}" class="btn btn-sm btn-info"><i class="fas fa-hand-holding"></i></a>
+                        <a href="/Superadmin/employee/add-employee.html?id=${emp.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-sm btn-danger" onclick="openDeleteModal(${emp.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updatePagination(filteredEmployees.length);
+        }
+
+        // Format date for display
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-EG');
+        }
+
+        // Update pagination
+        function updatePagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / pageSize);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = `
+                <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
+                    <i class="fas fa-chevron-right"></i> السابق
+                </button>
+            `;
+            for (let i = 1; i <= totalPages; i++) {
+                pagination.innerHTML += `
+                    <button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>
+                `;
+            }
+            pagination.innerHTML += `
+                <button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
+                    التالي <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+        }
+
+        // Change page
+        function changePage(page) {
+            currentPage = page;
+            populateEmployeeTable();
+        }
+
+        // Open delete modal
+        function openDeleteModal(id) {
+            document.getElementById('deleteEmployeeId').value = id;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Delete employee
+        function deleteEmployee() {
+            const id = parseInt(document.getElementById('deleteEmployeeId').value);
+            employees = employees.filter(emp => emp.id !== id);
+            localStorage.setItem('employees', JSON.stringify(employees));
+            closeModal('deleteModal');
+            populateEmployeeTable();
+        }
+
+        // Handle page size change
+        document.getElementById('pageSizeSelect').addEventListener('change', function() {
+            pageSize = parseInt(this.value);
+            currentPage = 1;
+            populateEmployeeTable();
+        });
+
+        // Handle filter changes
+        document.getElementById('vendorDropdown').addEventListener('change', function() {
+            currentPage = 1;
+            populateEmployeeTable();
+        });
+        document.getElementById('warehouseDropdown').addEventListener('change', function() {
+            currentPage = 1;
+            populateEmployeeTable();
+        });
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+
+        // Initial setup
+        populateDropdowns();
+        populateEmployeeTable();
+        console.log('employees.html: Initialized with companies:', companies, 'employees:', employees, 'warehouses:', warehouses);
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل الجرد - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li class="active"><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">تفاصيل الجرد</span>
+                    </div>
+                    <a href="/Superadmin/stock/products/stock.html" class="btn btn-back">
+                        <i class="fas fa-arrow-right"></i> رجوع
+                    </a>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span id="userNameDisplay">سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="/Superadmin/login.html">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>تفاصيل الجرد</h3>
+                </div>
+                <div class="card-body">
+                    <div class="audit-details">
+                        <h4 id="auditHeader"></h4>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>الصنف</th>
+                                        <th>الكمية الحالية</th>
+                                        <th>الكمية المسجلة</th>
+                                        <th>الفرق</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="auditDetailsBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="form-group full-width" style="margin-top: 10px;">
+                            <button class="btn btn-success" onclick="completeAudit()">إكمال الجرد</button>
+                            <button class="btn btn-danger" onclick="goBack()">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        // Load data from localStorage
+        let stockItems = JSON.parse(localStorage.getItem('stockItems')) || [];
+        let companies = JSON.parse(localStorage.getItem('companies')) || [];
+        let warehouses = JSON.parse(localStorage.getItem('warehouses')) || [];
+        let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [];
+        let taxes = JSON.parse(localStorage.getItem('taxes')) || [];
+        let categories = JSON.parse(localStorage.getItem('categories')) || [];
+        let inventoryAudits = JSON.parse(localStorage.getItem('inventoryAudits')) || [];
+        let auditDetails = JSON.parse(localStorage.getItem('auditDetails')) || {};
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { 
+            role: "Super Admin",
+            name: "سوبر أدمن",
+            email: "superadmin@example.com",
+            password: "admin123",
+            plan: {
+                name: "SuperGrok",
+                status: "نشط",
+                expiryDate: "2026-07-17"
+            }
+        };
+
+        let currentAuditId = null;
+
+        // Load user info
+        function loadUserInfo() {
+            document.getElementById('userNameDisplay').textContent = currentUser.name || "سوبر أدمن";
+        }
+
+        // Parse audit ID from URL
+        function getAuditIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return parseInt(params.get('auditId'));
+        }
+
+        // Load audit details
+        function loadAuditDetails() {
+            currentAuditId = getAuditIdFromURL();
+            const audit = inventoryAudits.find(a => a.id === currentAuditId);
+            if (audit) {
+                document.getElementById('auditHeader').textContent = `تفاصيل الجرد #${audit.id} - ${audit.warehouseName} (${formatDate(audit.date)})`;
+                const details = auditDetails[currentAuditId] || [];
+                const tableBody = document.getElementById('auditDetailsBody');
+                tableBody.innerHTML = '';
+                details.forEach(detail => {
+                    const item = stockItems.find(i => i.id === detail.itemId);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${detail.name}</td>
+                        <td>${item ? item.quantity : 0}</td>
+                        <td><input type="number" class="form-control audit-input" data-item-id="${detail.itemId}" value="${detail.auditedQuantity}" min="0"></td>
+                        <td>${item ? (item.quantity - detail.auditedQuantity) : 0}</td>
+                        <td><button class="btn btn-sm btn-success" onclick="updateAuditQuantity(${detail.itemId})">تحديث</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                alert('الجرد غير موجود');
+                goBack();
+            }
+        }
+
+        // Update audited quantity
+        function updateAuditQuantity(itemId) {
+            const input = document.querySelector(`.audit-input[data-item-id="${itemId}"]`);
+            const auditedQuantity = parseInt(input.value) || 0;
+            if (currentAuditId) {
+                const details = auditDetails[currentAuditId];
+                const detail = details.find(d => d.itemId === itemId);
+                if (detail) {
+                    detail.auditedQuantity = auditedQuantity;
+                    localStorage.setItem('auditDetails', JSON.stringify(auditDetails));
+                    loadAuditDetails(); // Refresh to update the difference
+                }
+            }
+        }
+
+        // Complete audit
+        function completeAudit() {
+            if (currentAuditId) {
+                const audit = inventoryAudits.find(a => a.id === currentAuditId);
+                if (audit) {
+                    audit.status = 'مكتمل';
+                    const details = auditDetails[currentAuditId];
+                    details.forEach(detail => {
+                        const item = stockItems.find(i => i.id === detail.itemId);
+                        if (item) {
+                            item.quantity = detail.auditedQuantity;
+                            item.status = item.quantity <= 10 ? 'منخفض' : item.quantity <= 50 ? 'متوسط' : 'كافٍ';
+                        }
+                    });
+                    localStorage.setItem('inventoryAudits', JSON.stringify(inventoryAudits));
+                    localStorage.setItem('stockItems', JSON.stringify(stockItems));
+
+                    // Log transaction
+                    const transaction = {
+                        id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                        date: new Date().toISOString(),
+                        user: currentUser.name || "سوبر أدمن",
+                        action: `إكمال جرد رقم ${audit.id} لمخزن ${audit.warehouseName}`
+                    };
+                    transactions.push(transaction);
+                    localStorage.setItem('transactions', JSON.stringify(transactions));
+
+                    alert('تم إكمال الجرد بنجاح');
+                    goBack();
+                }
+            }
+        }
+
+        // Go back to stock page
+        function goBack() {
+            window.location.href = '/Superadmin/stock/products/stock.html';
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+        document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Initial setup
+        loadUserInfo();
+        loadAuditDetails();
+        console.log('audit-details.html: Initialized with auditId:', currentAuditId, 'auditDetails:', auditDetails);
+    </script>
+</body>
+</html>

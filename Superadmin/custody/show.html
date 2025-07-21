@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عرض تفاصيل العهدة - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        :root {
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #14b8a6;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .company-select {
+            padding: 8px;
+            border-radius: var(--border-radius);
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            color: var(--dark);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .company-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .custody-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-group {
+            margin-bottom: 20px;
+        }
+
+        .detail-group label {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .detail-group p {
+            background: #f9fafb;
+            padding: 12px 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            font-size: 15px;
+        }
+
+        .detail-group.table-group {
+            grid-column: 1 / -1;
+            margin-bottom: 30px;
+        }
+
+        .item-status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .status-excellent { background-color: #059669; }
+        .status-very-good { background-color: #10b981; }
+        .status-good { background-color: #3498db; }
+        .status-fair { background-color: #f59e0b; }
+        .status-damaged { background-color: #ef4444; }
+        .status-assigned { background-color: var(--primary); }
+        .status-partially-damaged { background-color: #d97706; }
+
+        .alert {
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background-color: #ffffff;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .items-table th,
+        .items-table td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .items-table th {
+            background-color: var(--primary);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .items-table td {
+            font-size: 13px;
+            color: var(--dark);
+        }
+
+        .items-table tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .items-table tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .items-table th,
+            .items-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .items-table th,
+            .items-table td {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                                        <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li class="active"><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="menu-toggle-container">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <span class="mobile-header-title" id="pageTitle">عرض تفاصيل العهدة</span>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>أمين المخزن</span>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="custodyTitle">تفاصيل العهدة</h3>
+                    <a href="custody.html" class="btn btn-danger"><i class="fas fa-times"></i> إغلاق</a>
+                </div>
+                <div class="card-body">
+                    <div class="custody-details">
+                        <div class="detail-group">
+                            <label>كود العهدة</label>
+                            <p id="custodyCode"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>الشركة</label>
+                            <p id="companyName"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>الموظف</label>
+                            <p id="employeeName"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>تاريخ التسليم</label>
+                            <p id="assignDate"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>تاريخ الاستلام المتوقع</label>
+                            <p id="expectedReturnDate"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>تاريخ الاستلام الفعلي</label>
+                            <p id="actualReturnDate"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>الحالة</label>
+                            <p id="status"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>ملاحظات</label>
+                            <p id="notes"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>حالة الإرجاع</label>
+                            <p id="returnCondition"></p>
+                        </div>
+                        <div class="detail-group">
+                            <label>ملاحظات الإرجاع</label>
+                            <p id="returnNotes"></p>
+                        </div>
+                        <div class="detail-group table-group">
+                            <label>الأصناف</label>
+                            <table class="items-table" id="itemsTable">
+                                <thead>
+                                    <tr>
+                                        <th>اسم الصنف</th>
+                                        <th>الكود</th>
+                                        <th>الحالة الأولية</th>
+                                        <th>الحالة الحالية</th>
+                                        <th>حالة الإرجاع</th>
+                                        <th>ملاحظات الإرجاع</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsList"></tbody>
+                            </table>
+                        </div>
+                        <div class="detail-group table-group">
+                            <label>الأصناف الإضافية</label>
+                            <table class="items-table" id="additionalItemsTable">
+                                <thead>
+                                    <tr>
+                                        <th>اسم الصنف</th>
+                                        <th>الكود</th>
+                                        <th>التكلفة (ريال)</th>
+                                        <th>القسط الشهري</th>
+                                        <th>الأقساط الإجمالية</th>
+                                        <th>الأقساط المدفوعة</th>
+                                        <th>الأقساط المتبقية</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="additionalItemsList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const alertContainer = document.getElementById('alertContainer');
+            const custodyTitle = document.getElementById('custodyTitle');
+            const pageTitle = document.getElementById('pageTitle');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            // Sample Data
+            let companies = [
+                { id: 1, name: 'شركة التقدم' },
+                { id: 2, name: 'شركة الريادة' },
+                { id: 3, name: 'شركة الابتكار' }
+            ];
+
+            let employees = [
+                { id: 1, name: 'أحمد محمد', department: 'IT', companyId: 1 },
+                { id: 2, name: 'محمد علي', department: 'المالية', companyId: 2 },
+                { id: 3, name: 'سارة عبدالله', department: 'الموارد البشرية', companyId: 3 }
+            ];
+
+            let custodyRecords = [
+                {
+                    id: 1,
+                    code: 'CST-2001',
+                    companyId: 1,
+                    employeeId: 1,
+                    items: [
+                        {
+                            id: 1,
+                            code: 'ITM-1001',
+                            name: 'كمبيوتر محمول',
+                            initialCondition: 'excellent',
+                            currentCondition: 'assigned',
+                            returnCondition: null,
+                            returnNotes: ''
+                        }
+                    ],
+                    additionalItems: [
+                        {
+                            id: 1,
+                            name: 'تيشيرت إضافي',
+                            code: 'ADD-1001',
+                            monthlyDeduction: 10,
+                            totalInstallments: 12,
+                            paidInstallments: 3,
+                            remainingInstallments: 9,
+                            totalCost: 100
+                        }
+                    ],
+                    assignDate: '2023-05-15',
+                    expectedReturnDate: '2023-08-15',
+                    actualReturnDate: null,
+                    status: 'active',
+                    notes: 'تسليم لموظف جديد',
+                    returnCondition: null,
+                    returnNotes: null
+                },
+                {
+                    id: 2,
+                    code: 'CST-2002',
+                    companyId: 2,
+                    employeeId: 2,
+                    items: [
+                        {
+                            id: 3,
+                            code: 'ITM-2001',
+                            name: 'طابعة',
+                            initialCondition: 'good',
+                            currentCondition: 'returned',
+                            returnCondition: 'excellent',
+                            returnNotes: 'تم الاستلام في حالة ممتازة بعد الصيانة'
+                        },
+                        {
+                            id: 5,
+                            code: 'ITM-3002',
+                            name: 'كرسي مكتب',
+                            initialCondition: 'damaged',
+                            currentCondition: 'returned',
+                            returnCondition: 'damaged',
+                            returnNotes: 'تم الاستلام مع تلف في الظهر'
+                        }
+                    ],
+                    additionalItems: [
+                        {
+                            id: 2,
+                            name: 'قبعة إضافية',
+                            code: 'ADD-1002',
+                            monthlyDeduction: 5,
+                            totalInstallments: 12,
+                            paidInstallments: 12,
+                            remainingInstallments: 0,
+                            totalCost: 50
+                        }
+                    ],
+                    assignDate: '2023-06-01',
+                    expectedReturnDate: '2023-09-01',
+                    actualReturnDate: '2023-09-05',
+                    status: 'returned',
+                    notes: 'تسليم لمشروع مؤقت',
+                    returnCondition: 'partially_damaged',
+                    returnNotes: 'تم استلام بعض الأصناف بحالة تالفة'
+                }
+            ];
+
+            // Initialize the app
+            function init() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const custodyId = parseInt(urlParams.get('id'));
+                console.log('custodyId:', custodyId);
+                loadCustodyDetails(custodyId);
+                setupMobileSidebar();
+            }
+
+            // Setup mobile sidebar functionality
+            function setupMobileSidebar() {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.add('active');
+                    sidebarOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                sidebarClose.addEventListener('click', closeSidebar);
+                sidebarOverlay.addEventListener('click', closeSidebar);
+
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            closeSidebar();
+                        }
+                    });
+                });
+
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        closeSidebar();
+                    }
+                });
+            }
+
+            // Close sidebar function
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // Load custody details
+            function loadCustodyDetails(custodyId) {
+                console.log('custodyId:', custodyId);
+                const record = custodyRecords.find(r => r.id === custodyId);
+                console.log('record:', record);
+                if (!record) {
+                    showAlert('danger', 'العهدة غير موجودة!');
+                    setTimeout(() => {
+                        window.location.href = 'custody.html';
+                    }, 1000);
+                    return;
+                }
+
+                const company = companies.find(c => c.id === record.companyId);
+                const employee = employees.find(e => e.id === record.employeeId);
+                console.log('company:', company, 'employee:', employee);
+
+                custodyTitle.textContent = `تفاصيل العهدة ${record.code}`;
+                pageTitle.textContent = `تفاصيل العهدة ${record.code}`;
+                document.getElementById('custodyCode').textContent = record.code;
+                document.getElementById('companyName').textContent = company ? company.name : 'غير معروف';
+                document.getElementById('employeeName').textContent = employee ? `${employee.name} - ${employee.department}` : 'غير معروف';
+                document.getElementById('assignDate').textContent = formatDate(record.assignDate);
+                document.getElementById('expectedReturnDate').textContent = formatDate(record.expectedReturnDate);
+                document.getElementById('actualReturnDate').textContent = formatDate(record.actualReturnDate);
+                document.getElementById('status').textContent = getStatusText(record);
+                document.getElementById('notes').textContent = record.notes || '-';
+                document.getElementById('returnCondition').textContent = getConditionText(record.returnCondition) || '-';
+                document.getElementById('returnNotes').textContent = record.returnNotes || '-';
+
+                const itemsList = document.getElementById('itemsList');
+                console.log('items:', record.items);
+                itemsList.innerHTML = record.items.length > 0 ? record.items.map(item => `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td><span class="item-status-badge ${getConditionClass(item.initialCondition)}">${getConditionText(item.initialCondition)}</span></td>
+                        <td><span class="item-status-badge ${getConditionClass(item.currentCondition)}">${getConditionText(item.currentCondition)}</span></td>
+                        <td><span class="item-status-badge ${getConditionClass(item.returnCondition)}">${getConditionText(item.returnCondition) || '-'}</span></td>
+                        <td>${item.returnNotes || '-'}</td>
+                    </tr>
+                `).join('') : '<tr><td colspan="6">لا توجد أصناف</td></tr>';
+
+                const additionalItemsList = document.getElementById('additionalItemsList');
+                console.log('additionalItems:', record.additionalItems);
+                additionalItemsList.innerHTML = record.additionalItems.length > 0 ? record.additionalItems.map(item => `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.code}</td>
+                        <td>${item.totalCost}</td>
+                        <td>${item.monthlyDeduction}</td>
+                        <td>${item.totalInstallments}</td>
+                        <td>${item.paidInstallments}</td>
+                        <td>${item.remainingInstallments}</td>
+                    </tr>
+                `).join('') : '<tr><td colspan="7">لا توجد أصناف إضافية</td></tr>';
+            }
+
+            // Format date for display
+            function formatDate(dateString) {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ar-EG');
+            }
+
+            // Get status text
+            function getStatusText(record) {
+                if (record.status === 'returned') return 'مرجعة';
+                const today = new Date();
+                const returnDate = new Date(record.expectedReturnDate);
+                if (today > returnDate) return 'متأخرة';
+                return 'نشطة';
+            }
+
+            // Get condition class for styling
+            function getConditionClass(condition) {
+                if (!condition) return '';
+                return `status-${condition.replace('_', '-')}`;
+            }
+
+            // Get condition text
+            function getConditionText(condition) {
+                const conditionMap = {
+                    excellent: 'ممتاز',
+                    'very-good': 'جيد جداً',
+                    good: 'جيد',
+                    fair: 'مقبول',
+                    damaged: 'تالف',
+                    assigned: 'مسلم',
+                    partially_damaged: 'تالف جزئياً'
+                };
+                return conditionMap[condition] || condition;
+            }
+
+            // Show alert
+            function showAlert(type, message) {
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    ${message}
+                `;
+                alertContainer.appendChild(alert);
+                setTimeout(() => {
+                    alert.remove();
+                }, 3000);
+            }
+
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>

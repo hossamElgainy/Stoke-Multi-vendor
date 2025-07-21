@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الشركات - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                     <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li class="active"><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>                    
+                    <li ><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+               <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">لوحة التحكم</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorSelect">
+                        <option value="all">جميع الشركات</option>
+                        <option value="1">شركة المستقبل</option>
+                        <option value="2">شركة التقدم</option>
+                    </select>
+                    <select class="warehouse-dropdown" id="warehouseSelect">
+                        <option value="all">جميع المخازن</option>
+                        <option value="1">المخزن الرئيسي</option>
+                        <option value="2">مخزن الفرع الشمالي</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>قائمة الشركات</h3>
+                    <a href="/Superadmin/vendor/add-vendor.html" class="btn btn-primary">إضافة شركة</a>
+                </div>
+                <div class="card-body">
+                    <div class="list-header">
+                        <div class="page-size-selector">
+                            <label>عدد العناصر لكل صفحة:</label>
+                            <select id="pageSizeSelect" onchange="changePageSize()">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>الشعار</th>
+                                    <th>اسم الشركة</th>
+                                    <th>جهة الاتصال</th>
+                                    <th>المخازن</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendorTableBody">
+                                <tr data-vendor-id="1">
+                                    <td><img src="https://via.placeholder.com/50" class="employee-avatar" alt="Vendor"></td>
+                                    <td>شركة المستقبل</td>
+                                    <td>محمد علي - 01012345678</td>
+                                    <td>3 مخازن</td>
+                                    <td>
+                                        <a href="/Superadmin/vendor/add-vendor.html?id=1" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                                        <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(1)"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-controls">
+                        <div class="pagination">
+                            <button class="pagination-btn" id="prevPage" onclick="changePage(-1)" disabled><i class="fas fa-chevron-right"></i> السابق</button>
+                            <div id="pageNumbers"></div>
+                            <button class="pagination-btn" id="nextPage" onclick="changePage(1)">التالي <i class="fas fa-chevron-left"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تأكيد الحذف</h3>
+                <span class="close" onclick="closeDeleteConfirm()">×</span>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذه الشركة؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirmDeleteBtn">حذف</button>
+                <button class="btn btn-primary" onclick="closeDeleteConfirm()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample vendor data (simulating a database)
+        let vendors = [
+            {
+                id: 1,
+                name: "شركة المستقبل",
+                contact: "محمد علي - 01012345678",
+                warehouses: "3 مخازن",
+                logo: "https://via.placeholder.com/50",
+                email: "contact@future.com",
+                address: "123 شارع الرئيسي، القاهرة",
+                notes: ""
+            }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 10;
+        let vendorToDelete = null;
+
+        // Render vendors in table
+        function renderVendors() {
+            const tableBody = document.getElementById('vendorTableBody');
+            tableBody.innerHTML = '';
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const paginatedVendors = vendors.slice(start, end);
+
+            paginatedVendors.forEach(vendor => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-vendor-id', vendor.id);
+                row.innerHTML = `
+                    <td><img src="${vendor.logo}" class="employee-avatar" alt="Vendor"></td>
+                    <td>${vendor.name}</td>
+                    <td>${vendor.contact}</td>
+                    <td>${vendor.warehouses}</td>
+                    <td>
+                        <a href="/Superadmin/vendor/add-vendor.html?id=${vendor.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                        <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${vendor.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            updatePagination();
+        }
+
+        // Update pagination controls
+        function updatePagination() {
+            const totalPages = Math.ceil(vendors.length / pageSize);
+            const pageNumbers = document.getElementById('pageNumbers');
+            pageNumbers.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                button.textContent = i;
+                button.onclick = () => {
+                    currentPage = i;
+                    renderVendors();
+                };
+                pageNumbers.appendChild(button);
+            }
+
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+        }
+
+        // Change page size
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSizeSelect').value);
+            currentPage = 1;
+            renderVendors();
+        }
+
+        // Change page
+        function changePage(direction) {
+            const totalPages = Math.ceil(vendors.length / pageSize);
+            currentPage = Math.min(Math.max(currentPage + direction, 1), totalPages);
+            renderVendors();
+        }
+
+        // Show delete confirmation modal
+        function showDeleteConfirm(vendorId) {
+            vendorToDelete = vendorId;
+            document.getElementById('deleteConfirmModal').classList.add('active');
+        }
+
+        // Close delete confirmation modal
+        function closeDeleteConfirm() {
+            document.getElementById('deleteConfirmModal').classList.remove('active');
+            vendorToDelete = null;
+        }
+
+        // Delete vendor
+        function deleteVendor() {
+            if (vendorToDelete !== null) {
+                vendors = vendors.filter(v => v.id !== vendorToDelete);
+                currentPage = Math.min(currentPage, Math.ceil(vendors.length / pageSize) || 1);
+                renderVendors();
+                closeDeleteConfirm();
+            }
+        }
+
+        // Sidebar toggle functionality
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        });
+
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+
+        // Attach delete confirmation handler
+        document.getElementById('confirmDeleteBtn').addEventListener('click', deleteVendor);
+
+        // Initial render
+        renderVendors();
+    </script>
+</body>
+</html>

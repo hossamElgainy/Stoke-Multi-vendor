@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة موظف - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li class="active"><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                                        <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title" id="headerTitle">إضافة موظف</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorDropdown">
+                        <option value="all">جميع الشركات</option>
+                    </select>
+                    <select class="warehouse-dropdown" id="warehouseDropdown">
+                        <option value="all">جميع المخازن</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="cardTitle">إضافة موظف جديد</h3>
+                </div>
+                <div class="card-body">
+                    <form id="employeeForm">
+                        <div class="form-container">
+                            <input type="hidden" id="employeeId">
+                            <div class="form-group">
+                                <label for="vendorId">الشركة</label>
+                                <select class="form-control" id="vendorId" required>
+                                    <option value="">اختر الشركة</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeCode">كود الموظف</label>
+                                <input type="text" class="form-control" id="employeeCode" placeholder="أدخل كود الموظف" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeName">الاسم الكامل</label>
+                                <input type="text" class="form-control" id="employeeName" placeholder="أدخل الاسم الكامل" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="nationalId">الرقم القومي</label>
+                                <input type="text" class="form-control" id="nationalId" placeholder="أدخل الرقم القومي" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="hireDate">تاريخ التعيين</label>
+                                <input type="date" class="form-control" id="hireDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="position">الوظيفة</label>
+                                <input type="text" class="form-control" id="position" placeholder="أدخل الوظيفة">
+                            </div>
+                            <div class="form-group">
+                                <label for="department">القسم</label>
+                                <input type="text" class="form-control" id="department" placeholder="أدخل القسم">
+                            </div>
+                            <div class="form-group">
+                                <label for="salary">الراتب</label>
+                                <input type="number" class="form-control" id="salary" placeholder="أدخل الراتب">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">رقم الهاتف</label>
+                                <input type="tel" class="form-control" id="phone" placeholder="أدخل رقم الهاتف">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">البريد الإلكتروني</label>
+                                <input type="email" class="form-control" id="email" placeholder="أدخل البريد الإلكتروني">
+                            </div>
+                            <div class="form-group">
+                                <label for="address">العنوان</label>
+                                <textarea class="form-control" id="address" rows="3" placeholder="أدخل العنوان"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>المخازن</label>
+                                <div class="checkbox-container" id="warehouseCheckboxes">
+                                    <!-- Checkboxes will be populated by JavaScript -->
+                                </div>
+                                <input type="hidden" id="warehouseIds" name="warehouseIds">
+                            </div>
+                            <div class="form-group checkbox">
+                                <input type="checkbox" id="systemAccess" onchange="toggleRoleField()">
+                                <label for="systemAccess">السماح بالدخول إلى النظام</label>
+                            </div>
+                            <div class="form-group role-field" id="roleField">
+                                <label for="role">الدور</label>
+                                <select class="form-control" id="role">
+                                    <option value="superadmin">سوبر أدمن</option>
+                                    <option value="manager">مدير</option>
+                                    <option value="warehousekeeper">أمين مخزن</option>
+                                    <option value="employee">موظف</option>
+                                </select>
+                            </div>
+                            <div class="form-group checkbox">
+                                <input type="checkbox" id="sendCredentials">
+                                <label for="sendCredentials">إرسال بيانات الدخول إلى البريد الإلكتروني</label>
+                            </div>
+                            <div class="form-group file-upload">
+                                <label for="employeeImage"><i class="fas fa-upload"></i> تحميل صورة الموظف</label>
+                                <input type="file" id="employeeImage" accept="image/*">
+                            </div>
+                            <div class="form-group">
+                                <label for="notes">ملاحظات</label>
+                                <textarea class="form-control" id="notes" rows="4" placeholder="أدخل ملاحظات إن وجدت"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <button type="submit" class="btn btn-primary">حفظ</button>
+                                <a href="/Superadmin/employee/employees.html" class="btn btn-danger">إلغاء</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let employees = JSON.parse(localStorage.getItem('employees')) || [
+            { id: 1, name: "أحمد محمد", code: "EMP-001", nationalId: "29901010101010", hireDate: "2020-01-15", role: "manager", companyId: 1, warehouseIds: [1, 2], position: "مدير مخازن", department: "إدارة", salary: 5000, phone: "0123456789", email: "ahmed@example.com", address: "القاهرة", image: "https://via.placeholder.com/50" }
+        ];
+        let companies = JSON.parse(localStorage.getItem('companies')) || [
+            { id: 1, name: "شركة المستقبل" },
+            { id: 2, name: "شركة التقدم" }
+        ];
+        let warehouses = JSON.parse(localStorage.getItem('warehouses')) || [
+            { id: 1, name: "المخزن الرئيسي", companyId: 1 },
+            { id: 2, name: "مخزن الفرع الشمالي", companyId: 1 }
+        ];
+
+        // Populate dropdowns and checkboxes
+        function populateDropdownsAndCheckboxes() {
+            const vendorDropdown = document.getElementById('vendorDropdown');
+            const vendorSelect = document.getElementById('vendorId');
+            const warehouseDropdown = document.getElementById('warehouseDropdown');
+            const warehouseCheckboxes = document.getElementById('warehouseCheckboxes');
+
+            // Populate company dropdowns
+            vendorDropdown.innerHTML = '<option value="all">جميع الشركات</option>';
+            vendorSelect.innerHTML = '<option value="">اختر الشركة</option>';
+            companies.forEach(company => {
+                const option1 = document.createElement('option');
+                option1.value = company.id;
+                option1.textContent = company.name;
+                vendorDropdown.appendChild(option1);
+                const option2 = document.createElement('option');
+                option2.value = company.id;
+                option2.textContent = company.name;
+                vendorSelect.appendChild(option2);
+            });
+
+            // Populate warehouse dropdown
+            warehouseDropdown.innerHTML = '<option value="all">جميع المخازن</option>';
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseDropdown.appendChild(option);
+            });
+
+            // Populate warehouse checkboxes
+            warehouseCheckboxes.innerHTML = '';
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('div');
+                option.className = 'checkbox-option';
+                option.innerHTML = `
+                    <input type="checkbox" id="warehouse-${warehouse.id}" value="${warehouse.id}">
+                    <label for="warehouse-${warehouse.id}">${warehouse.name}</label>
+                `;
+                warehouseCheckboxes.appendChild(option);
+                option.querySelector('input').addEventListener('change', updateHiddenInput);
+            });
+        }
+
+        // Update hidden input with selected warehouse IDs
+        function updateHiddenInput() {
+            const selectedIds = Array.from(document.querySelectorAll('#warehouseCheckboxes input:checked'))
+                .map(input => parseInt(input.value));
+            document.getElementById('warehouseIds').value = selectedIds.join(',');
+        }
+
+        // Toggle role field visibility
+        function toggleRoleField() {
+            const systemAccess = document.getElementById('systemAccess').checked;
+            const roleField = document.getElementById('roleField');
+            roleField.classList.toggle('active', systemAccess);
+            const roleSelect = document.getElementById('role');
+            roleSelect.required = systemAccess;
+        }
+
+        // Handle edit mode
+        const params = new URLSearchParams(window.location.search);
+        const employeeId = params.get('id');
+        if (employeeId) {
+            const employee = employees.find(emp => emp.id === parseInt(employeeId));
+            if (employee) {
+                document.getElementById('cardTitle').textContent = 'تعديل موظف';
+                document.getElementById('headerTitle').textContent = 'تعديل موظف';
+                document.getElementById('employeeId').value = employee.id;
+                document.getElementById('vendorId').value = employee.companyId || '';
+                document.getElementById('employeeCode').value = employee.code || '';
+                document.getElementById('employeeName').value = employee.name || '';
+                document.getElementById('nationalId').value = employee.nationalId || '';
+                document.getElementById('hireDate').value = employee.hireDate || '';
+                document.getElementById('position').value = employee.position || '';
+                document.getElementById('department').value = employee.department || '';
+                document.getElementById('salary').value = employee.salary || '';
+                document.getElementById('phone').value = employee.phone || '';
+                document.getElementById('email').value = employee.email || '';
+                document.getElementById('address').value = employee.address || '';
+                document.getElementById('notes').value = employee.notes || '';
+                if (employee.warehouseIds && employee.warehouseIds.length > 0) {
+                    employee.warehouseIds.forEach(id => {
+                        const checkbox = document.getElementById(`warehouse-${id}`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                    document.getElementById('warehouseIds').value = employee.warehouseIds.join(',');
+                }
+                document.getElementById('systemAccess').checked = !!employee.role;
+                toggleRoleField();
+                document.getElementById('role').value = employee.role || 'employee';
+                document.getElementById('sendCredentials').checked = false;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('employeeForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (!this.checkValidity()) {
+                this.reportValidity();
+                return;
+            }
+
+            const id = document.getElementById('employeeId').value
+                ? parseInt(document.getElementById('employeeId').value)
+                : (employees.length ? Math.max(...employees.map(emp => emp.id)) + 1 : 1);
+            const companyId = parseInt(document.getElementById('vendorId').value);
+            const employeeCode = document.getElementById('employeeCode').value;
+            const employeeName = document.getElementById('employeeName').value;
+            const nationalId = document.getElementById('nationalId').value;
+            const hireDate = document.getElementById('hireDate').value;
+            const position = document.getElementById('position').value;
+            const department = document.getElementById('department').value;
+            const salary = parseFloat(document.getElementById('salary').value) || null;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const warehouseIds = document.getElementById('warehouseIds').value
+                ? document.getElementById('warehouseIds').value.split(',').map(id => parseInt(id)).filter(id => !isNaN(id))
+                : [];
+            const systemAccess = document.getElementById('systemAccess').checked;
+            const role = systemAccess ? document.getElementById('role').value : null;
+            const sendCredentials = document.getElementById('sendCredentials').checked;
+            const employeeImage = document.getElementById('employeeImage').files[0]
+                ? URL.createObjectURL(document.getElementById('employeeImage').files[0])
+                : (employeeId ? employees.find(emp => emp.id === parseInt(employeeId))?.image : null);
+            const notes = document.getElementById('notes').value;
+
+            const employee = {
+                id,
+                companyId,
+                code: employeeCode,
+                name: employeeName,
+                nationalId,
+                hireDate,
+                role,
+                position,
+                department,
+                salary,
+                phone,
+                email,
+                address,
+                warehouseIds: warehouseIds.length > 0 ? warehouseIds : null,
+                image: employeeImage || 'https://via.placeholder.com/50',
+                notes
+            };
+
+            if (employeeId) {
+                const index = employees.findIndex(emp => emp.id === id);
+                employees[index] = employee;
+            } else {
+                employees.push(employee);
+            }
+
+            localStorage.setItem('employees', JSON.stringify(employees));
+            alert(employeeId ? 'تم تعديل بيانات الموظف بنجاح' : 'تم حفظ بيانات الموظف بنجاح');
+            window.location.href = '/Superadmin/employee/employees.html';
+        });
+
+        // Sidebar toggle functionality
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+        document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Initial setup
+        populateDropdownsAndCheckboxes();
+        console.log('add-employee.html: Initialized with companies:', companies, 'employees:', employees, 'warehouses:', warehouses);
+    </script>
+</body>
+</html>

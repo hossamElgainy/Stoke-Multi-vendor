@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سجل المعاملات - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3c8dbc;
+            --primary-dark: #367fa9;
+            --danger: #dd4b39;
+            --danger-dark: #c23321;
+            --info: #00c0ef;
+            --info-dark: #00a7d0;
+            --success: #00a65a;
+            --warning: #f39c12;
+            --light: #f5f7fa;
+            --dark: #2c3e50;
+            --sidebar: #2c3e50;
+            --sidebar-dark: #1a252f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--sidebar);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            right: 0;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: var(--sidebar-dark);
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            overflow-y: auto;
+            height: calc(100vh - 60px);
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li a {
+            display: block;
+            padding: 12px 20px;
+            color: #b8c7ce;
+            text-decoration: none;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .sidebar-menu li a:hover {
+            color: #fff;
+            background-color: #1e282c;
+        }
+
+        .sidebar-menu li a i {
+            margin-left: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-menu li.active a {
+            color: #fff;
+            background-color: var(--primary);
+        }
+
+        .sidebar-menu li.active a:before {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: white;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-right: 250px;
+            transition: all 0.3s;
+        }
+
+        .header {
+            padding: 15px 20px;
+            background-color: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mobile-header-title {
+            display: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .user-info .dropdown {
+            position: relative;
+        }
+
+        .user-info .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 4px;
+            top: 100%;
+            right: 0;
+        }
+
+        .user-info .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .user-info .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: right;
+        }
+
+        .user-info .dropdown-content a:hover {
+            background-color: var(--light);
+        }
+
+        .menu-toggle-container {
+            display: none;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: transparent;
+            color: var(--primary);
+            border: none;
+            padding: 5px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .sidebar-close {
+            display: none;
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+        }
+
+        .card-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th, table td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+
+        table th {
+            background-color: #f9f9f9;
+            font-weight: 500;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger-dark);
+        }
+
+        .btn-info {
+            background-color: var(--info);
+            color: #fff;
+        }
+
+        .btn-info:hover {
+            background-color: var(--info-dark);
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .list-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 150px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(60, 141, 188, 0.2);
+        }
+
+        .filter-group.hidden {
+            display: none;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-size-selector label {
+            font-size: 14px;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .page-size-selector select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #fff;
+        }
+
+        .page-size-selector select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(60, 141, 188, 0.2);
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 50px;
+            background: #fff;
+            color: var(--dark);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background-color: var(--primary);
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .pagination-btn.active {
+            background-color: var(--primary);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .pagination-btn:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn i {
+            margin-left: 5px;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main-content {
+                margin-right: 220px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+                width: 280px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-right: 0;
+                width: 100%;
+            }
+
+            .menu-toggle-container {
+                display: flex;
+                align-items: center;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .sidebar-close {
+                display: block;
+            }
+
+            .header {
+                padding: 10px 15px;
+            }
+
+            .card {
+                margin: 10px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-header h3 {
+                margin-bottom: 10px;
+            }
+
+            .list-header {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            .filter-form {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+
+            .filter-buttons {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 260px;
+            }
+
+            .mobile-header-title {
+                display: block;
+                font-size: 1rem;
+                margin-right: 10px;
+            }
+
+            table th, table td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            .pagination-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .page-size-selector select {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .filter-group label {
+                font-size: 12px;
+            }
+
+            .filter-group input,
+            .filter-group select {
+                font-size: 12px;
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+       <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                   <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                                        <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li ><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li class="active"><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+             <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">لوحة التحكم</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorSelect">
+                        <option value="all">جميع الشركات</option>
+                        <option value="1">شركة المستقبل</option>
+                        <option value="2">شركة التقدم</option>
+                    </select>
+                    <select class="warehouse-dropdown" id="warehouseSelect">
+                        <option value="all">جميع المخازن</option>
+                        <option value="1">المخزن الرئيسي</option>
+                        <option value="2">مخزن الفرع الشمالي</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>سجل المعاملات</h3>
+                    <button class="btn btn-primary">تصدير السجل</button>
+                </div>
+                <div class="card-body">
+                    <div class="list-header">
+                        <div class="filter-form">
+                            <div class="filter-group">
+                                <label>من تاريخ</label>
+                                <input type="date" id="fromDate" class="form-control">
+                            </div>
+                            <div class="filter-group">
+                                <label>إلى تاريخ</label>
+                                <input type="date" id="toDate" class="form-control">
+                            </div>
+                            <div class="filter-group">
+                                <label>المستخدم</label>
+                                <input type="text" id="userFilter" class="form-control" placeholder="أدخل اسم المستخدم">
+                            </div>
+                            <div class="filter-group">
+                                <label>الإجراء</label>
+                                <select id="actionFilter" class="form-control">
+                                    <option value="all">جميع الإجراءات</option>
+                                    <option value="إضافة موظف">إضافة موظف</option>
+                                    <option value="تعديل مخزون">تعديل مخزون</option>
+                                    <option value="إضافة مخزون">إضافة مخزون</option>
+                                    <option value="إصدار فاتورة">إصدار فاتورة</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>الشركة</label>
+                                <select id="companyFilter" class="form-control vendor-dropdown">
+                                    <option value="all">جميع الشركات</option>
+                                    <option value="شركة المستقبل">شركة المستقبل</option>
+                                    <option value="شركة التقدم">شركة التقدم</option>
+                                </select>
+                            </div>
+                            <div class="filter-group hidden" id="warehouseFilterGroup">
+                                <label>المخزن</label>
+                                <select id="warehouseFilter" class="form-control warehouse-dropdown">
+                                    <option value="all">جميع المخازن</option>
+                                    <option value="المخزن الرئيسي">المخزن الرئيسي</option>
+                                    <option value="مخزن الفرع الشمالي">مخزن الفرع الشمالي</option>
+                                </select>
+                            </div>
+                            <div class="filter-buttons">
+                                <button class="btn btn-primary" id="applyFilters">تصفية</button>
+                                <button class="btn btn-danger" id="resetFilters">إعادة تعيين</button>
+                            </div>
+                        </div>
+                        <div class="page-size-selector">
+                            <label>عدد السجلات لكل صفحة:</label>
+                            <select id="pageSize">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="transactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>المستخدم</th>
+                                    <th>الإجراء</th>
+                                    <th>الشركة</th>
+                                    <th>المخزن</th>
+                                    <th>التفاصيل</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-controls">
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const sidebar = document.getElementById('sidebar');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const menuToggle = document.getElementById('menuToggle');
+            const transactionsBody = document.getElementById('transactionsBody');
+            const pagination = document.getElementById('pagination');
+            const pageSizeSelect = document.getElementById('pageSize');
+            const fromDate = document.getElementById('fromDate');
+            const toDate = document.getElementById('toDate');
+            const userFilter = document.getElementById('userFilter');
+            const actionFilter = document.getElementById('actionFilter');
+            const companyFilter = document.getElementById('companyFilter');
+            const warehouseFilter = document.getElementById('warehouseFilter');
+            const warehouseFilterGroup = document.getElementById('warehouseFilterGroup');
+            const applyFilters = document.getElementById('applyFilters');
+            const resetFilters = document.getElementById('resetFilters');
+
+            // Sample transaction data
+            const transactions = [
+                {
+                    date: '2025-07-15 13:46',
+                    user: 'أحمد محمد',
+                    action: 'إضافة موظف',
+                    company: 'شركة المستقبل',
+                    warehouse: 'المخزن الرئيسي',
+                    details: 'تم إضافة موظف جديد: EMP-001'
+                },
+                {
+                    date: '2025-07-14 10:30',
+                    user: 'سارة علي',
+                    action: 'تعديل مخزون',
+                    company: 'شركة التقدم',
+                    warehouse: 'مخزن الفرع الشمالي',
+                    details: 'تم تعديل كمية الصنف ITM-1001 إلى 50'
+                },
+                {
+                    date: '2025-07-13 09:15',
+                    user: 'محمد عبدالله',
+                    action: 'إصدار فاتورة',
+                    company: 'شركة المستقبل',
+                    warehouse: 'المخزن الرئيسي',
+                    details: 'تم إصدار فاتورة INV-2025-001'
+                },
+                {
+                    date: '2025-07-12 14:20',
+                    user: 'فاطمة حسن',
+                    action: 'إضافة مخزون',
+                    company: 'شركة التقدم',
+                    warehouse: 'مخزن الفرع الشمالي',
+                    details: 'تم إضافة 100 وحدة من الصنف ITM-2002'
+                }
+            ];
+
+            let filteredTransactions = [...transactions];
+            let currentPage = 1;
+            let pageSize = parseInt(pageSizeSelect.value);
+
+            // Initialize the app
+            function init() {
+                setupMobileSidebar();
+                setupWarehouseFilterVisibility();
+                renderTransactions();
+                setupPagination();
+                pageSizeSelect.addEventListener('change', () => {
+                    pageSize = parseInt(pageSizeSelect.value);
+                    currentPage = 1;
+                    renderTransactions();
+                    setupPagination();
+                });
+                applyFilters.addEventListener('click', filterTransactions);
+                resetFilters.addEventListener('click', resetFiltersHandler);
+            }
+
+            // Setup mobile sidebar functionality
+            function setupMobileSidebar() {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.add('active');
+                    sidebarOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                sidebarClose.addEventListener('click', closeSidebar);
+                sidebarOverlay.addEventListener('click', closeSidebar);
+
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            closeSidebar();
+                        }
+                    });
+                });
+
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        closeSidebar();
+                    }
+                });
+            }
+
+            // Close sidebar function
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // Setup warehouse filter visibility
+            function setupWarehouseFilterVisibility() {
+                companyFilter.addEventListener('change', function() {
+                    if (companyFilter.value === 'all') {
+                        warehouseFilterGroup.classList.add('hidden');
+                        warehouseFilter.value = 'all';
+                    } else {
+                        warehouseFilterGroup.classList.remove('hidden');
+                    }
+                    filterTransactions();
+                });
+            }
+
+            // Filter transactions based on user input
+            function filterTransactions() {
+                const from = fromDate.value ? new Date(fromDate.value) : null;
+                const to = toDate.value ? new Date(toDate.value) : null;
+                const user = userFilter.value.trim().toLowerCase();
+                const action = actionFilter.value;
+                const company = companyFilter.value;
+                const warehouse = warehouseFilterGroup.classList.contains('hidden') ? 'all' : warehouseFilter.value;
+
+                filteredTransactions = transactions.filter(transaction => {
+                    const transactionDate = new Date(transaction.date);
+                    const matchesDate = (!from || transactionDate >= from) && (!to || transactionDate <= to);
+                    const matchesUser = !user || transaction.user.toLowerCase().includes(user);
+                    const matchesAction = action === 'all' || transaction.action === action;
+                    const matchesCompany = company === 'all' || transaction.company === company;
+                    const matchesWarehouse = warehouse === 'all' || transaction.warehouse === warehouse;
+
+                    return matchesDate && matchesUser && matchesAction && matchesCompany && matchesWarehouse;
+                });
+
+                currentPage = 1;
+                renderTransactions();
+                setupPagination();
+            }
+
+            // Reset filters
+            function resetFiltersHandler() {
+                fromDate.value = '';
+                toDate.value = '';
+                userFilter.value = '';
+                actionFilter.value = 'all';
+                companyFilter.value = 'all';
+                warehouseFilter.value = 'all';
+                warehouseFilterGroup.classList.add('hidden');
+                filteredTransactions = [...transactions];
+                currentPage = 1;
+                renderTransactions();
+                setupPagination();
+            }
+
+            // Render transactions table
+            function renderTransactions() {
+                const start = (currentPage - 1) * pageSize;
+                const end = start + pageSize;
+                const paginatedTransactions = filteredTransactions.slice(start, end);
+
+                transactionsBody.innerHTML = paginatedTransactions.length > 0 ? paginatedTransactions.map(transaction => `
+                    <tr>
+                        <td>${transaction.date}</td>
+                        <td>${transaction.user}</td>
+                        <td>${transaction.action}</td>
+                        <td>${transaction.company}</td>
+                        <td>${transaction.warehouse}</td>
+                        <td>${transaction.details}</td>
+                    </tr>
+                `).join('') : '<tr><td colspan="6">لا توجد معاملات</td></tr>';
+            }
+
+            // Setup pagination controls
+            function setupPagination() {
+                const totalPages = Math.ceil(filteredTransactions.length / pageSize);
+                pagination.innerHTML = '';
+
+                // Previous button
+                const prevButton = document.createElement('button');
+                prevButton.className = 'pagination-btn';
+                prevButton.innerHTML = '<i class="fas fa-chevron-right"></i> السابق';
+                prevButton.disabled = currentPage === 1;
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderTransactions();
+                        setupPagination();
+                    }
+                });
+                pagination.appendChild(prevButton);
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageButton = document.createElement('button');
+                    pageButton.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                    pageButton.textContent = i;
+                    pageButton.addEventListener('click', () => {
+                        currentPage = i;
+                        renderTransactions();
+                        setupPagination();
+                    });
+                    pagination.appendChild(pageButton);
+                }
+
+                // Next button
+                const nextButton = document.createElement('button');
+                nextButton.className = 'pagination-btn';
+                nextButton.innerHTML = 'التالي <i class="fas fa-chevron-left"></i>';
+                nextButton.disabled = currentPage === totalPages;
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderTransactions();
+                        setupPagination();
+                    }
+                });
+                pagination.appendChild(nextButton);
+            }
+
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>

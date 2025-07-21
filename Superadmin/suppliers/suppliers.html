@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الموردين - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+       <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                     <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li class="active"><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                                        <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>                    
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">إدارة الموردين</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorDropdown">
+                        <option value="all">جميع الشركات</option>
+                    </select>
+                    <select class="warehouse-dropdown" id="warehouseDropdown">
+                        <option value="all">جميع المخازن</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="/Superadmin/login.html">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>إدارة الموردين</h3>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="suppliers">الموردين</div>
+                        <div class="tab" data-tab="purchase-invoices">فواتير الشراء</div>
+                        <div class="tab" data-tab="purchase-returns">مرتجعات المشتريات</div>
+                        <div class="tab" data-tab="supplier-payments">مدفوعات الموردين</div>
+                    </div>
+                    <div class="tab-content active" id="suppliers">
+                        <div class="list-header">
+                            <div class="page-size-selector">
+                                <label>عدد السجلات لكل صفحة:</label>
+                                <select id="pageSizeSelectSuppliers" onchange="changePageSize('suppliers')">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                            <a href="/Superadmin/suppliers/add-supplier.html" class="btn btn-primary">إضافة مورد</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>اسم المورد</th>
+                                        <th>جهة الاتصال</th>
+                                        <th>المخازن</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="supplierTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="prevPageSuppliers" onclick="changePage(-1, 'suppliers')" disabled><i class="fas fa-chevron-right"></i> السابق</button>
+                                <div id="pageNumbersSuppliers"></div>
+                                <button class="pagination-btn" id="nextPageSuppliers" onclick="changePage(1, 'suppliers')">التالي <i class="fas fa-chevron-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="purchase-invoices">
+                        <div class="list-header">
+                            <div class="page-size-selector">
+                                <label>عدد السجلات لكل صفحة:</label>
+                                <select id="pageSizeSelectPurchaseInvoices" onchange="changePageSize('purchase-invoices')">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                            <a href="/Superadmin/suppliers/invoice/add-invoice.html" class="btn btn-primary">إضافة فاتورة</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>رقم الفاتورة</th>
+                                        <th>التاريخ</th>
+                                        <th>الشركة</th>
+                                        <th>المخزن</th>
+                                        <th>المورد</th>
+                                        <th>الإجمالي</th>
+                                        <th>الحالة</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoiceTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="prevPagePurchaseInvoices" onclick="changePage(-1, 'purchase-invoices')" disabled><i class="fas fa-chevron-right"></i> السابق</button>
+                                <div id="pageNumbersPurchaseInvoices"></div>
+                                <button class="pagination-btn" id="nextPagePurchaseInvoices" onclick="changePage(1, 'purchase-invoices')">التالي <i class="fas fa-chevron-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="purchase-returns">
+                        <div class="list-header">
+                            <div class="page-size-selector">
+                                <label>عدد السجلات لكل صفحة:</label>
+                                <select id="pageSizeSelectPurchaseReturns" onchange="changePageSize('purchase-returns')">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                            <a href="/Superadmin/suppliers/return/add-return.html" class="btn btn-primary">إضافة مرتجع</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>رقم المرتجع</th>
+                                        <th>التاريخ</th>
+                                        <th>المورد</th>
+                                        <th>الإجمالي</th>
+                                        <th>الحالة</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="returnsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="prevPagePurchaseReturns" onclick="changePage(-1, 'purchase-returns')" disabled><i class="fas fa-chevron-right"></i> السابق</button>
+                                <div id="pageNumbersPurchaseReturns"></div>
+                                <button class="pagination-btn" id="nextPagePurchaseReturns" onclick="changePage(1, 'purchase-returns')">التالي <i class="fas fa-chevron-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="supplier-payments">
+                        <div class="list-header">
+                            <div class="page-size-selector">
+                                <label>عدد السجلات لكل صفحة:</label>
+                                <select id="pageSizeSelectSupplierPayments" onchange="changePageSize('supplier-payments')">
+                                    <option value="5">5</option>
+                                    <option value="10" selected>10</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                            <a href="/Superadmin/suppliers/payment/add-payment.html" class="btn btn-primary">إضافة دفعة</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>رقم الدفعة</th>
+                                        <th>التاريخ</th>
+                                        <th>المورد</th>
+                                        <th>المبلغ</th>
+                                        <th>الحالة</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="paymentsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="prevPageSupplierPayments" onclick="changePage(-1, 'supplier-payments')" disabled><i class="fas fa-chevron-right"></i> السابق</button>
+                                <div id="pageNumbersSupplierPayments"></div>
+                                <button class="pagination-btn" id="nextPageSupplierPayments" onclick="changePage(1, 'supplier-payments')">التالي <i class="fas fa-chevron-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal for Suppliers -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تأكيد الحذف</h3>
+                <span class="close" onclick="closeDeleteConfirm()">×</span>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirmDeleteBtn">حذف</button>
+                <button class="btn btn-primary" onclick="closeDeleteConfirm()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal for Invoices -->
+    <div class="modal" id="deleteInvoiceConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تأكيد الحذف</h3>
+                <span class="close" onclick="closeDeleteInvoiceConfirm()">×</span>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذه الفاتورة؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirmDeleteInvoiceBtn">حذف</button>
+                <button class="btn btn-primary" onclick="closeDeleteInvoiceConfirm()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal for Returns -->
+    <div class="modal" id="deleteReturnConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تأكيد الحذف</h3>
+                <span class="close" onclick="closeDeleteReturnConfirm()">×</span>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذا المرتجع؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirmDeleteReturnBtn">حذف</button>
+                <button class="btn btn-primary" onclick="closeDeleteReturnConfirm()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal for Payments -->
+    <div class="modal" id="deletePaymentConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تأكيد الحذف</h3>
+                <span class="close" onclick="closeDeletePaymentConfirm()">×</span>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف هذه الدفعة؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirmDeletePaymentBtn">حذف</button>
+                <button class="btn btn-primary" onclick="closeDeletePaymentConfirm()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [
+            {
+                id: 1,
+                name: "مورد التقنية",
+                contactPerson: "علي حسن",
+                phone: "01123456789",
+                email: "ali@techsupplier.com",
+                address: "القاهرة، مصر",
+                vendorId: 1,
+                vendorName: "شركة المستقبل",
+                warehouseIds: [1],
+                warehouseNames: ["المخزن الرئيسي"]
+            }
+        ];
+
+        let vendors = JSON.parse(localStorage.getItem('vendors')) || [
+            { id: 1, name: "شركة المستقبل" },
+            { id: 2, name: "شركة التقدم" }
+        ];
+
+        let warehouses = JSON.parse(localStorage.getItem('warehouses')) || [
+            { id: 1, name: "المخزن الرئيسي", vendorId: 1, vendorName: "شركة المستقبل", location: "القاهرة" },
+            { id: 2, name: "مخزن الفرع الشمالي", vendorId: 2, vendorName: "شركة التقدم", location: "الإسكندرية" }
+        ];
+
+        let invoices = JSON.parse(localStorage.getItem('invoices')) || [
+            {
+                id: 1,
+                invoiceNumber: "INV-001",
+                date: "2025-07-15",
+                vendorId: 1,
+                vendorName: "شركة التقنية المتقدمة",
+                warehouseId: 1,
+                warehouseName: "المخزن الرئيسي",
+                supplierId: 1,
+                supplierName: "مورد التقنية",
+                type: "purchase",
+                items: [
+                    { name: "لابتوب ديل", quantity: 1, unitPrice: 5000, total: 5000 },
+                    { name: "ماوس لاسلكي", quantity: 2, unitPrice: 150, total: 300 }
+                ],
+                total: 5300,
+                status: "مدفوع",
+                dueDate: "2025-08-15",
+                notes: "فاتورة شراء معدات مكتبية"
+            }
+        ];
+
+        let returns = JSON.parse(localStorage.getItem('returns')) || [];
+        let payments = JSON.parse(localStorage.getItem('payments')) || [];
+
+        let currentPage = { suppliers: 1, 'purchase-invoices': 1, 'purchase-returns': 1, 'supplier-payments': 1 };
+        let pageSize = { suppliers: 10, 'purchase-invoices': 10, 'purchase-returns': 10, 'supplier-payments': 10 };
+        let itemToDelete = { suppliers: null, 'purchase-invoices': null, 'purchase-returns': null, 'supplier-payments': null };
+
+        // Update dropdowns
+        function updateDropdowns() {
+            const vendorDropdown = document.getElementById('vendorDropdown');
+            const warehouseDropdown = document.getElementById('warehouseDropdown');
+            vendorDropdown.innerHTML = '<option value="all">جميع الشركات</option>';
+            warehouseDropdown.innerHTML = '<option value="all">جميع المخازن</option>';
+
+            vendors.forEach(vendor => {
+                const option = document.createElement('option');
+                option.value = vendor.id;
+                option.textContent = vendor.name;
+                vendorDropdown.appendChild(option);
+            });
+
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseDropdown.appendChild(option);
+            });
+        }
+
+        // Render table content based on tab
+        function renderTableContent(tab) {
+            const tableBodyMap = {
+                suppliers: 'supplierTableBody',
+                'purchase-invoices': 'invoiceTableBody',
+                'purchase-returns': 'returnsTableBody',
+                'supplier-payments': 'paymentsTableBody'
+            };
+            const tableBody = document.getElementById(tableBodyMap[tab]);
+            tableBody.innerHTML = '';
+            const start = (currentPage[tab] - 1) * pageSize[tab];
+            const end = start + pageSize[tab];
+            let filteredData, addUrl, editPrefix;
+
+            switch (tab) {
+                case 'suppliers':
+                    filteredData = filterSuppliers();
+                    addUrl = '/Superadmin/suppliers/add-supplier.html';
+                    editPrefix = '/Superadmin/suppliers/add-supplier.html?id=';
+                    filteredData.forEach(supplier => {
+                        const row = document.createElement('tr');
+                        row.setAttribute('data-id', supplier.id);
+                        row.innerHTML = `
+                            <td>${supplier.name}</td>
+                            <td>${supplier.contactPerson} - ${supplier.phone}</td>
+                            <td>${supplier.warehouseNames.join(', ')}</td>
+                            <td>
+                                <a href="${editPrefix}${supplier.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                                <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${supplier.id}, '${tab}')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                    break;
+                case 'purchase-invoices':
+                    filteredData = filterInvoices();
+                    addUrl = '/Superadmin/suppliers/invoice/add-invoice.html';
+                    editPrefix = '/Superadmin/suppliers/invoice/add-invoice.html?id=';
+                    filteredData.forEach(invoice => {
+                        let statusClass = 'badge-warning';
+                        if (invoice.status === 'مدفوع') statusClass = 'badge-success';
+                        if (invoice.status === 'مدفوع جزئيًا') statusClass = 'badge-info';
+                        if (invoice.status === 'ملغى') statusClass = 'badge-danger';
+                        const row = document.createElement('tr');
+                        row.setAttribute('data-id', invoice.id);
+                        row.innerHTML = `
+                            <td>${invoice.invoiceNumber || 'غير متوفر'}</td>
+                            <td>${invoice.date || 'غير متوفر'}</td>
+                            <td>${invoice.vendorName || 'غير متوفر'}</td>
+                            <td>${invoice.warehouseName || 'غير متوفر'}</td>
+                            <td>${invoice.supplierName || 'غير متوفر'}</td>
+                            <td>${invoice.total ? invoice.total.toLocaleString() + ' ج.م' : 'غير متوفر'}</td>
+                            <td><span class="badge ${statusClass}">${invoice.status || 'غير متوفر'}</span></td>
+                            <td>
+                                <a href="${editPrefix}${invoice.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                                <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${invoice.id}, '${tab}')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                    break;
+                case 'purchase-returns':
+                    filteredData = filterReturns();
+                    addUrl = '/Superadmin/suppliers/return/add-return.html';
+                    editPrefix = '/Superadmin/suppliers/return/add-return.html?id=';
+                    filteredData.forEach(returnItem => {
+                        const row = document.createElement('tr');
+                        row.setAttribute('data-id', returnItem.id);
+                        row.innerHTML = `
+                            <td>${returnItem.returnNumber || 'غير متوفر'}</td>
+                            <td>${returnItem.date || 'غير متوفر'}</td>
+                            <td>${returnItem.supplierName || 'غير متوفر'}</td>
+                            <td>${returnItem.total ? returnItem.total.toLocaleString() + ' ج.م' : 'غير متوفر'}</td>
+                            <td><span class="badge ${returnItem.status === 'معتمد' ? 'badge-success' : 'badge-warning'}">${returnItem.status || 'غير متوفر'}</span></td>
+                            <td>
+                                <a href="${editPrefix}${returnItem.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                                <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${returnItem.id}, '${tab}')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                    break;
+                case 'supplier-payments':
+                    filteredData = filterPayments();
+                    addUrl = '/Superadmin/suppliers/payment/add-payment.html';
+                    editPrefix = '/Superadmin/suppliers/payment/add-payment.html?id=';
+                    filteredData.forEach(payment => {
+                        const row = document.createElement('tr');
+                        row.setAttribute('data-id', payment.id);
+                        row.innerHTML = `
+                            <td>${payment.paymentNumber || 'غير متوفر'}</td>
+                            <td>${payment.date || 'غير متوفر'}</td>
+                            <td>${payment.supplierName || 'غير متوفر'}</td>
+                            <td>${payment.amount ? payment.amount.toLocaleString() + ' ج.م' : 'غير متوفر'}</td>
+                            <td><span class="badge ${payment.status === 'مدفوع' ? 'badge-success' : 'badge-warning'}">${payment.status || 'غير متوفر'}</span></td>
+                            <td>
+                                <a href="${editPrefix}${payment.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                                <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${payment.id}, '${tab}')"><i class="fas fa-trash"></i></button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                    break;
+            }
+
+            if (filteredData.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8">لا توجد بيانات</td></tr>';
+            }
+
+            updatePagination(filteredData.length, tab);
+        }
+
+        // Filter functions
+        function filterSuppliers() {
+            const vendorId = document.getElementById('vendorDropdown').value;
+            const warehouseId = document.getElementById('warehouseDropdown').value;
+            return suppliers.filter(supplier => {
+                const matchesVendor = vendorId === 'all' || supplier.vendorId === parseInt(vendorId);
+                const matchesWarehouse = warehouseId === 'all' || supplier.warehouseIds.includes(parseInt(warehouseId));
+                return matchesVendor && matchesWarehouse;
+            });
+        }
+
+        function filterInvoices() {
+            const vendorId = document.getElementById('vendorDropdown').value;
+            const warehouseId = document.getElementById('warehouseDropdown').value;
+            return invoices.filter(invoice => {
+                const matchesVendor = vendorId === 'all' || invoice.vendorId === parseInt(vendorId);
+                const matchesWarehouse = warehouseId === 'all' || invoice.warehouseId === parseInt(warehouseId);
+                const isPurchase = invoice.type === 'purchase';
+                return matchesVendor && matchesWarehouse && isPurchase;
+            });
+        }
+
+        function filterReturns() {
+            const vendorId = document.getElementById('vendorDropdown').value;
+            const warehouseId = document.getElementById('warehouseDropdown').value;
+            return returns.filter(returnItem => {
+                const matchesVendor = vendorId === 'all' || returnItem.vendorId === parseInt(vendorId);
+                const matchesWarehouse = warehouseId === 'all' || returnItem.warehouseId === parseInt(warehouseId);
+                return matchesVendor && matchesWarehouse;
+            });
+        }
+
+        function filterPayments() {
+            const vendorId = document.getElementById('vendorDropdown').value;
+            return payments.filter(payment => {
+                return vendorId === 'all' || payment.vendorId === parseInt(vendorId);
+            });
+        }
+
+        // Update pagination
+        function updatePagination(totalItems, tab) {
+            const totalPages = Math.ceil(totalItems / pageSize[tab]);
+            const pageNumbers = document.getElementById(`pageNumbers${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
+            pageNumbers.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.className = `pagination-btn ${i === currentPage[tab] ? 'active' : ''}`;
+                button.textContent = i;
+                button.onclick = () => {
+                    currentPage[tab] = i;
+                    renderTableContent(tab);
+                };
+                pageNumbers.appendChild(button);
+            }
+
+            document.getElementById(`prevPage${tab.charAt(0).toUpperCase() + tab.slice(1)}`).disabled = currentPage[tab] === 1;
+            document.getElementById(`nextPage${tab.charAt(0).toUpperCase() + tab.slice(1)}`).disabled = currentPage[tab] === totalPages;
+        }
+
+        // Change page size
+        function changePageSize(tab) {
+            pageSize[tab] = parseInt(document.getElementById(`pageSizeSelect${tab.charAt(0).toUpperCase() + tab.slice(1)}`).value);
+            currentPage[tab] = 1;
+            renderTableContent(tab);
+        }
+
+        // Change page
+        function changePage(direction, tab) {
+            const totalPages = Math.ceil((tab === 'suppliers' ? filterSuppliers() : tab === 'purchase-invoices' ? filterInvoices() : tab === 'purchase-returns' ? filterReturns() : filterPayments()).length / pageSize[tab]);
+            currentPage[tab] = Math.min(Math.max(currentPage[tab] + direction, 1), totalPages);
+            renderTableContent(tab);
+        }
+
+        // Show delete confirmation modal
+        function showDeleteConfirm(id, tab) {
+            itemToDelete[tab] = id;
+            const modalMap = {
+                suppliers: 'deleteConfirmModal',
+                'purchase-invoices': 'deleteInvoiceConfirmModal',
+                'purchase-returns': 'deleteReturnConfirmModal',
+                'supplier-payments': 'deletePaymentConfirmModal'
+            };
+            document.getElementById(modalMap[tab]).classList.add('active');
+        }
+
+        // Close delete confirmation modal
+        function closeDeleteConfirm() { document.getElementById('deleteConfirmModal').classList.remove('active'); itemToDelete.suppliers = null; }
+        function closeDeleteInvoiceConfirm() { document.getElementById('deleteInvoiceConfirmModal').classList.remove('active'); itemToDelete['purchase-invoices'] = null; }
+        function closeDeleteReturnConfirm() { document.getElementById('deleteReturnConfirmModal').classList.remove('active'); itemToDelete['purchase-returns'] = null; }
+        function closeDeletePaymentConfirm() { document.getElementById('deletePaymentConfirmModal').classList.remove('active'); itemToDelete['supplier-payments'] = null; }
+
+        // Delete functions
+        function deleteItem(tab) {
+            if (itemToDelete[tab] !== null) {
+                const dataMap = { suppliers: suppliers, 'purchase-invoices': invoices, 'purchase-returns': returns, 'supplier-payments': payments };
+                const storageKeyMap = { suppliers: 'suppliers', 'purchase-invoices': 'invoices', 'purchase-returns': 'returns', 'supplier-payments': 'payments' };
+                dataMap[tab] = dataMap[tab].filter(item => item.id !== itemToDelete[tab]);
+                localStorage.setItem(storageKeyMap[tab], JSON.stringify(dataMap[tab]));
+                currentPage[tab] = Math.min(currentPage[tab], Math.ceil(filterSuppliers().length / pageSize[tab]) || 1);
+                renderTableContent(tab);
+                const modalMap = {
+                    suppliers: 'deleteConfirmModal',
+                    'purchase-invoices': 'deleteInvoiceConfirmModal',
+                    'purchase-returns': 'deleteReturnConfirmModal',
+                    'supplier-payments': 'deletePaymentConfirmModal'
+                };
+                document.getElementById(modalMap[tab]).classList.remove('active');
+                itemToDelete[tab] = null;
+            }
+        }
+
+        // Tab switching
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+
+                    tab.classList.add('active');
+                    document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+                    renderTableContent(tab.getAttribute('data-tab'));
+                });
+            });
+        }
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        });
+
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+
+        // Event listeners
+        document.getElementById('confirmDeleteBtn').addEventListener('click', () => deleteItem('suppliers'));
+        document.getElementById('confirmDeleteInvoiceBtn').addEventListener('click', () => deleteItem('purchase-invoices'));
+        document.getElementById('confirmDeleteReturnBtn').addEventListener('click', () => deleteItem('purchase-returns'));
+        document.getElementById('confirmDeletePaymentBtn').addEventListener('click', () => deleteItem('supplier-payments'));
+        document.getElementById('vendorDropdown').addEventListener('change', () => {
+            Object.keys(currentPage).forObject((tab) => { currentPage[tab] = 1; renderTableContent(tab); });
+        });
+        document.getElementById('warehouseDropdown').addEventListener('change', () => {
+            Object.keys(currentPage).forEach(tab => { currentPage[tab] = 1; renderTableContent(tab); });
+        });
+
+        // Initial render
+        updateDropdowns();
+        renderTableContent('suppliers');
+        setupTabs();
+    </script>
+</body>
+</html>

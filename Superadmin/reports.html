@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التقارير - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400&display=swap" rel="stylesheet">
+    <!-- Include Chart.js for the canvas panel -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --secondary-color: #1e3a8a;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #14b8a6;
+            --light-color: #f8fafc;
+            --dark-color: #1e293b;
+            --white: #ffffff;
+            --gray: #6b7280;
+            --sidebar: #1e293b;
+            --sidebar-dark: #0f172a;
+            --border-radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 14px;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            direction: rtl;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: var(--sidebar);
+            color: var(--white);
+            position: fixed;
+            height: 100vh;
+            right: 0;
+        }
+
+        .sidebar-header {
+            padding: 15px;
+            background: var(--sidebar-dark);
+            text-align: center;
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .sidebar-menu {
+            padding: 10px 0;
+        }
+
+        .sidebar-menu ul {
+            list-style: none;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            color: #d1d5db;
+            text-decoration: none;
+        }
+
+        .sidebar-menu li a:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .sidebar-menu li a i {
+            margin-left: 10px;
+            width: 20px;
+        }
+
+        .sidebar-menu li.active a {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .sidebar-close {
+            display: none;
+            background: transparent;
+            color: var(--white);
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-right: 240px;
+            padding: 15px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            border: 1px solid #e5e7eb;
+        }
+
+        .mobile-header-title {
+            display: none;
+            font-size: 16px;
+        }
+
+        .header-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .vendor-dropdown,
+        .warehouse-dropdown {
+            padding: 8px 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid #d1d5db;
+            background-color: var(--white);
+            cursor: pointer;
+            min-width: 120px;
+        }
+
+        .vendor-dropdown:focus,
+        .warehouse-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-info img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--primary-color);
+        }
+
+        .user-info .dropdown {
+            position: relative;
+        }
+
+        .user-info .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--white);
+            min-width: 160px;
+            border: 1px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            top: 100%;
+            right: 0;
+        }
+
+        .user-info .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .user-info .dropdown-content a {
+            color: var(--dark-color);
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+            text-align: right;
+        }
+
+        .user-info .dropdown-content a:hover {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .menu-toggle-container {
+            display: none;
+            align-items: center;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+        }
+
+        .card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 15px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e5e7eb;
+            background: var(--primary-color);
+            color: var(--white);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-clear {
+            background: var(--gray);
+            color: var(--white);
+        }
+
+        .btn-clear:hover {
+            background: #4b5563;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            border: 1px solid #e5e7eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .custody-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 6px;
+        }
+
+        .status-active {
+            background-color: var(--success-color);
+        }
+
+        .status-returned {
+            background-color: var(--primary-color);
+        }
+
+        .status-overdue {
+            background-color: var(--danger-color);
+        }
+
+        .badge {
+            padding: 5px 10px;
+            font-size: 12px;
+            color: var(--white);
+            border-radius: 10px;
+        }
+
+        .badge-success {
+            background-color: var(--success-color);
+        }
+
+        .badge-warning {
+            background-color: var(--warning-color);
+        }
+
+        .badge-danger {
+            background-color: var(--danger-color);
+        }
+
+        .badge-info {
+            background-color: var(--info-color);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 15px;
+            gap: 8px;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--gray);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+        }
+
+        .tab:hover {
+            background-color: #f1f5f9;
+        }
+
+        .tab.active {
+            color: var(--white);
+            background: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .filter-panel {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-panel.collapsed {
+            height: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .filter-toggle {
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: var(--border-radius);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-size-selector label {
+            font-size: 14px;
+        }
+
+        .page-size-selector select {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: var(--border-radius);
+            background-color: var(--white);
+        }
+
+        .page-size-selector select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid #e5e7eb;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            background: var(--white);
+            color: var(--dark-color);
+            cursor: pointer;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .pagination-btn.active {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .pagination-btn:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+                width: 260px;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-right: 0;
+                padding: 10px;
+            }
+
+            .menu-toggle-container {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .sidebar-close {
+                display: block;
+            }
+
+            .mobile-header-title {
+                display: block;
+            }
+
+            .header {
+                padding: 8px 10px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .header-center {
+                order: 3;
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .vendor-dropdown,
+            .warehouse-dropdown {
+                width: 100%;
+            }
+
+            .card {
+                margin: 10px;
+            }
+
+            .filter-panel {
+                display: none;
+            }
+
+            .filter-panel.active {
+                display: block;
+            }
+
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .user-info span {
+                display: none;
+            }
+
+            th,
+            td {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .pagination-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .page-size-selector select {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+
+            .form-control {
+                padding: 6px;
+                font-size: 12px;
+            }
+        }
+
+        /* Canvas panel style */
+        .canvas-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            width: 80%;
+            max-width: 800px;
+            height: 80%;
+            overflow-y: auto;
+        }
+
+        .canvas-panel.active {
+            display: block;
+        }
+
+        .canvas-panel .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--danger-color);
+            color: var(--white);
+            border: none;
+            padding: 5px 10px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+
+        .canvas-panel canvas {
+            max-height: 100%;
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li class="active"><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">لوحة التحكم</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorSelect">
+                        <option value="all">جميع الشركات</option>
+                        <option value="1">شركة المستقبل</option>
+                        <option value="2">شركة التقدم</option>
+                    </select>
+                    <select class="warehouse-dropdown" id="warehouseSelect">
+                        <option value="all">جميع المخازن</option>
+                        <option value="1">المخزن الرئيسي</option>
+                        <option value="2">مخزن الفرع الشمالي</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>التقارير</h3>
+                    <div>
+                        <button class="btn btn-primary" onclick="toggleFilterPanel()"><i class="fas fa-filter"></i> تصفية</button>
+                        <button class="btn btn-primary" onclick="exportToPDF()"><i class="fas fa-file-pdf"></i> تصدير PDF</button>
+                        <button class="btn btn-primary" onclick="exportToExcel()"><i class="fas fa-file-excel"></i> تصدير Excel</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="filter-panel active" id="filterPanel">
+                        <div class="filter-header">
+                            <h4>خيارات التصفية</h4>
+                            <button class="filter-toggle" id="filterToggle" onclick="toggleFilterPanel()">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        <div class="filter-grid">
+                            <div class="form-group" id="nameFilterGroup">
+                                <label for="nameFilter">الاسم</label>
+                                <input type="text" class="form-control" id="nameFilter" placeholder="ابحث بالاسم..." oninput="applyFilters()">
+                            </div>
+                            <div class="form-group" id="codeFilterGroup">
+                                <label for="codeFilter">الكود</label>
+                                <input type="text" class="form-control" id="codeFilter" placeholder="ابحث بالكود..." oninput="applyFilters()">
+                            </div>
+                            <div class="form-group" id="companyFilterGroup">
+                                <label for="companyFilter">الشركة</label>
+                                <select class="form-control" id="companyFilter" onchange="applyFilters()">
+                                    <option value="all">جميع الشركات</option>
+                                </select>
+                            </div>
+                            <div class="form-group" id="statusFilterGroup">
+                                <label for="statusFilter">الحالة</label>
+                                <select class="form-control" id="statusFilter" onchange="applyFilters()">
+                                    <option value="all">جميع الحالات</option>
+                                    <option value="مدفوع">مدفوع</option>
+                                    <option value="غير مدفوع">غير مدفوع</option>
+                                    <option value="مدفوع جزئيًا">مدفوع جزئيًا</option>
+                                    <option value="ملغى">ملغى</option>
+                                    <option value="active">نشطة</option>
+                                    <option value="returned">مرجعة</option>
+                                    <option value="overdue">متأخرة</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>إجراءات</label>
+                                <button class="btn btn-clear" onclick="clearFilters()"><i class="fas fa-times"></i> مسح التصفية</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-header">
+                        <div class="page-size-selector">
+                            <label>عدد السجلات لكل صفحة:</label>
+                            <select id="pageSizeSelect" onchange="changePageSize()">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('inventory')">تقرير المخزون</div>
+                        <div class="tab" onclick="switchTab('employees')">تقرير الموظفين</div>
+                        <div class="tab" onclick="switchTab('invoices')">تقرير الفواتير</div>
+                        <div class="tab" onclick="switchTab('custody')">تقرير العهدة</div>
+                        <div class="tab" onclick="switchTab('suppliers')">تقرير الموردين</div>
+                        <div class="tab" onclick="switchTab('vendors')">تقرير الشركات</div>
+                        <div class="tab" onclick="switchTab('warehouses')">تقرير المخازن</div>
+                        <div class="tab" onclick="switchTab('sales')">تقرير المبيعات</div>
+                    </div>
+                    <div class="tab-content active" id="inventoryTab">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>الصنف</th>
+                                        <th>الكمية</th>
+                                        <th>الحالة</th>
+                                        <th>الشركة</th>
+                                        <th>المخزن</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventoryTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="inventoryFirstPage" onclick="goToFirstPage('inventory')"><i class="fas fa-angle-double-right"></i></button>
+                                <button class="pagination-btn" id="inventoryPrevPage" onclick="changePage('inventory', -1)"><i class="fas fa-angle-right"></i></button>
+                                <div id="inventoryPageNumbers"></div>
+                                <button class="pagination-btn" id="inventoryNextPage" onclick="changePage('inventory', 1)"><i class="fas fa-angle-left"></i></button>
+                                <button class="pagination-btn" id="inventoryLastPage" onclick="goToLastPage('inventory')"><i class="fas fa-angle-double-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="employeesTab">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>الاسم</th>
+                                        <th>كود الموظف</th>
+                                        <th>الدور</th>
+                                        <th>القسم</th>
+                                        <th>الشركة</th>
+                                        <th>المخزن</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="employeesTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="employeesFirstPage" onclick="goToFirstPage('employees')"><i class="fas fa-angle-double-right"></i></button>
+                                <button class="pagination-btn" id="employeesPrevPage" onclick="changePage('employees', -1)"><i class="fas fa-angle-right"></i></button>
+                                <div id="employeesPageNumbers"></div>
+                                <button class="pagination-btn" id="employeesNextPage" onclick="changePage('employees', 1)"><i class="fas fa-angle-left"></i></button>
+                                <button class="pagination-btn" id="employeesLastPage" onclick="goToLastPage('employees')"><i class="fas fa-angle-double-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="invoicesTab">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>رقم الفاتورة</th>
+                                        <th>التاريخ</th>
+                                        <th>الإجمالي</th>
+                                        <th>الحالة</th>
+                                        <th>الشركة</th>
+                                        <th>المخزن</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="invoicesTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="invoicesFirstPage" onclick="goToFirstPage('invoices')"><i class="fas fa-angle-double-right"></i></button>
+                                <button class="pagination-btn" id="invoicesPrevPage" onclick="changePage('invoices', -1)"><i class="fas fa-angle-right"></i></button>
+                                <div id="invoicesPageNumbers"></div>
+                                <button class="pagination-btn" id="invoicesNextPage" onclick="changePage('invoices', 1)"><i class="fas fa-angle-left"></i></button>
+                                <button class="pagination-btn" id="invoicesLastPage" onclick="goToLastPage('invoices')"><i class="fas fa-angle-double-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="custodyTab">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>كود العهدة</th>
+                                        <th>الصنف</th>
+                                        <th>الشركة</th>
+                                        <th>المستلم</th>
+                                        <th>تاريخ التسليم</th>
+                                        <th>تاريخ الاستلام المتوقع</th>
+                                        <th>الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="custodyTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="custodyFirstPage" onclick="goToFirstPage('custody')"><i class="fas fa-angle-double-right"></i></button>
+                                <button class="pagination-btn" id="custodyPrevPage" onclick="changePage('custody', -1)"><i class="fas fa-angle-right"></i></button>
+                                <div id="custodyPageNumbers"></div>
+                                <button class="pagination-btn" id="custodyNextPage" onclick="changePage('custody', 1)"><i class="fas fa-angle-left"></i></button>
+                                <button class="pagination-btn" id="custodyLastPage" onclick="goToLastPage('custody')"><i class="fas fa-angle-double-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="suppliersTab">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>اسم المورد</th>
+                                        <th>جهة الاتصال</th>
+                                        <th>الهاتف</th>
+                                        <th>البريد الإلكتروني</th>
+                                        <th>الشركة</th>
+                                        <th>المخازن</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="suppliersTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="suppliersFirstPage" onclick="goToFirstPage('suppliers')"><i class="fas fa-angle-double-right"></i></button>
+                                <button class="pagination-btn" id="suppliersPrevPage" onclick="changePage('suppliers', -1)"><i class="fas fa-angle-right"></i></button>
+                                <div id="suppliersPageNumbers"></div>
+                                <button class="pagination-btn" id="suppliersNextPage" onclick="changePage('suppliers', 1)"><i class="fas fa-angle-left"></i></button>
+                                <button class="pagination-btn" id="suppliersLastPage" onclick="goToLastPage('suppliers')"><i class="fas fa-angle-double-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="vendorsTab">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>الشعار</th>
+                                        <th>اسم الشركة</th>
+                                        <th>جهة الاتصال</th>
+                                        <th>البريد الإلكتروني</th>
+                                        <th>العنوان</th>
+                                        <th>عدد المخازن</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vendorsTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="vendorsFirstPage" onclick="goToFirstPage('vendors')"><i class="fas fa-angle-double-right"></i></button>
+                                <button class="pagination-btn" id="vendorsPrevPage" onclick="changePage('vendors', -1)"><i class="fas fa-angle-right"></i></button>
+                                <div id="vendorsPageNumbers"></div>
+                                <button class="pagination-btn" id="vendorsNextPage" onclick="changePage('vendors', 1)"><i class="fas fa-angle-left"></i></button>
+                                <button class="pagination-btn" id="vendorsLastPage" onclick="goToLastPage('vendors')"><i class="fas fa-angle-double-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="warehousesTab">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>اسم المخزن</th>
+                                        <th>الشركة</th>
+                                        <th>الموقع</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="warehousesTableBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="warehousesFirstPage" onclick="goToFirstPage('warehouses')"><i class="fas fa-angle-double-right"></i></button>
+                                <button class="pagination-btn" id="warehousesPrevPage" onclick="changePage('warehouses', -1)"><i class="fas fa-angle-right"></i></button>
+                                <div id="warehousesPageNumbers"></div>
+                                <button class="pagination-btn" id="warehousesNextPage" onclick="changePage('warehouses', 1)"><i class="fas fa-angle-left"></i></button>
+                                <button class="pagination-btn" id="warehousesLastPage" onclick="goToLastPage('warehouses')"><i class="fas fa-angle-double-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="salesTab">
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>عدد الطلبات</th>
+                                        <th>نسبة تغير الطلبات (%)</th>
+                                        <th>إجمالي المبيعات</th>
+                                        <th>نسبة تغير المبيعات (%)</th>
+                                        <th>متوسط سعر الطلب</th>
+                                        <th>نسبة تغير متوسط السعر (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salesTableBody"></tbody>
+                            </table>
+                        </div>
+                        <button class="btn btn-primary" onclick="showSalesChart()">عرض الرسم البياني</button>
+                        <div class="pagination-controls">
+                            <div class="pagination">
+                                <button class="pagination-btn" id="salesFirstPage" onclick="goToFirstPage('sales')"><i class="fas fa-angle-double-right"></i></button>
+                                <button class="pagination-btn" id="salesPrevPage" onclick="changePage('sales', -1)"><i class="fas fa-angle-right"></i></button>
+                                <div id="salesPageNumbers"></div>
+                                <button class="pagination-btn" id="salesNextPage" onclick="changePage('sales', 1)"><i class="fas fa-angle-left"></i></button>
+                                <button class="pagination-btn" id="salesLastPage" onclick="goToLastPage('sales')"><i class="fas fa-angle-double-left"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Canvas Panel for Chart -->
+    <div class="canvas-panel" id="salesChartPanel">
+        <button class="close-btn" onclick="closeChartPanel()">×</button>
+        <canvas id="salesChart"></canvas>
+    </div>
+    <script>
+        // Sample Data
+        let companies = [
+            { id: 1, name: 'شركة التقدم' },
+            { id: 2, name: 'شركة الريادة' },
+            { id: 3, name: 'شركة الابتكار' }
+        ];
+        let vendors = [
+            { id: 1, name: "شركة المستقبل", contact: "محمد علي - 01012345678", logo: "https://via.placeholder.com/50", email: "contact@future.com", address: "123 شارع الرئيسي، القاهرة", warehouses: ["المخزن الرئيسي", "مخزن الأجهزة"], notes: "" },
+            { id: 2, name: "شركة التقدم", contact: "أحمد خالد - 01198765432", logo: "https://via.placeholder.com/50", email: "info@progress.com", address: "456 شارع الفرعي، الإسكندرية", warehouses: ["مخزن الفرع الشمالي"], notes: "" }
+        ];
+        let employees = [
+            { id: 1, name: 'أحمد محمد', department: 'IT', companyId: 1, role: 'مدير', warehouses: ['المخزن الرئيسي'] },
+            { id: 2, name: 'محمد علي', department: 'المالية', companyId: 2, role: 'موظف', warehouses: ['مخزن الفرع الشمالي'] },
+            { id: 3, name: 'سارة عبدالله', department: 'الموارد البشرية', companyId: 3, role: 'موظف', warehouses: ['المخزن الرئيسي'] }
+        ];
+        let custodyRecords = [
+            { id: 1, code: 'CST-2001', companyId: 1, employeeId: 1, items: [{ id: 1, code: 'ITM-1001', name: 'كمبيوتر محمول', initialCondition: 'excellent', currentCondition: 'assigned', returnCondition: null, returnNotes: '' }], additionalItems: [{ id: 1, name: 'تيشيرت إضافي', code: 'ADD-1001', monthlyDeduction: 10, totalInstallments: 12, paidInstallments: 3, remainingInstallments: 9, totalCost: 100 }], assignDate: '2023-05-15', expectedReturnDate: '2023-08-15', actualReturnDate: null, status: 'active', notes: 'تسليم لموظف جديد', returnCondition: null, returnNotes: null },
+            { id: 2, code: 'CST-2002', companyId: 2, employeeId: 2, items: [{ id: 3, code: 'ITM-2001', name: 'طابعة', initialCondition: 'good', currentCondition: 'returned', returnCondition: 'excellent', returnNotes: 'تم الاستلام في حالة ممتازة بعد الصيانة' }, { id: 5, code: 'ITM-3002', name: 'كرسي مكتب', initialCondition: 'damaged', currentCondition: 'returned', returnCondition: 'damaged', returnNotes: 'تم الاستلام مع تلف في الظهر' }], additionalItems: [{ id: 2, name: 'قبعة إضافية', code: 'ADD-1002', monthlyDeduction: 5, totalInstallments: 12, paidInstallments: 12, remainingInstallments: 0, totalCost: 50 }], assignDate: '2023-06-01', expectedReturnDate: '2023-09-01', actualReturnDate: '2023-09-05', status: 'returned', notes: 'تسليم لمشروع مؤقت', returnCondition: 'partially_damaged', returnNotes: 'تم استلام بعض الأصناف بحالة تالفة' }
+        ];
+        let invoices = JSON.parse(localStorage.getItem('invoices')) || [
+            { id: 1, invoiceNumber: "INV-001", date: "2025-07-15", vendorId: 1, vendorName: "شركة التقنية المتقدمة", warehouseId: 1, warehouseName: "المخزن الرئيسي", supplierId: 1, supplierName: "مورد التقنية", type: "purchase", items: [{ name: "لابتوب ديل", quantity: 1, unitPrice: 5000, total: 5000 }, { name: "ماوس لاسلكي", quantity: 2, unitPrice: 150, total: 300 }], total: 5300, status: "مدفوع", dueDate: "2025-08-15", notes: "فاتورة شراء معدات مكتبية" },
+            { id: 2, invoiceNumber: "INV-002", date: "2025-07-10", vendorId: 2, vendorName: "شركة الأجهزة الكهربائية", warehouseId: 2, warehouseName: "مخزن الأجهزة", supplierId: null, supplierName: null, customerName: "عميل تجاري", type: "sale", items: [{ name: "ثلاجة سامسونج", quantity: 1, unitPrice: 8000, total: 8000 }, { name: "غسالة أتوماتيك", quantity: 1, unitPrice: 6000, total: 6000 }], total: 14000, status: "غير مدفوع", dueDate: "2025-08-10", notes: "فاتورة بيع أجهزة كهربائية" }
+        ];
+        let warehouses = [
+            { id: 1, name: 'المخزن الرئيسي', vendorId: 1, vendorName: 'شركة المستقبل', location: 'القاهرة' },
+            { id: 2, name: 'مخزن الفرع الشمالي', vendorId: 2, vendorName: 'شركة التقدم', location: 'الإسكندرية' },
+            { id: 3, name: 'مخزن الأجهزة', vendorId: 1, vendorName: 'شركة المستقبل', location: 'القاهرة' }
+        ];
+        let suppliers = [
+            { id: 1, name: "مورد التقنية", contactPerson: "علي حسن", phone: "01123456789", email: "ali@techsupplier.com", address: "القاهرة، مصر", vendorId: 1, vendorName: "شركة المستقبل", warehouseIds: [1], warehouseNames: ["المخزن الرئيسي"] }
+        ];
+
+        // State
+        let currentTab = 'inventory';
+        let currentPage = { inventory: 1, employees: 1, invoices: 1, custody: 1, suppliers: 1, vendors: 1, warehouses: 1, sales: 1 };
+        let pageSize = 10;
+        let filters = {
+            vendorId: 'all',
+            warehouseId: 'all',
+            name: '',
+            code: '',
+            companyId: 'all',
+            status: 'all',
+            fromDate: '2025-06-17', // Default: last month
+            toDate: '2025-07-17'   // Default: today
+        };
+        let salesReport = null;
+
+        // Initialize the app
+        function init() {
+            loadFilters();
+            loadDropdowns();
+            setupMobileSidebar();
+            setupTabEvents();
+            renderReports();
+            document.getElementById('vendorSelect').addEventListener('change', applyFilters);
+            document.getElementById('warehouseSelect').addEventListener('change', applyFilters);
+            updateFilterVisibility();
+            fetchSalesReport();
+        }
+
+        // Load filters from localStorage
+        function loadFilters() {
+            const savedFilters = JSON.parse(localStorage.getItem('reportFilters') || '{}');
+            filters = { ...filters, ...savedFilters };
+            document.getElementById('vendorSelect').value = filters.vendorId;
+            document.getElementById('warehouseSelect').value = filters.warehouseId;
+            document.getElementById('nameFilter').value = filters.name || '';
+            document.getElementById('codeFilter').value = filters.code || '';
+            document.getElementById('companyFilter').value = filters.companyId || 'all';
+            document.getElementById('statusFilter').value = filters.status || 'all';
+        }
+
+        // Save filters to localStorage
+        function saveFilters() {
+            localStorage.setItem('reportFilters', JSON.stringify(filters));
+        }
+
+        // Load dropdowns
+        function loadDropdowns() {
+            const vendorSelect = document.getElementById('vendorSelect');
+            const warehouseSelect = document.getElementById('warehouseSelect');
+            const companyFilter = document.getElementById('companyFilter');
+            vendorSelect.innerHTML = '<option value="all">جميع الشركات</option>';
+            warehouseSelect.innerHTML = '<option value="all">جميع المخازن</option>';
+            companyFilter.innerHTML = '<option value="all">جميع الشركات</option>';
+
+            vendors.forEach(vendor => {
+                const option = document.createElement('option');
+                option.value = vendor.id;
+                option.textContent = vendor.name;
+                vendorSelect.appendChild(option);
+                companyFilter.appendChild(option.cloneNode(true));
+            });
+
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseSelect.appendChild(option);
+            });
+        }
+
+        // Setup mobile sidebar
+        function setupMobileSidebar() {
+            document.getElementById('menuToggle').addEventListener('click', function () {
+                document.getElementById('sidebar').classList.add('active');
+                document.getElementById('sidebarOverlay').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+
+            document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.addEventListener('click', function () {
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 768) {
+                    closeSidebar();
+                }
+            });
+        }
+
+        // Close sidebar
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Toggle filter panel
+        function toggleFilterPanel() {
+            const filterPanel = document.getElementById('filterPanel');
+            const filterToggle = document.getElementById('filterToggle');
+            filterPanel.classList.toggle('active');
+            filterPanel.classList.toggle('collapsed');
+            filterToggle.querySelector('i').classList.toggle('fa-chevron-down');
+            filterToggle.querySelector('i').classList.toggle('fa-chevron-up');
+        }
+
+        // Setup tab events
+        function setupTabEvents() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function () {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById(`${this.getAttribute('onclick').match(/'([^']+)'/)[1]}Tab`).classList.add('active');
+                    updateFilterVisibility();
+                });
+            });
+        }
+
+        // Update filter visibility
+        function updateFilterVisibility() {
+            const nameFilterGroup = document.getElementById('nameFilterGroup');
+            const codeFilterGroup = document.getElementById('codeFilterGroup');
+            const companyFilterGroup = document.getElementById('companyFilterGroup');
+            const statusFilterGroup = document.getElementById('statusFilterGroup');
+
+            nameFilterGroup.style.display = currentTab === 'employees' ? 'block' : 'none';
+            codeFilterGroup.style.display = ['employees', 'custody'].includes(currentTab) ? 'block' : 'none';
+            companyFilterGroup.style.display = ['employees', 'invoices', 'custody', 'warehouses', 'sales'].includes(currentTab) ? 'block' : 'none';
+            statusFilterGroup.style.display = ['invoices', 'custody'].includes(currentTab) ? 'block' : 'none';
+        }
+
+        // Switch tab
+        function switchTab(tab) {
+            currentTab = tab;
+            currentPage[tab] = 1;
+            filters.name = '';
+            filters.code = '';
+            filters.companyId = 'all';
+            filters.status = 'all';
+            document.getElementById('nameFilter').value = '';
+            document.getElementById('codeFilter').value = '';
+            document.getElementById('companyFilter').value = 'all';
+            document.getElementById('statusFilter').value = 'all';
+            saveFilters();
+            updateFilterVisibility();
+            renderReports();
+        }
+
+        // Apply filters
+        function applyFilters() {
+            filters.vendorId = document.getElementById('vendorSelect').value;
+            filters.warehouseId = document.getElementById('warehouseSelect').value;
+            filters.name = document.getElementById('nameFilter').value.trim().toLowerCase();
+            filters.code = document.getElementById('codeFilter').value.trim().toLowerCase();
+            filters.companyId = document.getElementById('companyFilter').value;
+            filters.status = document.getElementById('statusFilter').value;
+            currentPage[currentTab] = 1;
+            saveFilters();
+            renderReports();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            filters = {
+                vendorId: 'all',
+                warehouseId: 'all',
+                name: '',
+                code: '',
+                companyId: 'all',
+                status: 'all',
+                fromDate: '2025-06-17',
+                toDate: '2025-07-17'
+            };
+            document.getElementById('vendorSelect').value = 'all';
+            document.getElementById('warehouseSelect').value = 'all';
+            document.getElementById('nameFilter').value = '';
+            document.getElementById('codeFilter').value = '';
+            document.getElementById('companyFilter').value = 'all';
+            document.getElementById('statusFilter').value = 'all';
+            currentPage[currentTab] = 1;
+            saveFilters();
+            renderReports();
+        }
+
+        // Render reports
+        function renderReports() {
+            if (currentTab === 'inventory') {
+                renderInventoryReport();
+            } else if (currentTab === 'employees') {
+                renderEmployeesReport();
+            } else if (currentTab === 'invoices') {
+                renderInvoicesReport();
+            } else if (currentTab === 'custody') {
+                renderCustodyReport();
+            } else if (currentTab === 'suppliers') {
+                renderSuppliersReport();
+            } else if (currentTab === 'vendors') {
+                renderVendorsReport();
+            } else if (currentTab === 'warehouses') {
+                renderWarehousesReport();
+            } else if (currentTab === 'sales') {
+                renderSalesReport();
+            }
+        }
+
+        // Fetch sales report from backend (simulated with a mock API call)
+        async function fetchSalesReport() {
+            try {
+                // Simulate API call to GetSalesReportForRestaurant
+                const response = await fetch('/api/reports/sales', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        RestaurantId: filters.companyId !== 'all' ? parseInt(filters.companyId) : 1,
+                        From: filters.fromDate,
+                        To: filters.toDate,
+                        Report: 'Sales'
+                    })
+                });
+                const data = await response.json();
+                salesReport = data.Data;
+                renderSalesReport();
+            } catch (error) {
+                console.error('Error fetching sales report:', error);
+                salesReport = {
+                    Orders: 150,
+                    PreviosOrderPercentage: 5.2,
+                    Sales: 75000,
+                    PreviosSalesPercentage: 3.8,
+                    OrderPriceAverageCount: 500,
+                    OrderPriceAveragePercentage: 1.5,
+                    Chart: [
+                        { Month: 6, Value: 30000 },
+                        { Month: 7, Value: 45000 }
+                    ]
+                };
+                renderSalesReport();
+            }
+        }
+
+        // Render sales report
+        function renderSalesReport() {
+            const tableBody = document.getElementById('salesTableBody');
+            tableBody.innerHTML = '';
+            if (salesReport) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${salesReport.Orders}</td>
+                    <td>${salesReport.PreviosOrderPercentage}%</td>
+                    <td>${salesReport.Sales.toLocaleString('ar-EG')} ج.م</td>
+                    <td>${salesReport.PreviosSalesPercentage}%</td>
+                    <td>${salesReport.OrderPriceAverageCount.toLocaleString('ar-EG')} ج.م</td>
+                    <td>${salesReport.OrderPriceAveragePercentage}%</td>
+                `;
+                tableBody.appendChild(row);
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="6">لا توجد بيانات</td></tr>';
+            }
+            updatePagination('sales', 1); // Single row pagination
+        }
+
+        // Show sales chart in canvas panel
+        function showSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if (window.salesChartInstance) {
+                window.salesChartInstance.destroy();
+            }
+            window.salesChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: salesReport.Chart.map(c => new Date(2025, c.Month - 1, 1).toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' })),
+                    datasets: [{
+                        label: 'إجمالي المبيعات (ج.م)',
+                        data: salesReport.Chart.map(c => c.Value),
+                        borderColor: '#36A2EB',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'المبيعات (ج.م)' }
+                        },
+                        x: {
+                            title: { display: true, text: 'الشهر' }
+                        }
+                    }
+                }
+            });
+            document.getElementById('salesChartPanel').classList.add('active');
+        }
+
+        // Close chart panel
+        function closeChartPanel() {
+            document.getElementById('salesChartPanel').classList.remove('active');
+            if (window.salesChartInstance) {
+                window.salesChartInstance.destroy();
+            }
+        }
+
+        // Render inventory report
+        function renderInventoryReport() {
+            const tableBody = document.getElementById('inventoryTableBody');
+            tableBody.innerHTML = '';
+            let filteredItems = [];
+
+            custodyRecords.forEach(record => {
+                if (filters.companyId !== 'all' && record.companyId != filters.companyId) return;
+                record.items.forEach(item => {
+                    filteredItems.push({
+                        ...item,
+                        companyId: record.companyId,
+                        warehouseName: getWarehouseName(record.companyId)
+                    });
+                });
+            });
+
+            const start = (currentPage.inventory - 1) * pageSize;
+            const end = start + pageSize;
+            const paginatedItems = filteredItems.slice(start, end);
+
+            paginatedItems.forEach(item => {
+                const company = companies.find(c => c.id === item.companyId);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>1</td>
+                    <td><span class="badge ${getConditionClass(item.currentCondition)}">${getConditionText(item.currentCondition)}</span></td>
+                    <td>${company ? company.name : 'غير معروف'}</td>
+                    <td>${item.warehouseName || 'غير معروف'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredItems.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5">لا توجد بيانات</td></tr>';
+            }
+
+            updatePagination('inventory', filteredItems.length);
+        }
+
+        // Render employees report
+        function renderEmployeesReport() {
+            const tableBody = document.getElementById('employeesTableBody');
+            tableBody.innerHTML = '';
+            let filteredEmployees = employees.filter(emp => {
+                if (filters.companyId !== 'all' && emp.companyId != filters.companyId) return false;
+                if (filters.name && !emp.name.toLowerCase().includes(filters.name)) return false;
+                if (filters.code && !(`EMP-${String(emp.id).padStart(3, '0')}`).toLowerCase().includes(filters.code)) return false;
+                return true;
+            });
+
+            const start = (currentPage.employees - 1) * pageSize;
+            const end = start + pageSize;
+            const paginatedEmployees = filteredEmployees.slice(start, end);
+
+            paginatedEmployees.forEach(emp => {
+                const company = companies.find(c => c.id === emp.companyId);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${emp.name}</td>
+                    <td>EMP-${String(emp.id).padStart(3, '0')}</td>
+                    <td>${emp.role}</td>
+                    <td>${emp.department}</td>
+                    <td>${company ? company.name : 'غير معروف'}</td>
+                    <td>${emp.warehouses.join(', ')}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredEmployees.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6">لا توجد بيانات</td></tr>';
+            }
+
+            updatePagination('employees', filteredEmployees.length);
+        }
+
+        // Render invoices report
+        function renderInvoicesReport() {
+            const tableBody = document.getElementById('invoicesTableBody');
+            tableBody.innerHTML = '';
+            let filteredInvoices = invoices.filter(inv => {
+                if (filters.companyId !== 'all' && inv.vendorId != filters.companyId) return false;
+                if (filters.status !== 'all' && inv.status !== filters.status) return false;
+                return true;
+            });
+
+            const start = (currentPage.invoices - 1) * pageSize;
+            const end = start + pageSize;
+            const paginatedInvoices = filteredInvoices.slice(start, end);
+
+            paginatedInvoices.forEach(inv => {
+                let statusClass = 'badge-warning';
+                if (inv.status === 'مدفوع') statusClass = 'badge-success';
+                if (inv.status === 'مدفوع جزئيًا') statusClass = 'badge-info';
+                if (inv.status === 'ملغى') statusClass = 'badge-danger';
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${inv.invoiceNumber}</td>
+                    <td>${formatDate(inv.date)}</td>
+                    <td>${inv.total.toLocaleString('ar-EG')} ج.م</td>
+                    <td><span class="badge ${statusClass}">${inv.status}</span></td>
+                    <td>${inv.vendorName}</td>
+                    <td>${inv.warehouseName}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredInvoices.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6">لا توجد بيانات</td></tr>';
+            }
+
+            updatePagination('invoices', filteredInvoices.length);
+        }
+
+        // Render custody report
+        function renderCustodyReport() {
+            const tableBody = document.getElementById('custodyTableBody');
+            tableBody.innerHTML = '';
+            let filteredRecords = custodyRecords.filter(record => {
+                if (filters.companyId !== 'all' && record.companyId != filters.companyId) return false;
+                if (filters.code && !record.code.toLowerCase().includes(filters.code)) return false;
+                if (filters.status !== 'all') {
+                    if (filters.status === 'active' && record.status !== 'active') return false;
+                    if (filters.status === 'returned' && record.status !== 'returned') return false;
+                    if (filters.status === 'overdue' && (record.status === 'returned' || new Date() <= new Date(record.expectedReturnDate))) return false;
+                }
+                return true;
+            });
+
+            const start = (currentPage.custody - 1) * pageSize;
+            const end = start + pageSize;
+            const paginatedRecords = filteredRecords.slice(start, end);
+
+            paginatedRecords.forEach((record, index) => {
+                const employee = employees.find(e => e.id === record.employeeId);
+                const company = companies.find(c => c.id === record.companyId);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${start + index + 1}</td>
+                    <td>${record.code}</td>
+                    <td>
+                        ${record.items.map(item => `${item.name} (${item.code})`).join('<br>')}
+                        ${record.additionalItems.length > 0 ? '<br><strong>إضافي:</strong> ' + record.additionalItems.map(item => `${item.name} (${item.code})`).join('<br>') : ''}
+                    </td>
+                    <td>${company ? company.name : 'غير معروف'}</td>
+                    <td>${employee ? employee.name : 'غير معروف'}</td>
+                    <td>${formatDate(record.assignDate)}</td>
+                    <td>${record.expectedReturnDate ? formatDate(record.expectedReturnDate) : '-'}</td>
+                    <td>
+                        <span class="custody-status ${getStatusClass(record)}"></span>
+                        ${getStatusText(record)}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredRecords.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8">لا توجد بيانات</td></tr>';
+            }
+
+            updatePagination('custody', filteredRecords.length);
+        }
+
+        // Render suppliers report
+        function renderSuppliersReport() {
+            const tableBody = document.getElementById('suppliersTableBody');
+            tableBody.innerHTML = '';
+            let filteredSuppliers = suppliers.filter(supplier => {
+                if (filters.companyId !== 'all' && supplier.vendorId != filters.companyId) return false;
+                return true;
+            });
+
+            const start = (currentPage.suppliers - 1) * pageSize;
+            const end = start + pageSize;
+            const paginatedSuppliers = filteredSuppliers.slice(start, end);
+
+            paginatedSuppliers.forEach(supplier => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${supplier.name}</td>
+                    <td>${supplier.contactPerson}</td>
+                    <td>${supplier.phone}</td>
+                    <td>${supplier.email}</td>
+                    <td>${supplier.vendorName}</td>
+                    <td>${supplier.warehouseNames.join(', ')}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredSuppliers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6">لا توجد بيانات</td></tr>';
+            }
+
+            updatePagination('suppliers', filteredSuppliers.length);
+        }
+
+        // Render vendors report
+        function renderVendorsReport() {
+            const tableBody = document.getElementById('vendorsTableBody');
+            tableBody.innerHTML = '';
+            let filteredVendors = vendors.filter(vendor => {
+                if (filters.companyId !== 'all' && vendor.id != filters.companyId) return false;
+                return true;
+            });
+
+            const start = (currentPage.vendors - 1) * pageSize;
+            const end = start + pageSize;
+            const paginatedVendors = filteredVendors.slice(start, end);
+
+            paginatedVendors.forEach(vendor => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><img src="${vendor.logo}" class="employee-avatar" alt="Vendor"></td>
+                    <td>${vendor.name}</td>
+                    <td>${vendor.contact}</td>
+                    <td>${vendor.email}</td>
+                    <td>${vendor.address}</td>
+                    <td>${vendor.warehouses.length}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredVendors.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6">لا توجد بيانات</td></tr>';
+            }
+
+            updatePagination('vendors', filteredVendors.length);
+        }
+
+        // Render warehouses report
+        function renderWarehousesReport() {
+            const tableBody = document.getElementById('warehousesTableBody');
+            tableBody.innerHTML = '';
+            let filteredWarehouses = warehouses.filter(warehouse => {
+                if (filters.companyId !== 'all' && warehouse.vendorId != filters.companyId) return false;
+                return true;
+            });
+
+            const start = (currentPage.warehouses - 1) * pageSize;
+            const end = start + pageSize;
+            const paginatedWarehouses = filteredWarehouses.slice(start, end);
+
+            paginatedWarehouses.forEach(warehouse => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${warehouse.name}</td>
+                    <td>${warehouse.vendorName}</td>
+                    <td>${warehouse.location}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            if (filteredWarehouses.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="3">لا توجد بيانات</td></tr>';
+            }
+
+            updatePagination('warehouses', filteredWarehouses.length);
+        }
+
+        // Update pagination
+        function updatePagination(tab, totalItems) {
+            const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+            const pageNumbers = document.getElementById(`${tab}PageNumbers`);
+            pageNumbers.innerHTML = '';
+
+            if (totalItems === 0) {
+                pageNumbers.innerHTML = '<span>لا توجد بيانات لعرضها</span>';
+                return;
+            }
+
+            const firstBtn = document.createElement('button');
+            firstBtn.className = 'pagination-btn';
+            firstBtn.innerHTML = '<i class="fas fa-angle-double-right"></i>';
+            firstBtn.disabled = currentPage[tab] === 1;
+            firstBtn.onclick = () => goToFirstPage(tab);
+            pageNumbers.appendChild(firstBtn);
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'pagination-btn';
+            prevBtn.innerHTML = '<i class="fas fa-angle-right"></i>';
+            prevBtn.disabled = currentPage[tab] === 1;
+            prevBtn.onclick = () => changePage(tab, -1);
+            pageNumbers.appendChild(prevBtn);
+
+            const maxPagesToShow = 5;
+            let startPage = Math.max(1, currentPage[tab] - Math.floor(maxPagesToShow / 2));
+            let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+            if (endPage - startPage < maxPagesToShow - 1) {
+                startPage = Math.max(1, endPage - maxPagesToShow + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `pagination-btn ${i === currentPage[tab] ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.onclick = () => {
+                    currentPage[tab] = i;
+                    renderReports();
+                };
+                pageNumbers.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'pagination-btn';
+            nextBtn.innerHTML = '<i class="fas fa-angle-left"></i>';
+            nextBtn.disabled = currentPage[tab] === totalPages;
+            nextBtn.onclick = () => changePage(tab, 1);
+            pageNumbers.appendChild(nextBtn);
+
+            const lastBtn = document.createElement('button');
+            lastBtn.className = 'pagination-btn';
+            lastBtn.innerHTML = '<i class="fas fa-angle-double-left"></i>';
+            lastBtn.disabled = currentPage[tab] === totalPages;
+            lastBtn.onclick = () => goToLastPage(tab);
+            pageNumbers.appendChild(lastBtn);
+        }
+
+        // Go to first page
+        function goToFirstPage(tab) {
+            currentPage[tab] = 1;
+            renderReports();
+        }
+
+        // Go to last page
+        function goToLastPage(tab) {
+            let totalItems;
+            if (tab === 'inventory') {
+                totalItems = custodyRecords.reduce((count, record) => {
+                    if (filters.companyId !== 'all' && record.companyId != filters.companyId) return count;
+                    return count + record.items.length;
+                }, 0);
+            } else if (tab === 'employees') {
+                totalItems = employees.filter(emp => {
+                    if (filters.companyId !== 'all' && emp.companyId != filters.companyId) return false;
+                    if (filters.name && !emp.name.toLowerCase().includes(filters.name)) return false;
+                    if (filters.code && !(`EMP-${String(emp.id).padStart(3, '0')}`).toLowerCase().includes(filters.code)) return false;
+                    return true;
+                }).length;
+            } else if (tab === 'invoices') {
+                totalItems = invoices.filter(inv => {
+                    if (filters.companyId !== 'all' && inv.vendorId != filters.companyId) return false;
+                    if (filters.status !== 'all' && inv.status !== filters.status) return false;
+                    return true;
+                }).length;
+            } else if (tab === 'custody') {
+                totalItems = custodyRecords.filter(record => {
+                    if (filters.companyId !== 'all' && record.companyId != filters.companyId) return false;
+                    if (filters.code && !record.code.toLowerCase().includes(filters.code)) return false;
+                    if (filters.status !== 'all') {
+                        if (filters.status === 'active' && record.status !== 'active') return false;
+                        if (filters.status === 'returned' && record.status !== 'returned') return false;
+                        if (filters.status === 'overdue' && (record.status === 'returned' || new Date() <= new Date(record.expectedReturnDate))) return false;
+                    }
+                    return true;
+                }).length;
+            } else if (tab === 'suppliers') {
+                totalItems = suppliers.filter(supplier => {
+                    if (filters.companyId !== 'all' && supplier.vendorId != filters.companyId) return false;
+                    return true;
+                }).length;
+            } else if (tab === 'vendors') {
+                totalItems = vendors.filter(vendor => {
+                    if (filters.companyId !== 'all' && vendor.id != filters.companyId) return false;
+                    return true;
+                }).length;
+            } else if (tab === 'warehouses') {
+                totalItems = warehouses.filter(warehouse => {
+                    if (filters.companyId !== 'all' && warehouse.vendorId != filters.companyId) return false;
+                    return true;
+                }).length;
+            } else if (tab === 'sales') {
+                totalItems = 1; // Single row for sales report
+            }
+            currentPage[tab] = Math.max(1, Math.ceil(totalItems / pageSize));
+            renderReports();
+        }
+
+        // Change page size
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('pageSizeSelect').value);
+            currentPage[currentTab] = 1;
+            renderReports();
+        }
+
+        // Change page
+        function changePage(tab, delta) {
+            currentPage[tab] = Math.max(1, currentPage[tab] + delta);
+            renderReports();
+        }
+
+        // Helper functions
+        function getWarehouseName(companyId) {
+            const warehouse = warehouses.find(w => w.vendorId == companyId);
+            return warehouse ? warehouse.name : 'غير معروف';
+        }
+
+        function getConditionClass(condition) {
+            if (condition === 'excellent') return 'badge-success';
+            if (condition === 'good') return 'badge-info';
+            if (condition === 'damaged') return 'badge-danger';
+            return 'badge-warning';
+        }
+
+        function getConditionText(condition) {
+            if (condition === 'excellent') return 'ممتاز';
+            if (condition === 'good') return 'جيد';
+            if (condition === 'damaged') return 'تالف';
+            return 'معين';
+        }
+
+        function getStatusClass(record) {
+            if (record.status === 'returned') return 'status-returned';
+            if (record.status === 'active' && new Date() > new Date(record.expectedReturnDate)) return 'status-overdue';
+            return 'status-active';
+        }
+
+        function getStatusText(record) {
+            if (record.status === 'returned') return 'مرجعة';
+            if (record.status === 'active' && new Date() > new Date(record.expectedReturnDate)) return 'متأخرة';
+            return 'نشطة';
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Export to PDF
+        function exportToPDF() {
+            alert('سيتم تنفيذ تصدير PDF لاحقًا');
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            alert('سيتم تنفيذ تصدير Excel لاحقًا');
+        }
+
+        // Initialize the app
+        window.onload = init;
+    </script>
+</body>
+</html>

@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسليم أو تعديل عهدة - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        :root {
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #14b8a6;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .company-select {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #d1d5db;
+            background-color: white;
+            color: var(--dark);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .company-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 15px;
+            color: var(--dark);
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background-color: white;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .item-selection {
+            border: 1px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 20px;
+            background: white;
+        }
+
+        .item-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: var(--border-radius);
+        }
+
+        .item-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .item-checkbox:last-child {
+            border-bottom: none;
+        }
+
+        .item-checkbox input {
+            margin-left: 12px;
+        }
+
+        .additional-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            margin-bottom: 10px;
+            background: #f9fafb;
+        }
+
+        .additional-item select,
+        .additional-item input {
+            margin-left: 10px;
+            flex: 1;
+        }
+
+        .item-status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .status-excellent { background-color: #059669; }
+        .status-very-good { background-color: #10b981; }
+        .status-good { background-color: #3498db; }
+        .status-fair { background-color: #f59e0b; }
+        .status-damaged { background-color: #ef4444; }
+        .status-assigned { background-color: var(--primary); }
+
+        .alert {
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 992px) {
+            .header-center {
+                flex: 0.5;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-center {
+                order: 3;
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .company-select {
+                width: 100%;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-header h3 {
+                margin-bottom: 15px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .additional-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li class="active"><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="menu-toggle-container">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <span class="mobile-header-title" id="pageTitle">تسليم عهدة جديدة</span>
+                </div>
+                <div class="header-center">
+                    <select id="companySelect" class="company-select">
+                        <option value="">اختر الشركة</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>أمين المخزن</span>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="formTitle">تسليم عهدة جديدة</h3>
+                </div>
+                <div class="card-body">
+                    <form id="custodyForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="employeeSelect">الموظف <span style="color: var(--danger);">*</span></label>
+                                <select id="employeeSelect" class="form-control" required>
+                                    <option value="">اختر الموظف</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="assignDate">تاريخ التسليم <span style="color: var(--danger);">*</span></label>
+                                <input type="date" id="assignDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="returnDate">تاريخ الاستلام المتوقع <span style="color: var(--danger);">*</span></label>
+                                <input type="date" id="returnDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="custodyNotes">ملاحظات</label>
+                                <input type="text" id="custodyNotes" class="form-control">
+                            </div>
+                        </div>
+                        <div class="item-selection">
+                            <h5>الأصناف المطلوبة</h5>
+                            <div class="form-group">
+                                <input type="text" id="itemSearch" class="form-control" placeholder="ابحث عن الأصناف...">
+                            </div>
+                            <div class="item-list" id="itemList"></div>
+                        </div>
+                        <div class="item-selection" id="additionalItemsSection">
+                            <h5>الأصناف الإضافية</h5>
+                            <div class="form-group">
+                                <button type="button" id="addAdditionalItemBtn" class="btn btn-success btn-sm">
+                                    <i class="fas fa-plus"></i> إضافة صنف إضافي
+                                </button>
+                            </div>
+                            <div id="additionalItemsList"></div>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" id="saveCustodyBtn" class="btn btn-primary">
+                                <i class="fas fa-save"></i> حفظ
+                            </button>
+                            <a href="custody.html" class="btn btn-danger">
+                                <i class="fas fa-times"></i> إلغاء
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const custodyForm = document.getElementById('custodyForm');
+            const saveCustodyBtn = document.getElementById('saveCustodyBtn');
+            const itemSearch = document.getElementById('itemSearch');
+            const addAdditionalItemBtn = document.getElementById('addAdditionalItemBtn');
+            const additionalItemsList = document.getElementById('additionalItemsList');
+            const companySelect = document.getElementById('companySelect');
+            const alertContainer = document.getElementById('alertContainer');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const formTitle = document.getElementById('formTitle');
+            const pageTitle = document.getElementById('pageTitle');
+
+            // Sample Data
+            let companies = [
+                { id: 1, name: 'شركة التقدم' },
+                { id: 2, name: 'شركة الريادة' },
+                { id: 3, name: 'شركة الابتكار' }
+            ];
+
+            let employees = [
+                { id: 1, name: 'أحمد محمد', department: 'IT', companyId: 1 },
+                { id: 2, name: 'محمد علي', department: 'المالية', companyId: 2 },
+                { id: 3, name: 'سارة عبدالله', department: 'الموارد البشرية', companyId: 3 }
+            ];
+
+            let items = [
+                { id: 1, code: 'ITM-1001', name: 'كمبيوتر محمول', category: 'أجهزة إلكترونية', available: 5, condition: 'excellent', companyId: 1 },
+                { id: 2, code: 'ITM-1002', name: 'هاتف ذكي', category: 'أجهزة إلكترونية', available: 10, condition: 'very-good', companyId: 2 },
+                { id: 3, code: 'ITM-2001', name: 'طابعة', category: 'أجهزة مكتبية', available: 3, condition: 'good', companyId: 3 },
+                { id: 4, code: 'ITM-3001', name: 'طاولة مكتب', category: 'أثاث', available: 8, condition: 'fair', companyId: 1 },
+                { id: 5, code: 'ITM-3002', name: 'كرسي مكتب', category: 'أثاث', available: 12, condition: 'damaged', companyId: 2 }
+            ];
+
+            let additionalItemsOptions = [
+                { id: 1, name: 'تيشيرت إضافي', code: 'ADD-1001', cost: 100, companyId: 1 },
+                { id: 2, name: 'قبعة إضافية', code: 'ADD-1002', cost: 50, companyId: 2 },
+                { id: 3, name: 'حقيبة إضافية', code: 'ADD-1003', cost: 150, companyId: 3 }
+            ];
+
+            let custodyRecords = [
+                {
+                    id: 1,
+                    code: 'CST-2001',
+                    companyId: 1,
+                    employeeId: 1,
+                    items: [
+                        {
+                            id: 1,
+                            code: 'ITM-1001',
+                            name: 'كمبيوتر محمول',
+                            initialCondition: 'excellent',
+                            currentCondition: 'assigned',
+                            returnCondition: null,
+                            returnNotes: ''
+                        }
+                    ],
+                    additionalItems: [
+                        {
+                            id: 1,
+                            name: 'تيشيرت إضافي',
+                            code: 'ADD-1001',
+                            monthlyDeduction: 10,
+                            totalInstallments: 12,
+                            paidInstallments: 3,
+                            remainingInstallments: 9,
+                            totalCost: 100
+                        }
+                    ],
+                    assignDate: '2023-05-15',
+                    expectedReturnDate: '2023-08-15',
+                    actualReturnDate: null,
+                    status: 'active',
+                    notes: 'تسليم لموظف جديد',
+                    returnCondition: null,
+                    returnNotes: null
+                },
+                {
+                    id: 2,
+                    code: 'CST-2002',
+                    companyId: 2,
+                    employeeId: 2,
+                    items: [
+                        {
+                            id: 3,
+                            code: 'ITM-2001',
+                            name: 'طابعة',
+                            initialCondition: 'good',
+                            currentCondition: 'returned',
+                            returnCondition: 'excellent',
+                            returnNotes: 'تم الاستلام في حالة ممتازة بعد الصيانة'
+                        },
+                        {
+                            id: 5,
+                            code: 'ITM-3002',
+                            name: 'كرسي مكتب',
+                            initialCondition: 'damaged',
+                            currentCondition: 'returned',
+                            returnCondition: 'damaged',
+                            returnNotes: 'تم الاستلام مع تلف في الظهر'
+                        }
+                    ],
+                    additionalItems: [
+                        {
+                            id: 2,
+                            name: 'قبعة إضافية',
+                            code: 'ADD-1002',
+                            monthlyDeduction: 5,
+                            totalInstallments: 12,
+                            paidInstallments: 12,
+                            remainingInstallments: 0,
+                            totalCost: 50
+                        }
+                    ],
+                    assignDate: '2023-06-01',
+                    expectedReturnDate: '2023-09-01',
+                    actualReturnDate: '2023-09-05',
+                    status: 'returned',
+                    notes: 'تسليم لمشروع مؤقت',
+                    returnCondition: 'partially_damaged',
+                    returnNotes: 'تم استلام بعض الأصناف بحالة تالفة'
+                }
+            ];
+
+            // Current state
+            let additionalItemCounter = 0;
+            let selectedCompanyId = null;
+            let currentCustodyId = null;
+
+            // Initialize the app
+            function init() {
+                loadCompanies();
+                loadEmployees();
+                loadItems();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                currentCustodyId = parseInt(urlParams.get('id'));
+                if (currentCustodyId) {
+                    loadEditCustody(currentCustodyId);
+                } else {
+                    setupNewCustody();
+                }
+
+                setupEventListeners();
+                setupMobileSidebar();
+            }
+
+            // Setup mobile sidebar functionality
+            function setupMobileSidebar() {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.add('active');
+                    sidebarOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                sidebarClose.addEventListener('click', closeSidebar);
+                sidebarOverlay.addEventListener('click', closeSidebar);
+
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            closeSidebar();
+                        }
+                    });
+                });
+
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        closeSidebar();
+                    }
+                });
+            }
+
+            // Close sidebar function
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // Load companies into select dropdown
+            function loadCompanies() {
+                companySelect.innerHTML = '<option value="">اختر الشركة</option>';
+                companies.forEach(company => {
+                    const option = document.createElement('option');
+                    option.value = company.id;
+                    option.textContent = company.name;
+                    companySelect.appendChild(option);
+                });
+            }
+
+            // Load employees into select dropdown
+            function loadEmployees() {
+                const employeeSelect = document.getElementById('employeeSelect');
+                employeeSelect.innerHTML = '<option value="">اختر الموظف</option>';
+                employees.filter(employee => !selectedCompanyId || employee.companyId === selectedCompanyId).forEach(employee => {
+                    const option = document.createElement('option');
+                    option.value = employee.id;
+                    option.textContent = `${employee.name} - ${employee.department}`;
+                    employeeSelect.appendChild(option);
+                });
+            }
+
+            // Load available items
+            function loadItems() {
+                const itemList = document.getElementById('itemList');
+                itemList.innerHTML = '';
+                items.filter(item => !selectedCompanyId || item.companyId === selectedCompanyId).forEach(item => {
+                    if (item.available > 0 || (currentCustodyId && custodyRecords.find(r => r.id === currentCustodyId)?.items.some(i => i.id === item.id))) {
+                        const div = document.createElement('div');
+                        div.className = 'item-checkbox';
+                        div.innerHTML = `
+                            <input type="checkbox" id="item-${item.id}" value="${item.id}">
+                            <label for="item-${item.id}">
+                                ${item.name} (${item.code}) - ${item.category} - متاح: ${item.available}
+                                <span class="item-status-badge ${getConditionClass(item.condition)}">
+                                    ${getConditionText(item.condition)}
+                                </span>
+                            </label>
+                        `;
+                        itemList.appendChild(div);
+                    }
+                });
+            }
+
+            // Load additional items options
+            function loadAdditionalItems() {
+                const select = document.createElement('select');
+                select.className = 'form-control';
+                select.innerHTML = '<option value="">اختر الصنف الإضافي</option>';
+                additionalItemsOptions.filter(item => !selectedCompanyId || item.companyId === selectedCompanyId).forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = `${item.name} (${item.code}) - التكلفة: ${item.cost} ريال`;
+                    select.appendChild(option);
+                });
+                return select;
+            }
+
+            // Setup new custody form
+            function setupNewCustody() {
+                custodyForm.reset();
+                companySelect.value = selectedCompanyId || '';
+                document.getElementById('assignDate').valueAsDate = new Date();
+                const returnDate = new Date();
+                returnDate.setMonth(returnDate.getMonth() + 3);
+                document.getElementById('returnDate').valueAsDate = returnDate;
+                itemSearch.value = '';
+                additionalItemsList.innerHTML = '';
+                additionalItemCounter = 0;
+                formTitle.textContent = 'تسليم عهدة جديدة';
+                pageTitle.textContent = 'تسليم عهدة جديدة';
+                loadEmployees();
+                loadItems();
+            }
+
+            // Load edit custody form
+            function loadEditCustody(custodyId) {
+                const record = custodyRecords.find(r => r.id === custodyId);
+                if (!record) {
+                    showAlert('danger', 'العهدة غير موجودة!');
+                    return;
+                }
+
+                custodyForm.reset();
+                companySelect.value = record.companyId;
+                selectedCompanyId = record.companyId;
+                document.getElementById('employeeSelect').value = record.employeeId;
+                document.getElementById('assignDate').value = record.assignDate;
+                document.getElementById('returnDate').value = record.expectedReturnDate;
+                document.getElementById('custodyNotes').value = record.notes || '';
+                itemSearch.value = '';
+                additionalItemsList.innerHTML = '';
+                additionalItemCounter = 0;
+
+                loadEmployees();
+                loadItems();
+
+                record.items.forEach(item => {
+                    const checkbox = document.querySelector(`#itemList input[value="${item.id}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+
+                record.additionalItems.forEach(item => {
+                    additionalItemCounter++;
+                    const div = document.createElement('div');
+                    div.className = 'additional-item';
+                    div.setAttribute('data-additional-item-id', additionalItemCounter);
+                    const select = loadAdditionalItems();
+                    select.value = item.id;
+                    div.innerHTML = `
+                        ${select.outerHTML}
+                        <input type="number" class="form-control monthly-deduction" value="${item.monthlyDeduction}" placeholder="القسط الشهري (ريال)" min="0" step="0.01">
+                        <button type="button" class="btn btn-danger btn-sm remove-additional-item">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    additionalItemsList.appendChild(div);
+                });
+
+                formTitle.textContent = `تعديل العهدة ${record.code}`;
+                pageTitle.textContent = `تعديل العهدة ${record.code}`;
+            }
+
+            // Setup event listeners
+            function setupEventListeners() {
+                saveCustodyBtn.addEventListener('click', saveCustody);
+                addAdditionalItemBtn.addEventListener('click', addAdditionalItem);
+                itemSearch.addEventListener('input', debounce(filterItems, 300));
+                additionalItemsList.addEventListener('click', function(e) {
+                    if (e.target.closest('.remove-additional-item')) {
+                        e.target.closest('.additional-item').remove();
+                    }
+                });
+                companySelect.addEventListener('change', function() {
+                    selectedCompanyId = this.value ? parseInt(this.value) : null;
+                    loadEmployees();
+                    loadItems();
+                });
+            }
+
+            // Debounce function for search
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            // Filter items based on search input
+            function filterItems() {
+                const searchTerm = itemSearch.value.toLowerCase();
+                const itemList = document.getElementById('itemList');
+                itemList.innerHTML = '';
+
+                const filteredItems = items.filter(item =>
+                    (item.available > 0 || (currentCustodyId && custodyRecords.find(r => r.id === currentCustodyId)?.items.some(i => i.id === item.id))) &&
+                    (!selectedCompanyId || item.companyId === selectedCompanyId) &&
+                    (item.name.toLowerCase().includes(searchTerm) ||
+                     item.code.toLowerCase().includes(searchTerm) ||
+                     item.category.toLowerCase().includes(searchTerm))
+                );
+
+                if (filteredItems.length === 0) {
+                    itemList.innerHTML = '<div class="loading">لا توجد أصناف متاحة</div>';
+                    return;
+                }
+
+                filteredItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'item-checkbox';
+                    div.innerHTML = `
+                        <input type="checkbox" id="item-${item.id}" value="${item.id}">
+                        <label for="item-${item.id}">
+                            ${item.name} (${item.code}) - ${item.category} - متاح: ${item.available}
+                            <span class="item-status-badge ${getConditionClass(item.condition)}">
+                                ${getConditionText(item.condition)}
+                            </span>
+                        </label>
+                    `;
+                    itemList.appendChild(div);
+                });
+
+                if (currentCustodyId) {
+                    const record = custodyRecords.find(r => r.id === currentCustodyId);
+                    if (record) {
+                        record.items.forEach(item => {
+                            const checkbox = document.querySelector(`#itemList input[value="${item.id}"]`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+                }
+            }
+
+            // Add additional item field
+            function addAdditionalItem() {
+                additionalItemCounter++;
+                const div = document.createElement('div');
+                div.className = 'additional-item';
+                div.setAttribute('data-additional-item-id', additionalItemCounter);
+                div.innerHTML = `
+                    ${loadAdditionalItems().outerHTML}
+                    <input type="number" class="form-control monthly-deduction" placeholder="القسط الشهري (ريال)" min="0" step="0.01">
+                    <button type="button" class="btn btn-danger btn-sm remove-additional-item">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                additionalItemsList.appendChild(div);
+            }
+
+            // Save custody (add or edit)
+            function saveCustody() {
+                const companyId = parseInt(document.getElementById('companySelect').value);
+                const employeeId = parseInt(document.getElementById('employeeSelect').value);
+                const assignDate = document.getElementById('assignDate').value;
+                const returnDate = document.getElementById('returnDate').value;
+                const notes = document.getElementById('custodyNotes').value;
+                const selectedItems = Array.from(document.querySelectorAll('#itemList input:checked')).map(input => parseInt(input.value));
+                const additionalItems = Array.from(document.querySelectorAll('.additional-item')).map(div => {
+                    const select = div.querySelector('select');
+                    const monthlyDeduction = parseFloat(div.querySelector('.monthly-deduction').value) || 0;
+                    const itemId = parseInt(select.value);
+                    const item = additionalItemsOptions.find(i => i.id === itemId);
+                    if (!item) return null;
+                    return {
+                        id: item.id,
+                        name: item.name,
+                        code: item.code,
+                        monthlyDeduction,
+                        totalInstallments: Math.ceil(item.cost / monthlyDeduction) || 12,
+                        paidInstallments: 0,
+                        remainingInstallments: Math.ceil(item.cost / monthlyDeduction) || 12,
+                        totalCost: item.cost
+                    };
+                }).filter(item => item !== null);
+
+                if (!companyId || !employeeId || !assignDate || !returnDate || selectedItems.length === 0) {
+                    showAlert('danger', 'يرجى ملء جميع الحقول المطلوبة واختيار صنف واحد على الأقل!');
+                    return;
+                }
+
+                const custodyData = {
+                    companyId,
+                    employeeId,
+                    items: selectedItems.map(id => {
+                        const item = items.find(i => i.id === id);
+                        return {
+                            id: item.id,
+                            code: item.code,
+                            name: item.name,
+                            initialCondition: item.condition,
+                            currentCondition: 'assigned',
+                            returnCondition: null,
+                            returnNotes: ''
+                        };
+                    }),
+                    additionalItems,
+                    assignDate,
+                    expectedReturnDate: returnDate,
+                    actualReturnDate: null,
+                    status: 'active',
+                    notes,
+                    returnCondition: null,
+                    returnNotes: null
+                };
+
+                if (currentCustodyId) {
+                    // Update existing custody
+                    const index = custodyRecords.findIndex(r => r.id === currentCustodyId);
+                    if (index !== -1) {
+                        custodyData.id = currentCustodyId;
+                        custodyData.code = custodyRecords[index].code;
+                        custodyRecords[index] = custodyData;
+                        showAlert('success', 'تم تعديل العهدة بنجاح!');
+                    }
+                } else {
+                    // Add new custody
+                    custodyData.id = custodyRecords.length + 1;
+                    custodyData.code = `CST-${2000 + custodyData.id}`;
+                    custodyRecords.push(custodyData);
+                    showAlert('success', 'تم تسليم العهدة بنجاح!');
+                }
+
+                setTimeout(() => {
+                    window.location.href = 'custody.html';
+                }, 1000);
+            }
+
+            // Get condition class for styling
+            function getConditionClass(condition) {
+                return `status-${condition.replace(' ', '-')}`;
+            }
+
+            // Get condition text
+            function getConditionText(condition) {
+                const conditionMap = {
+                    excellent: 'ممتاز',
+                    'very-good': 'جيد جداً',
+                    good: 'جيد',
+                    fair: 'مقبول',
+                    damaged: 'تالف',
+                    assigned: 'مسلم'
+                };
+                return conditionMap[condition] || condition;
+            }
+
+            // Show alert
+            function showAlert(type, message) {
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    ${message}
+                `;
+                alertContainer.appendChild(alert);
+                setTimeout(() => {
+                    alert.remove();
+                }, 3000);
+            }
+
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>

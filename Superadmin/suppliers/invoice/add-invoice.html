@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء فاتورة - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <style>
+        .item-table input.form-control, .item-table select.form-control {
+            margin: 0;
+            width: 100%;
+            padding: 5px;
+        }
+
+        .new-item-input {
+            margin-top: 5px;
+            width: 100%;
+            padding: 5px;
+        }
+
+        
+
+
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li class="active"><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title" id="headerTitle">إنشاء فاتورة</span>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="cardTitle">إنشاء فاتورة جديدة</h3>
+                </div>
+                <div class="card-body">
+                    <form id="invoiceForm">
+                        <div class="form-container">
+                            <input type="hidden" id="invoiceId">
+                            <div class="form-group">
+                                <label for="invoiceType">نوع الفاتورة</label>
+                                <select class="form-control" id="invoiceType" required>
+                                    <option value="purchase">شراء</option>
+                                    <option value="sale">بيع</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="supplierCustomer">المورد/العميل</label>
+                                <select class="form-control" id="supplierCustomer" required>
+                                    <option value="">اختر المورد/العميل</option>
+                                </select>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="dueDate">تاريخ الاستحقاق</label>
+                                    <input type="date" class="form-control" id="dueDate">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group table">
+                                    <label for="items">الأصناف</label>
+                                    <div class="table-responsive">
+                                        <table class="item-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>الصنف</th>
+                                                    <th>الفئة</th>
+                                                    <th>الكمية</th>
+                                                    <th>سعر الوحدة</th>
+                                                    <th>الإجمالي</th>
+                                                    <th>إجراءات</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="itemsTableBody">
+                                                <tr>
+                                                    <td>
+                                                        <select class="form-control item-select" name="itemName" onchange="toggleNewItemInput(this)">
+                                                            <option value="">اختر الصنف</option>
+                                                        </select>
+                                                        <input type="text" class="form-control new-item-input" style="display: none;" name="newItemName" placeholder="أدخل اسم الصنف الجديد">
+                                                    </td>
+                                                    <td>
+                                                        <select class="form-control category-select" name="category" disabled>
+                                                            <option value="">اختر الفئة</option>
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="number" class="form-control" name="quantity" value="1" min="1"></td>
+                                                    <td><input type="number" class="form-control" name="unitPrice" value="5000" min="0"></td>
+                                                    <td class="item-total">5000 ج.م</td>
+                                                    <td><button type="button" class="btn btn-sm btn-danger" onclick="removeItemRow(this)"><i class="fas fa-trash"></i></button></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="addItemRow()">إضافة صنف</button>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="tabs">
+                                    <div class="tab active" data-tab="discount">الخصم الإجمالي</div>
+                                    <div class="tab" data-tab="deposit">الإيداع</div>
+                                    <div class="tab" data-tab="shipping">الشحن</div>
+                                </div>
+                            </div>
+                            <div class="tab-content active" id="discount">
+                                <div class="form-group">
+                                    <label for="overallDiscount">الخصم</label>
+                                    <div style="display: flex; gap: 10px;">
+                                        <input type="number" class="form-control" id="overallDiscount" value="0" min="0" oninput="updateTotal()" style="flex: 1;">
+                                        <select class="form-control" id="discountType" onchange="updateTotal()" style="flex: 1;">
+                                            <option value="amount">مبلغ</option>
+                                            <option value="percentage">نسبة مئوية (%)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-content" id="deposit">
+                                <div class="form-group">
+                                    <label for="depositAmount">الإيداع</label>
+                                    <div style="display: flex; gap: 10px;">
+                                        <input type="number" class="form-control" id="depositAmount" value="0" min="0" oninput="updateTotal()" style="flex: 1;">
+                                        <select class="form-control" id="depositType" onchange="updateTotal()" style="flex: 1;">
+                                            <option value="amount">مبلغ</option>
+                                            <option value="percentage">نسبة مئوية (%)</option>
+                                        </select>
+                                    </div>
+                                    <label for="depositPaid">تم الدفع؟</label>
+                                    <select class="form-control" id="depositPaid">
+                                        <option value="yes">نعم</option>
+                                        <option value="no" selected>لا</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="tab-content" id="shipping">
+                                <div class="form-group">
+                                    <label for="shippingCost">مصاريف الشحن</label>
+                                    <input type="number" class="form-control" id="shippingCost" value="0" min="0" oninput="updateTotal()">
+                                    <label for="taxRate">معدل الضريبة (%)</label>
+                                    <input type="number" class="form-control" id="taxRate" value="0" min="0" oninput="updateTotal()">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="total">الإجمالي النهائي</label>
+                                <input type="text" class="form-control" id="total" readonly value="5000 ج.م">
+                            </div>
+                            <div class="form-group">
+                                <label for="notes">ملاحظات</label>
+                                <textarea class="form-control" id="notes" rows="3" placeholder="أدخل ملاحظات إضافية"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <button type="submit" class="btn btn-primary">حفظ</button>
+                                <a href="/Superadmin/invoice/invoices.html" class="btn btn-danger">إلغاء</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+        let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [
+            { id: 1, name: "مورد التقنية", contactPerson: "علي حسن", phone: "01123456789", email: "ali@techsupplier.com", address: "القاهرة، مصر", vendorId: null, vendorName: null }
+        ];
+        let categories = JSON.parse(localStorage.getItem('categories')) || ['إلكترونيات', 'أثاث', 'مواد غذائية'];
+        let items = JSON.parse(localStorage.getItem('items')) || [
+            { name: 'لابتوب ديل', category: 'إلكترونيات' },
+            { name: 'طابعة اتش بي', category: 'إلكترونيات' }
+        ];
+
+        // Update existing invoices to include categories
+        invoices = invoices.map(invoice => ({
+            ...invoice,
+            items: invoice.items.map(item => ({
+                ...item,
+                category: item.category || 'إلكترونيات'
+            }))
+        }));
+        localStorage.setItem('invoices', JSON.stringify(invoices));
+
+        // Update supplier dropdown
+        function updateDropdowns() {
+            const supplierSelect = document.getElementById('supplierCustomer');
+            supplierSelect.innerHTML = '<option value="">اختر المورد/العميل</option>';
+            suppliers.forEach(supplier => {
+                const option = document.createElement('option');
+                option.value = supplier.id;
+                option.textContent = supplier.name;
+                supplierSelect.appendChild(option);
+            });
+        }
+
+        // Update item and category dropdowns
+        function updateItemDropdowns() {
+            const rows = document.querySelectorAll('#itemsTableBody tr');
+            rows.forEach(row => {
+                const select = row.querySelector('.item-select');
+                const categorySelect = row.querySelector('.category-select');
+                select.innerHTML = '<option value="">اختر الصنف</option>';
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.name;
+                    option.textContent = item.name;
+                    select.appendChild(option);
+                });
+                const addNewOption = document.createElement('option');
+                addNewOption.value = 'new';
+                addNewOption.textContent = 'إضافة صنف جديد';
+                select.appendChild(addNewOption);
+
+                categorySelect.innerHTML = '<option value="">اختر الفئة</option>';
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+                categorySelect.disabled = select.value !== 'new';
+                if (select.value && select.value !== 'new') {
+                    const item = items.find(i => i.name === select.value);
+                    if (item) categorySelect.value = item.category;
+                }
+            });
+        }
+
+        // Toggle new item input and category dropdown
+        function toggleNewItemInput(select) {
+            const row = select.closest('tr');
+            const newItemInput = row.querySelector('.new-item-input');
+            const categorySelect = row.querySelector('.category-select');
+            newItemInput.style.display = select.value === 'new' ? 'block' : 'none';
+            categorySelect.disabled = select.value !== 'new';
+            if (select.value !== 'new' && select.value) {
+                const item = items.find(i => i.name === select.value);
+                if (item) categorySelect.value = item.category;
+            } else {
+                categorySelect.value = '';
+            }
+        }
+
+        // Add item row
+        function addItemRow() {
+            const tbody = document.getElementById('itemsTableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <select class="form-control item-select" name="itemName" onchange="toggleNewItemInput(this)">
+                        <option value="">اختر الصنف</option>
+                    </select>
+                    <input type="text" class="form-control new-item-input" style="display: none;" name="newItemName" placeholder="أدخل اسم الصنف الجديد">
+                </td>
+                <td>
+                    <select class="form-control category-select" name="category" disabled>
+                        <option value="">اختر الفئة</option>
+                    </select>
+                </td>
+                <td><input type="number" class="form-control" name="quantity" value="1" min="1"></td>
+                <td><input type="number" class="form-control" name="unitPrice" value="0" min="0"></td>
+                <td class="item-total">0 ج.م</td>
+                <td><button type="button" class="btn btn-sm btn-danger" onclick="removeItemRow(this)"><i class="fas fa-trash"></i></button></td>
+            `;
+            tbody.appendChild(row);
+            updateItemDropdowns();
+            updateTotal();
+        }
+
+        // Remove item row
+        function removeItemRow(button) {
+            button.closest('tr').remove();
+            updateTotal();
+        }
+
+        // Switch tabs
+        function switchTab(event) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+            const tab = event.target;
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+            updateTotal();
+        }
+
+        // Update total with discount, deposit, and shipping
+        function updateTotal() {
+            const tbody = document.getElementById('itemsTableBody');
+            let subtotal = 0;
+            Array.from(tbody.querySelectorAll('tr')).forEach(row => {
+                const quantity = parseFloat(row.querySelector('input[name="quantity"]').value) || 0;
+                const unitPrice = parseFloat(row.querySelector('input[name="unitPrice"]').value) || 0;
+                const itemTotal = quantity * unitPrice;
+                row.querySelector('.item-total').textContent = `${itemTotal} ج.م`;
+                subtotal += itemTotal;
+            });
+
+            const discount = parseFloat(document.getElementById('overallDiscount').value) || 0;
+            const discountType = document.getElementById('discountType').value;
+            const discountAmount = discountType === 'percentage' ? (subtotal * discount / 100) : discount;
+
+            const deposit = parseFloat(document.getElementById('depositAmount').value) || 0;
+            const depositType = document.getElementById('depositType').value;
+            const depositAmount = depositType === 'percentage' ? (subtotal * deposit / 100) : deposit;
+
+            const shippingCost = parseFloat(document.getElementById('shippingCost').value) || 0;
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const taxAmount = (subtotal - discountAmount + shippingCost) * (taxRate / 100);
+
+            const finalTotal = subtotal - discountAmount + shippingCost + taxAmount - depositAmount;
+            document.getElementById('total').value = `${finalTotal.toFixed(2)} ج.م`;
+        }
+
+        // Handle item input changes
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('input[name="quantity"], input[name="unitPrice"], #overallDiscount, #depositAmount, #shippingCost, #taxRate')) {
+                updateTotal();
+            }
+        });
+
+        // Parse query parameters
+        const params = new URLSearchParams(window.location.search);
+        const invoiceId = params.get('id');
+
+        // Handle edit mode
+        if (invoiceId) {
+            const invoice = invoices.find(i => i.id === parseInt(invoiceId));
+            if (invoice) {
+                document.getElementById('cardTitle').textContent = 'تعديل فاتورة';
+                document.getElementById('headerTitle').textContent = 'تعديل فاتورة';
+                document.getElementById('invoiceId').value = invoice.id;
+                document.getElementById('invoiceType').value = invoice.type;
+                document.getElementById('supplierCustomer').value = invoice.supplierId;
+                document.getElementById('dueDate').value = invoice.dueDate || '';
+                document.getElementById('notes').value = invoice.notes || '';
+                document.getElementById('overallDiscount').value = invoice.overallDiscount || 0;
+                document.getElementById('discountType').value = invoice.discountType || 'amount';
+                document.getElementById('depositAmount').value = invoice.depositAmount || 0;
+                document.getElementById('depositType').value = invoice.depositType || 'amount';
+                document.getElementById('depositPaid').value = invoice.depositPaid || 'no';
+                document.getElementById('shippingCost').value = invoice.shippingCost || 0;
+                document.getElementById('taxRate').value = invoice.taxRate || 0;
+
+                const tbody = document.getElementById('itemsTableBody');
+                tbody.innerHTML = '';
+                invoice.items.forEach(item => {
+                    const isNewItem = !items.some(i => i.name === item.name);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <select class="form-control item-select" name="itemName" onchange="toggleNewItemInput(this)">
+                                <option value="">اختر الصنف</option>
+                            </select>
+                            <input type="text" class="form-control new-item-input" style="display: ${isNewItem ? 'block' : 'none'};" name="newItemName" value="${isNewItem ? item.name : ''}" placeholder="أدخل اسم الصنف الجديد">
+                        </td>
+                        <td>
+                            <select class="form-control category-select" name="category" ${isNewItem ? '' : 'disabled'}>
+                                <option value="">اختر الفئة</option>
+                            </select>
+                        </td>
+                        <td><input type="number" class="form-control" name="quantity" value="${item.quantity}" min="1"></td>
+                        <td><input type="number" class="form-control" name="unitPrice" value="${item.unitPrice}" min="0"></td>
+                        <td class="item-total">${item.total} ج.م</td>
+                        <td><button type="button" class="btn btn-sm btn-danger" onclick="removeItemRow(this)"><i class="fas fa-trash"></i></button></td>
+                    `;
+                    tbody.appendChild(row);
+                    const select = row.querySelector('.item-select');
+                    select.innerHTML = '<option value="">اختر الصنف</option>';
+                    items.forEach(i => {
+                        const option = document.createElement('option');
+                        option.value = i.name;
+                        option.textContent = i.name;
+                        if (i.name === item.name) option.selected = true;
+                        select.appendChild(option);
+                    });
+                    const addNewOption = document.createElement('option');
+                    addNewOption.value = 'new';
+                    addNewOption.textContent = 'إضافة صنف جديد';
+                    if (isNewItem) addNewOption.selected = true;
+                    select.appendChild(addNewOption);
+                    const categorySelect = row.querySelector('.category-select');
+                    categorySelect.innerHTML = '<option value="">اختر الفئة</option>';
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        if (category === item.category) option.selected = true;
+                        categorySelect.appendChild(option);
+                    });
+                });
+                updateTotal();
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.querySelectorAll('.tab-content')[0].classList.add('active');
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('invoiceId').value) || (invoices.length ? Math.max(...invoices.map(i => i.id)) + 1 : 1);
+            const invoiceType = document.getElementById('invoiceType').value;
+            const supplierId = parseInt(document.getElementById('supplierCustomer').value);
+            const dueDate = document.getElementById('dueDate').value;
+            const notes = document.getElementById('notes').value;
+            const overallDiscount = parseFloat(document.getElementById('overallDiscount').value) || 0;
+            const discountType = document.getElementById('discountType').value;
+            const depositAmount = parseFloat(document.getElementById('depositAmount').value) || 0;
+            const depositType = document.getElementById('depositType').value;
+            const depositPaid = document.getElementById('depositPaid').value;
+            const shippingCost = parseFloat(document.getElementById('shippingCost').value) || 0;
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const itemsData = Array.from(document.getElementById('itemsTableBody').querySelectorAll('tr')).map(row => {
+                const select = row.querySelector('.item-select');
+                const newItemInput = row.querySelector('.new-item-input');
+                const categorySelect = row.querySelector('.category-select');
+                const name = select.value === 'new' ? newItemInput.value.trim() : select.value;
+                const category = select.value === 'new' ? categorySelect.value : (items.find(i => i.name === select.value)?.category || '');
+                const quantity = parseFloat(row.querySelector('input[name="quantity"]').value) || 0;
+                const unitPrice = parseFloat(row.querySelector('input[name="unitPrice"]').value) || 0;
+                const total = quantity * unitPrice;
+                return { name, category, quantity, unitPrice, total };
+            });
+            const total = itemsData.reduce((sum, item) => sum + item.total, 0);
+            const discountAmount = discountType === 'percentage' ? (total * overallDiscount / 100) : overallDiscount;
+            const deposit = depositType === 'percentage' ? (total * depositAmount / 100) : depositAmount;
+            const taxAmount = (total - discountAmount + shippingCost) * (taxRate / 100);
+            const finalTotal = total - discountAmount + shippingCost + taxAmount - deposit;
+
+            if (!invoiceType || !supplierId || itemsData.length === 0 || itemsData.some(item => !item.name || (item.name && !items.some(i => i.name === item.name) && !item.category))) {
+                alert('يرجى ملء جميع الحقول المطلوبة، بما في ذلك اختيار فئة للأصناف الجديدة');
+                return;
+            }
+
+            itemsData.forEach(item => {
+                if (item.name && !items.some(i => i.name === item.name)) {
+                    items.push({ name: item.name, category: item.category });
+                }
+            });
+            localStorage.setItem('items', JSON.stringify(items));
+
+            const invoice = {
+                id: id,
+                invoiceNumber: `INV-${String(id).padStart(3, '0')}`,
+                date: new Date().toISOString().split('T')[0],
+                vendorId: null,
+                vendorName: null,
+                warehouseId: null,
+                warehouseName: null,
+                supplierId: supplierId,
+                supplierName: suppliers.find(s => s.id === supplierId)?.name || 'غير متوفر',
+                type: invoiceType,
+                items: itemsData,
+                overallDiscount: overallDiscount,
+                discountType: discountType,
+                depositAmount: depositAmount,
+                depositType: depositType,
+                depositPaid: depositPaid,
+                shippingCost: shippingCost,
+                taxRate: taxRate,
+                total: finalTotal,
+                status: finalTotal > 0 ? (depositPaid === 'yes' ? 'مدفوع جزئيًا' : 'معلق') : 'مدفوع',
+                dueDate: dueDate || null,
+                notes: notes || null
+            };
+
+            if (invoiceId) {
+                const index = invoices.findIndex(i => i.id === parseInt(invoiceId));
+                invoices[index] = invoice;
+            } else {
+                invoices.push(invoice);
+            }
+
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            window.location.href = '/Superadmin/invoice/invoices.html';
+        });
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        });
+
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+
+        // Initial setup and tab event listeners
+        updateDropdowns();
+        updateItemDropdowns();
+        updateTotal();
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', switchTab);
+        });
+    </script>
+</body>
+</html>

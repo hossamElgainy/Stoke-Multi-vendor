@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استلام العهدة - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        :root {
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #14b8a6;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .company-select {
+            padding: 8px;
+            border-radius: var(--border-radius);
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            color: var(--dark);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .company-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 15px;
+            color: var(--dark);
+            background-color: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: var(--border-radius);
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background-color: #ffffff;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .item-selection {
+            border: 1px solid #e5e7eb;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 20px;
+            background: #ffffff;
+        }
+
+        .item-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: var(--border-radius);
+        }
+
+        .item-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .item-checkbox:last-child {
+            border-bottom: none;
+        }
+
+        .item-checkbox select {
+            margin: 12px;
+            flex: 1;
+        }
+
+        .item-checkbox textarea {
+            margin-top: 10px;
+            width: 60%;
+            resize: vertical;
+        }
+
+        .item-status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .status-excellent { background-color: #059669; }
+        .status-very-good { background-color: #10b981; }
+        .status-good { background-color: #3498db; }
+        .status-fair { background-color: #f59e0b; }
+        .status-damaged { background-color: #ef4444; }
+        .status-assigned { background-color: var(--primary); }
+
+        .alert {
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                                        <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li class="active"><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="menu-toggle-container">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <span class="mobile-header-title" id="pageTitle">استلام العهدة</span>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>أمين المخزن</span>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="formTitle">استلام العهدة</h3>
+                    <a href="custody.html" class="btn btn-danger"><i class="fas fa-times"></i> إلغاء</a>
+                </div>
+                <div class="card-body">
+                    <form id="receiveForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>كود العهدة</label>
+                                <p id="custodyCode" class="form-control" style="background: #e5e7eb;"></p>
+                            </div>
+                            <div class="form-group">
+                                <label>الشركة</label>
+                                <p id="companyName" class="form-control" style="background: #e5e7eb;"></p>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>الموظف</label>
+                                <p id="employeeName" class="form-control" style="background: #e5e7eb;"></p>
+                            </div>
+                            <div class="form-group">
+                                <label>تاريخ الاستلام الفعلي <span style="color: var(--danger);">*</span></label>
+                                <input type="date" id="actualReturnDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>حالة الإرجاع <span style="color: var(--danger);">*</span></label>
+                            <select id="returnCondition" class="form-control" required>
+                                <option value="">اختر حالة الإرجاع</option>
+                                <option value="excellent">ممتاز</option>
+                                <option value="very-good">جيد جداً</option>
+                                <option value="good">جيد</option>
+                                <option value="fair">مقبول</option>
+                                <option value="damaged">تالف</option>
+                                <option value="partially_damaged">تالف جزئياً</option>
+                            </select>
+                        </div>
+                        <div class="item-selection">
+                            <h5>الأصناف المرجعة</h5>
+                            <div class="item-list" id="itemList"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>ملاحظات الإرجاع</label>
+                            <textarea id="returnNotes" class="form-control" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" id="saveReturnBtn" class="btn btn-primary">حفظ</button>
+                            <a href="custody.html" class="btn btn-danger">إلغاء</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const receiveForm = document.getElementById('receiveForm');
+            const saveReturnBtn = document.getElementById('saveReturnBtn');
+            const alertContainer = document.getElementById('alertContainer');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const formTitle = document.getElementById('formTitle');
+            const pageTitle = document.getElementById('pageTitle');
+
+            // Sample Data
+            let companies = [
+                { id: 1, name: 'شركة التقدم' },
+                { id: 2, name: 'شركة الريادة' },
+                { id: 3, name: 'شركة الابتكار' }
+            ];
+
+            let employees = [
+                { id: 1, name: 'أحمد محمد', department: 'IT', companyId: 1 },
+                { id: 2, name: 'محمد علي', department: 'المالية', companyId: 2 },
+                { id: 3, name: 'سارة عبدالله', department: 'الموارد البشرية', companyId: 3 }
+            ];
+
+            let custodyRecords = [
+                {
+                    id: 1,
+                    code: 'CST-2001',
+                    companyId: 1,
+                    employeeId: 1,
+                    items: [
+                        {
+                            id: 1,
+                            code: 'ITM-1001',
+                            name: 'كمبيوتر محمول',
+                            initialCondition: 'excellent',
+                            currentCondition: 'assigned',
+                            returnCondition: null,
+                            returnNotes: ''
+                        }
+                    ],
+                    additionalItems: [
+                        {
+                            id: 1,
+                            name: 'تيشيرت إضافي',
+                            code: 'ADD-1001',
+                            monthlyDeduction: 10,
+                            totalInstallments: 12,
+                            paidInstallments: 3,
+                            remainingInstallments: 9,
+                            totalCost: 100
+                        }
+                    ],
+                    assignDate: '2023-05-15',
+                    expectedReturnDate: '2023-08-15',
+                    actualReturnDate: null,
+                    status: 'active',
+                    notes: 'تسليم لموظف جديد',
+                    returnCondition: null,
+                    returnNotes: null
+                },
+                {
+                    id: 2,
+                    code: 'CST-2002',
+                    companyId: 2,
+                    employeeId: 2,
+                    items: [
+                        {
+                            id: 3,
+                            code: 'ITM-2001',
+                            name: 'طابعة',
+                            initialCondition: 'good',
+                            currentCondition: 'returned',
+                            returnCondition: 'excellent',
+                            returnNotes: 'تم الاستلام في حالة ممتازة بعد الصيانة'
+                        },
+                        {
+                            id: 5,
+                            code: 'ITM-3002',
+                            name: 'كرسي مكتب',
+                            initialCondition: 'damaged',
+                            currentCondition: 'returned',
+                            returnCondition: 'damaged',
+                            returnNotes: 'تم الاستلام مع تلف في الظهر'
+                        }
+                    ],
+                    additionalItems: [
+                        {
+                            id: 2,
+                            name: 'قبعة إضافية',
+                            code: 'ADD-1002',
+                            monthlyDeduction: 5,
+                            totalInstallments: 12,
+                            paidInstallments: 12,
+                            remainingInstallments: 0,
+                            totalCost: 50
+                        }
+                    ],
+                    assignDate: '2023-06-01',
+                    expectedReturnDate: '2023-09-01',
+                    actualReturnDate: '2023-09-05',
+                    status: 'returned',
+                    notes: 'تسليم لمشروع مؤقت',
+                    returnCondition: 'partially_damaged',
+                    returnNotes: 'تم استلام بعض الأصناف بحالة تالفة'
+                }
+            ];
+
+            // Initialize the app
+            function init() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const custodyId = parseInt(urlParams.get('id'));
+                console.log('custodyId:', custodyId);
+                loadCustodyDetails(custodyId);
+                setupMobileSidebar();
+                saveReturnBtn.addEventListener('click', saveReturn);
+            }
+
+            // Setup mobile sidebar functionality
+            function setupMobileSidebar() {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.add('active');
+                    sidebarOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                sidebarClose.addEventListener('click', closeSidebar);
+                sidebarOverlay.addEventListener('click', closeSidebar);
+
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            closeSidebar();
+                        }
+                    });
+                });
+
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        closeSidebar();
+                    }
+                });
+            }
+
+            // Close sidebar function
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // Load custody details
+            function loadCustodyDetails(custodyId) {
+                console.log('custodyId:', custodyId);
+                const record = custodyRecords.find(r => r.id === custodyId);
+                console.log('record:', record);
+                if (!record || record.status !== 'active') {
+                    showAlert('danger', 'العهدة غير موجودة أو تم استلامها مسبقاً!');
+                    setTimeout(() => {
+                        window.location.href = 'custody.html';
+                    }, 1000);
+                    return;
+                }
+
+                const company = companies.find(c => c.id === record.companyId);
+                const employee = employees.find(e => e.id === record.employeeId);
+                console.log('company:', company, 'employee:', employee);
+
+                formTitle.textContent = `استلام العهدة ${record.code}`;
+                pageTitle.textContent = `استلام العهدة ${record.code}`;
+                document.getElementById('custodyCode').textContent = record.code;
+                document.getElementById('companyName').textContent = company ? company.name : 'غير معروف';
+                document.getElementById('employeeName').textContent = employee ? `${employee.name} - ${employee.department}` : 'غير معروف';
+                document.getElementById('actualReturnDate').valueAsDate = new Date();
+
+                const itemList = document.getElementById('itemList');
+                itemList.innerHTML = '';
+                record.items.forEach(item => {
+                    console.log('item:', item);
+                    const div = document.createElement('div');
+                    div.className = 'item-checkbox';
+                    div.innerHTML = `
+                        <label>${item.name} (${item.code}) - الحالة الأولية: <span class="item-status-badge ${getConditionClass(item.initialCondition)}">${getConditionText(item.initialCondition)}</span></label>
+                        <select class="form-control" data-item-id="${item.id}" required>
+                            <option value="">اختر حالة الإرجاع</option>
+                            <option value="excellent">ممتاز</option>
+                            <option value="very-good">جيد جداً</option>
+                            <option value="good">جيد</option>
+                            <option value="fair">مقبول</option>
+                            <option value="damaged">تالف</option>
+                        </select>
+                        <textarea class="form-control" placeholder="ملاحظات الإرجاع" data-item-id="${item.id}"></textarea>
+                    `;
+                    itemList.appendChild(div);
+                });
+            }
+
+            // Save return details
+            function saveReturn() {
+                const custodyId = parseInt(new URLSearchParams(window.location.search).get('id'));
+                const record = custodyRecords.find(r => r.id === custodyId);
+                if (!record) {
+                    showAlert('danger', 'العهدة غير موجودة!');
+                    return;
+                }
+
+                const actualReturnDate = document.getElementById('actualReturnDate').value;
+                const returnCondition = document.getElementById('returnCondition').value;
+                const returnNotes = document.getElementById('returnNotes').value;
+
+                if (!actualReturnDate || !returnCondition) {
+                    showAlert('danger', 'يرجى ملء جميع الحقول المطلوبة!');
+                    return;
+                }
+
+                const itemConditions = Array.from(document.querySelectorAll('#itemList select')).map(select => ({
+                    itemId: parseInt(select.dataset.itemId),
+                    returnCondition: select.value,
+                    returnNotes: document.querySelector(`textarea[data-item-id="${select.dataset.itemId}"]`).value
+                }));
+
+                if (itemConditions.some(cond => !cond.returnCondition)) {
+                    showAlert('danger', 'يرجى تحديد حالة الإرجاع لجميع الأصناف!');
+                    return;
+                }
+
+                record.status = 'returned';
+                record.actualReturnDate = actualReturnDate;
+                record.returnCondition = returnCondition;
+                record.returnNotes = returnNotes;
+                record.items.forEach(item => {
+                    const condition = itemConditions.find(c => c.itemId === item.id);
+                    if (condition) {
+                        item.currentCondition = 'returned';
+                        item.returnCondition = condition.returnCondition;
+                        item.returnNotes = condition.returnNotes;
+                    }
+                });
+
+                showAlert('success', 'تم استلام العهدة بنجاح!');
+                setTimeout(() => {
+                    window.location.href = 'custody.html';
+                }, 1000);
+            }
+
+            // Get condition class for styling
+            function getConditionClass(condition) {
+                return `status-${condition.replace(' ', '-')}`;
+            }
+
+            // Get condition text
+            function getConditionText(condition) {
+                const conditionMap = {
+                    excellent: 'ممتاز',
+                    'very-good': 'جيد جداً',
+                    good: 'جيد',
+                    fair: 'مقبول',
+                    damaged: 'تالف',
+                    assigned: 'مسلم',
+                    partially_damaged: 'تالف جزئياً'
+                };
+                return conditionMap[condition] || condition;
+            }
+
+            // Show alert
+            function showAlert(type, message) {
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    ${message}
+                `;
+                alertContainer.appendChild(alert);
+                setTimeout(() => {
+                    alert.remove();
+                }, 3000);
+            }
+
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>

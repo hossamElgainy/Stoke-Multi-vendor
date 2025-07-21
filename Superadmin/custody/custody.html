@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة العهدة - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        :root {
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #14b8a6;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .company-select {
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #d1d5db;
+            background-color: white;
+            color: var(--dark);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .company-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .custody-status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .status-active {
+            background-color: var(--success-color);
+        }
+
+        .status-returned {
+            background-color: var(--primary);
+        }
+
+        .status-overdue {
+            background-color: var(--danger);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 14px 25px;
+            cursor: pointer;
+            position: relative;
+            font-size: 15px;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.2s ease;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #f87171;
+        }
+
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #e5e7eb;
+        }
+
+        .pagination-info {
+            font-size: 15px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-size-selector label {
+            font-size: 15px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .page-size-selector select {
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: var(--border-radius);
+            font-size: 15px;
+            cursor: pointer;
+            background-color: #f9fafb;
+        }
+
+        .page-size-selector select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border: 1px solid #e5e7eb;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 50px;
+            background: white;
+            color: var(--dark);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background-color: var(--primary);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .pagination-btn.active {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
+        }
+
+        .pagination-btn:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .pagination-btn i {
+            margin-left: 5px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .pagination-container {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 10px;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+        }
+
+        @media (max-width: 576px) {
+            th, td {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .pagination-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+
+            .page-size-selector select {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li class="active"><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="menu-toggle-container">
+                    <button class="menu-toggle" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <span class="mobile-header-title">إدارة العهدة</span>
+                </div>
+                <div class="header-center">
+                    <select id="companySelect" class="company-select">
+                        <option value="">اختر الشركة</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>أمين المخزن</span>
+                </div>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="custodyTitle">العهد النشطة</h3>
+                    <a href="add.html" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> تسليم عهدة جديدة
+                    </a>
+                </div>
+
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="active">العهد النشطة</div>
+                        <div class="tab" data-tab="returned">العهد المرجعة</div>
+                    </div>
+                    <div class="pagination-container">
+                        <div class="page-size-selector">
+                            <label>عدد السجلات لكل صفحة:</label>
+                            <select id="pageSize">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                        <div class="pagination-info" id="paginationInfo"></div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="custodyTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>كود العهدة</th>
+                                    <th>الصنف</th>
+                                    <th>الشركة</th>
+                                    <th>المستلم</th>
+                                    <th>تاريخ التسليم</th>
+                                    <th>تاريخ الاستلام</th>
+                                    <th>الحالة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="custodyTableBody">
+                                <tr><td colspan="9" class="loading">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-controls">
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const custodyTableBody = document.getElementById('custodyTableBody');
+            const tabs = document.querySelectorAll('.tab');
+            const custodyTitle = document.getElementById('custodyTitle');
+            const alertContainer = document.getElementById('alertContainer');
+            const pageSizeSelect = document.getElementById('pageSize');
+            const paginationInfo = document.getElementById('paginationInfo');
+            const paginationNav = document.getElementById('pagination');
+            const companySelect = document.getElementById('companySelect');
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            // Sample Data
+            let companies = [
+                { id: 1, name: 'شركة التقدم' },
+                { id: 2, name: 'شركة الريادة' },
+                { id: 3, name: 'شركة الابتكار' }
+            ];
+
+            let employees = [
+                { id: 1, name: 'أحمد محمد', department: 'IT', companyId: 1 },
+                { id: 2, name: 'محمد علي', department: 'المالية', companyId: 2 },
+                { id: 3, name: 'سارة عبدالله', department: 'الموارد البشرية', companyId: 3 }
+            ];
+
+            let items = [
+                { id: 1, code: 'ITM-1001', name: 'كمبيوتر محمول', category: 'أجهزة إلكترونية', available: 5, condition: 'excellent', companyId: 1 },
+                { id: 2, code: 'ITM-1002', name: 'هاتف ذكي', category: 'أجهزة إلكترونية', available: 10, condition: 'very-good', companyId: 2 },
+                { id: 3, code: 'ITM-2001', name: 'طابعة', category: 'أجهزة مكتبية', available: 3, condition: 'good', companyId: 3 },
+                { id: 4, code: 'ITM-3001', name: 'طاولة مكتب', category: 'أثاث', available: 8, condition: 'fair', companyId: 1 },
+                { id: 5, code: 'ITM-3002', name: 'كرسي مكتب', category: 'أثاث', available: 12, condition: 'damaged', companyId: 2 }
+            ];
+
+            let additionalItemsOptions = [
+                { id: 1, name: 'تيشيرت إضافي', code: 'ADD-1001', cost: 100, companyId: 1 },
+                { id: 2, name: 'قبعة إضافية', code: 'ADD-1002', cost: 50, companyId: 2 },
+                { id: 3, name: 'حقيبة إضافية', code: 'ADD-1003', cost: 150, companyId: 3 }
+            ];
+
+            let custodyRecords = [
+                {
+                    id: 1,
+                    code: 'CST-2001',
+                    companyId: 1,
+                    employeeId: 1,
+                    items: [
+                        {
+                            id: 1,
+                            code: 'ITM-1001',
+                            name: 'كمبيوتر محمول',
+                            initialCondition: 'excellent',
+                            currentCondition: 'assigned',
+                            returnCondition: null,
+                            returnNotes: ''
+                        }
+                    ],
+                    additionalItems: [
+                        {
+                            id: 1,
+                            name: 'تيشيرت إضافي',
+                            code: 'ADD-1001',
+                            monthlyDeduction: 10,
+                            totalInstallments: 12,
+                            paidInstallments: 3,
+                            remainingInstallments: 9,
+                            totalCost: 100
+                        }
+                    ],
+                    assignDate: '2023-05-15',
+                    expectedReturnDate: '2023-08-15',
+                    actualReturnDate: null,
+                    status: 'active',
+                    notes: 'تسليم لموظف جديد',
+                    returnCondition: null,
+                    returnNotes: null
+                },
+                {
+                    id: 2,
+                    code: 'CST-2002',
+                    companyId: 2,
+                    employeeId: 2,
+                    items: [
+                        {
+                            id: 3,
+                            code: 'ITM-2001',
+                            name: 'طابعة',
+                            initialCondition: 'good',
+                            currentCondition: 'returned',
+                            returnCondition: 'excellent',
+                            returnNotes: 'تم الاستلام في حالة ممتازة بعد الصيانة'
+                        },
+                        {
+                            id: 5,
+                            code: 'ITM-3002',
+                            name: 'كرسي مكتب',
+                            initialCondition: 'damaged',
+                            currentCondition: 'returned',
+                            returnCondition: 'damaged',
+                            returnNotes: 'تم الاستلام مع تلف في الظهر'
+                        }
+                    ],
+                    additionalItems: [
+                        {
+                            id: 2,
+                            name: 'قبعة إضافية',
+                            code: 'ADD-1002',
+                            monthlyDeduction: 5,
+                            totalInstallments: 12,
+                            paidInstallments: 12,
+                            remainingInstallments: 0,
+                            totalCost: 50
+                        }
+                    ],
+                    assignDate: '2023-06-01',
+                    expectedReturnDate: '2023-09-01',
+                    actualReturnDate: '2023-09-05',
+                    status: 'returned',
+                    notes: 'تسليم لمشروع مؤقت',
+                    returnCondition: 'partially_damaged',
+                    returnNotes: 'تم استلام بعض الأصناف بحالة تالفة'
+                }
+            ];
+
+            // Current state
+            let currentTab = 'active';
+            let itemsPerPage = parseInt(pageSizeSelect.value);
+            let currentPage = 1;
+            let selectedCompanyId = null;
+
+            // Initialize the app
+            function init() {
+                loadCompanies();
+                setTimeout(() => renderCustodyTable(), 500);
+                setupEventListeners();
+                setupMobileSidebar();
+            }
+
+            // Setup mobile sidebar functionality
+            function setupMobileSidebar() {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.add('active');
+                    sidebarOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                sidebarClose.addEventListener('click', closeSidebar);
+                sidebarOverlay.addEventListener('click', closeSidebar);
+
+                document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            closeSidebar();
+                        }
+                    });
+                });
+
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        closeSidebar();
+                    }
+                });
+            }
+
+            // Close sidebar function
+            function closeSidebar() {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // Load companies into select dropdown
+            function loadCompanies() {
+                companySelect.innerHTML = '<option value="">اختر الشركة</option>';
+                companies.forEach(company => {
+                    const option = document.createElement('option');
+                    option.value = company.id;
+                    option.textContent = company.name;
+                    companySelect.appendChild(option);
+                });
+            }
+
+            // Render custody table with pagination
+            function renderCustodyTable() {
+                custodyTableBody.innerHTML = '<tr><td colspan="9" class="loading">جاري التحميل...</td></tr>';
+
+                setTimeout(() => {
+                    custodyTableBody.innerHTML = '';
+                    const filteredRecords = custodyRecords.filter(record => {
+                        if (!selectedCompanyId || record.companyId === selectedCompanyId) {
+                            if (currentTab === 'active') return record.status === 'active';
+                            if (currentTab === 'returned') return record.status === 'returned';
+                            return true;
+                        }
+                        return false;
+                    });
+
+                    if (filteredRecords.length === 0) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `<td colspan="9" class="loading">لا توجد سجلات</td>`;
+                        custodyTableBody.appendChild(tr);
+                        renderPagination(0);
+                        paginationInfo.textContent = 'عرض 0 إلى 0 من 0 سجل';
+                        return;
+                    }
+
+                    const totalItems = filteredRecords.length;
+                    const totalPages = Math.ceil(totalItems / itemsPerPage);
+                    currentPage = Math.min(currentPage, totalPages || 1);
+                    const startIndex = (currentPage - 1) * itemsPerPage;
+                    const endIndex = startIndex + itemsPerPage;
+                    const paginatedRecords = filteredRecords.slice(startIndex, endIndex);
+
+                    paginationInfo.textContent = `عرض ${startIndex + 1} إلى ${Math.min(endIndex, totalItems)} من ${totalItems} سجل`;
+
+                    paginatedRecords.forEach((record, index) => {
+                        const employee = employees.find(e => e.id === record.employeeId);
+                        const company = companies.find(c => c.id === record.companyId);
+                        const tr = document.createElement('tr');
+
+                        tr.innerHTML = `
+                            <td>${startIndex + index + 1}</td>
+                            <td>${record.code}</td>
+                            <td>
+                                ${record.items.map(item => `${item.name} (${item.code})`).join('<br>')}
+                                ${record.additionalItems.length > 0 ? '<br><strong>إضافي:</strong> ' + record.additionalItems.map(item => `${item.name} (${item.code})`).join('<br>') : ''}
+                            </td>
+                            <td>${company ? company.name : 'غير معروف'}</td>
+                            <td>${employee ? employee.name : 'غير معروف'}</td>
+                            <td>${formatDate(record.assignDate)}</td>
+                            <td>${record.expectedReturnDate ? formatDate(record.expectedReturnDate) : '-'}</td>
+                            <td>
+                                <span class="custody-status ${getStatusClass(record)}"></span>
+                                ${getStatusText(record)}
+                            </td>
+                            <td>
+                                ${record.status === 'active' ? `
+                                    <a href="receive.html?id=${record.id}" class="btn btn-sm btn-success"><i class="fas fa-undo"></i> استلام</a>
+                                    <a href="add.html?id=${record.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i> تعديل</a>
+                                ` : `
+                                    <a href="show.html?id=${record.id}" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i> عرض</a>
+                                `}
+                            </td>
+                        `;
+
+                        custodyTableBody.appendChild(tr);
+                    });
+
+                    renderPagination(totalPages);
+                }, 500);
+            }
+
+            // Render pagination controls
+            function renderPagination(totalPages) {
+                paginationNav.innerHTML = '';
+                const effectiveTotalPages = Math.max(1, totalPages);
+
+                const firstBtn = document.createElement('button');
+                firstBtn.className = 'pagination-btn';
+                firstBtn.innerHTML = '<i class="fas fa-angle-double-right"></i>';
+                firstBtn.disabled = currentPage === 1;
+                firstBtn.addEventListener('click', () => {
+                    currentPage = 1;
+                    renderCustodyTable();
+                });
+                paginationNav.appendChild(firstBtn);
+
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'pagination-btn';
+                prevBtn.innerHTML = '<i class="fas fa-angle-right"></i>';
+                prevBtn.disabled = currentPage === 1;
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderCustodyTable();
+                    }
+                });
+                paginationNav.appendChild(prevBtn);
+
+                const maxPagesToShow = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
+                let endPage = Math.min(effectiveTotalPages, startPage + maxPagesToShow - 1);
+
+                if (endPage - startPage < maxPagesToShow - 1) {
+                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                    pageBtn.textContent = i;
+                    pageBtn.addEventListener('click', () => {
+                        currentPage = i;
+                        renderCustodyTable();
+                    });
+                    paginationNav.appendChild(pageBtn);
+                }
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'pagination-btn';
+                nextBtn.innerHTML = '<i class="fas fa-angle-left"></i>';
+                nextBtn.disabled = currentPage === effectiveTotalPages;
+                nextBtn.addEventListener('click', () => {
+                    if (currentPage < effectiveTotalPages) {
+                        currentPage++;
+                        renderCustodyTable();
+                    }
+                });
+                paginationNav.appendChild(nextBtn);
+
+                const lastBtn = document.createElement('button');
+                lastBtn.className = 'pagination-btn';
+                lastBtn.innerHTML = '<i class="fas fa-angle-double-left"></i>';
+                lastBtn.disabled = currentPage === effectiveTotalPages;
+                lastBtn.addEventListener('click', () => {
+                    currentPage = effectiveTotalPages;
+                    renderCustodyTable();
+                });
+                paginationNav.appendChild(lastBtn);
+            }
+
+            // Format date for display
+            function formatDate(dateString) {
+                if (!dateString) return '-';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('ar-EG');
+            }
+
+            // Get status class for styling
+            function getStatusClass(record) {
+                if (record.status === 'returned') return 'status-returned';
+                const today = new Date();
+                const returnDate = new Date(record.expectedReturnDate);
+                if (today > returnDate) return 'status-overdue';
+                return 'status-active';
+            }
+
+            // Get status text
+            function getStatusText(record) {
+                if (record.status === 'returned') return 'مرجعة';
+                const today = new Date();
+                const returnDate = new Date(record.expectedReturnDate);
+                if (today > returnDate) return 'متأخرة';
+                return 'نشطة';
+            }
+
+            // Setup event listeners
+            function setupEventListeners() {
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', function() {
+                        tabs.forEach(t => t.classList.remove('active'));
+                        this.classList.add('active');
+                        currentTab = this.dataset.tab;
+                        custodyTitle.textContent = this.textContent;
+                        currentPage = 1;
+                        renderCustodyTable();
+                    });
+                });
+
+                pageSizeSelect.addEventListener('change', function() {
+                    itemsPerPage = parseInt(this.value);
+                    currentPage = 1;
+                    renderCustodyTable();
+                });
+
+                companySelect.addEventListener('change', function() {
+                    selectedCompanyId = this.value ? parseInt(this.value) : null;
+                    currentPage = 1;
+                    renderCustodyTable();
+                });
+            }
+
+            // Show alert
+            function showAlert(type, message) {
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type}`;
+                alert.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    ${message}
+                `;
+                alertContainer.appendChild(alert);
+                setTimeout(() => {
+                    alert.remove();
+                }, 3000);
+            }
+
+            // Initialize the app
+            init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة مورد - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">      
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+      <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                      <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li class="active"><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title" id="headerTitle">إضافة مورد</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorDropdown">
+                        <option value="all">جميع الشركات</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="#">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 id="cardTitle">إضافة مورد جديد</h3>
+                </div>
+                <div class="card-body">
+                    <form id="supplierForm">
+                        <div class="form-container">
+                            <input type="hidden" id="supplierId">
+                            <div class="form-group">
+                                <label for="vendorId">الشركة</label>
+                                <select class="form-control" id="vendorId" required>
+                                    <option value="">اختر الشركة</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="supplierName">اسم المورد</label>
+                                <input type="text" class="form-control" id="supplierName" placeholder="أدخل اسم المورد" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPerson">جهة الاتصال</label>
+                                <input type="text" class="form-control" id="contactPerson" placeholder="أدخل اسم جهة الاتصال" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">رقم الهاتف</label>
+                                <input type="tel" class="form-control" id="phone" placeholder="أدخل رقم الهاتف" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">البريد الإلكتروني</label>
+                                <input type="email" class="form-control" id="email" placeholder="أدخل البريد الإلكتروني">
+                            </div>
+                            <div class="form-group">
+                                <label for="address">العنوان</label>
+                                <textarea class="form-control" id="address" rows="3" placeholder="أدخل العنوان"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <button type="submit" class="btn btn-primary">حفظ</button>
+                                <a href="/Superadmin/suppliers/suppliers.html" class="btn btn-danger">إلغاء</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [];
+        let vendors = JSON.parse(localStorage.getItem('vendors')) || [
+            { id: 1, name: "شركة المستقبل" },
+            { id: 2, name: "شركة التقدم" }
+        ];
+
+        // Update dropdowns
+        function updateDropdowns() {
+            const vendorDropdown = document.getElementById('vendorDropdown');
+            const vendorSelect = document.getElementById('vendorId');
+
+            vendorDropdown.innerHTML = '<option value="all">جميع الشركات</option>';
+            vendorSelect.innerHTML = '<option value="">اختر الشركة</option>';
+
+            vendors.forEach(vendor => {
+                const option1 = document.createElement('option');
+                option1.value = vendor.id;
+                option1.textContent = vendor.name;
+                vendorDropdown.appendChild(option1);
+                const option2 = document.createElement('option');
+                option2.value = vendor.id;
+                option2.textContent = vendor.name;
+                vendorSelect.appendChild(option2);
+            });
+        }
+
+        // Parse query parameters
+        const params = new URLSearchParams(window.location.search);
+        const supplierId = params.get('id');
+
+        // Handle edit mode
+        if (supplierId) {
+            const supplier = suppliers.find(s => s.id === parseInt(supplierId));
+            if (supplier) {
+                document.getElementById('cardTitle').textContent = 'تعديل مورد';
+                document.getElementById('headerTitle').textContent = 'تعديل مورد';
+                document.getElementById('supplierId').value = supplier.id;
+                document.getElementById('vendorId').value = supplier.vendorId;
+                document.getElementById('supplierName').value = supplier.name;
+                document.getElementById('contactPerson').value = supplier.contactPerson;
+                document.getElementById('phone').value = supplier.phone;
+                document.getElementById('email').value = supplier.email || '';
+                document.getElementById('address').value = supplier.address || '';
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('supplierForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('supplierId').value) || (suppliers.length ? Math.max(...suppliers.map(s => s.id)) + 1 : 1);
+            const vendorId = parseInt(document.getElementById('vendorId').value);
+            const supplierName = document.getElementById('supplierName').value;
+            const contactPerson = document.getElementById('contactPerson').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+
+            if (!vendorId || !supplierName || !contactPerson || !phone) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            const supplier = {
+                id: id,
+                name: supplierName,
+                contactPerson: contactPerson,
+                phone: phone,
+                email: email || null,
+                address: address || null,
+                vendorId: vendorId,
+                vendorName: vendors.find(v => v.id === vendorId).name
+            };
+
+            if (supplierId) {
+                const index = suppliers.findIndex(s => s.id === parseInt(supplierId));
+                suppliers[index] = supplier;
+            } else {
+                suppliers.push(supplier);
+            }
+
+            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+            window.location.href = '/Superadmin/suppliers/suppliers.html';
+        });
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        });
+
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+
+        // Initial setup
+        updateDropdowns();
+    </script>
+</body>
+</html>

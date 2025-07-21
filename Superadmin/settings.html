@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإعدادات - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .info-item {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .info-item label {
+            font-weight: 500;
+            margin-left: 10px;
+            color: #555;
+        }
+
+        .info-item span {
+            color: #333;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .tab:hover {
+            color: var(--primary-dark);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1050;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .modal-body {
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .modal-footer {
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+
+        .close {
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        /* Two-column layout for medium and large screens */
+        @media (min-width: 768px) {
+            .form-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-header h3 {
+                margin-bottom: 10px;
+            }
+
+            .modal-content {
+                width: 90%;
+                margin: 10% auto;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .form-control {
+                font-size: 12px;
+                padding: 8px;
+            }
+
+            .tab {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 20% auto;
+            }
+
+            .section-title {
+                font-size: 1rem;
+            }
+
+            .info-item {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                   <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                                        <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    
+                    <li ><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li class="active"><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">الإعدادات</span>
+                    </div>
+                    <select class="vendor-dropdown" id="vendorDropdown">
+                        <option value="all">جميع الشركات</option>
+                    </select>
+                    <select class="warehouse-dropdown" id="warehouseDropdown">
+                        <option value="all">جميع المخازن</option>
+                    </select>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span id="userNameDisplay">سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="/Superadmin/login.html">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>الإعدادات</h3>
+                </div>
+                <div class="card-body">
+                    <div class="tabs">
+                        <div class="tab active" data-tab="account-info">معلومات الحساب</div>
+                        <div class="tab" data-tab="account-settings">إعدادات الحساب</div>
+                        <div class="tab" data-tab="password">تغيير كلمة المرور</div>
+                        <div class="tab" data-tab="smtp">إعدادات SMTP</div>
+                    </div>
+                    <div class="tab-content active" id="account-info">
+                        <div class="section">
+                            <h4 class="section-title">معلومات المستخدم</h4>
+                            <div class="form-container">
+                                <div class="info-item">
+                                    <label>اسم المستخدم:</label>
+                                    <span id="userName">غير متوفر</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>البريد الإلكتروني:</label>
+                                    <span id="userEmail">غير متوفر</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>الدور:</label>
+                                    <span id="userRole">غير متوفر</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section">
+                            <h4 class="section-title">معلومات الخطة</h4>
+                            <div class="form-container">
+                                <div class="info-item">
+                                    <label>اسم الخطة:</label>
+                                    <span id="planName">غير متوفر</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>حالة الخطة:</label>
+                                    <span id="planStatus">غير متوفر</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>تاريخ انتهاء الخطة:</label>
+                                    <span id="planExpiry">غير متوفر</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="section">
+                            <div class="form-group full-width">
+                                <button type="button" class="btn btn-primary" onclick="createBackup()">إنشاء نسخة احتياطية</button>
+                                <button type="button" class="btn btn-danger" onclick="showDeleteAccountConfirm()">حذف الحساب</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="account-settings">
+                        <form id="accountSettingsForm">
+                            <div class="form-container">
+                                <div class="form-group">
+                                    <label for="language">اللغة</label>
+                                    <select class="form-control" id="language" required>
+                                        <option value="ar">العربية</option>
+                                        <option value="en">الإنجليزية</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="timezone">المنطقة الزمنية</label>
+                                    <select class="form-control" id="timezone" required>
+                                        <option value="Africa/Cairo">القاهرة (EEST)</option>
+                                        <option value="Asia/Dubai">دبي (GST)</option>
+                                        <option value="Europe/London">لندن (GMT)</option>
+                                        <option value="America/New_York">نيويورك (EST)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="theme">الثيم</label>
+                                    <select class="form-control" id="theme">
+                                        <option value="light">فاتح</option>
+                                        <option value="dark">داكن</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="notificationMethod">طريقة الإشعارات</label>
+                                    <select class="form-control" id="notificationMethod">
+                                        <option value="email">البريد الإلكتروني</option>
+                                        <option value="sms">رسائل نصية</option>
+                                        <option value="both">كلاهما</option>
+                                        <option value="none">بدون إشعارات</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+                                    <a href="/Superadmin/index.html" class="btn btn-danger">إلغاء</a>
+                                    <button type="button" class="btn btn-warning" onclick="resetAccountSettings()">إعادة تعيين إلى الافتراضي</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-content" id="password">
+                        <form id="passwordForm">
+                            <div class="form-container">
+                                <div class="form-group">
+                                    <label for="currentPassword">كلمة المرور الحالية</label>
+                                    <input type="password" class="form-control" id="currentPassword" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">كلمة المرور الجديدة</label>
+                                    <input type="password" class="form-control" id="newPassword" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmNewPassword">تأكيد كلمة المرور الجديدة</label>
+                                    <input type="password" class="form-control" id="confirmNewPassword" required>
+                                </div>
+                                <div class="form-group full-width">
+                                    <button type="submit" class="btn btn-primary">تغيير كلمة المرور</button>
+                                    <a href="/Superadmin/index.html" class="btn btn-danger">إلغاء</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-content" id="smtp">
+                        <form id="smtpSettingsForm">
+                            <div class="form-container">
+                                <div class="form-group">
+                                    <label for="smtpHost">مضيف SMTP</label>
+                                    <input type="text" class="form-control" id="smtpHost" placeholder="smtp.example.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpPort">منفذ SMTP</label>
+                                    <input type="number" class="form-control" id="smtpPort" placeholder="587" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpUsername">اسم المستخدم</label>
+                                    <input type="text" class="form-control" id="smtpUsername" placeholder="username@example.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpPassword">كلمة المرور</label>
+                                    <input type="password" class="form-control" id="smtpPassword" placeholder="كلمة المرور" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="smtpEncryption">التشفير</label>
+                                    <select class="form-control" id="smtpEncryption">
+                                        <option value="tls">TLS</option>
+                                        <option value="ssl">SSL</option>
+                                        <option value="none">بدون تشفير</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+                                    <a href="/Superadmin/index.html" class="btn btn-danger">إلغاء</a>
+                                    <button type="button" class="btn btn-warning" onclick="resetSmtpSettings()">إعادة تعيين إلى الافتراضي</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div class="modal" id="deleteAccountConfirmModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>تأكيد حذف الحساب</h3>
+                <span class="close" onclick="closeDeleteAccountConfirm()">×</span>
+            </div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من حذف حسابك؟ سيتم حذف جميع البيانات المرتبطة بالحساب، ولا يمكن التراجع عن هذا الإجراء.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirmDeleteAccountBtn">حذف</button>
+                <button class="btn btn-primary" onclick="closeDeleteAccountConfirm()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let vendors = JSON.parse(localStorage.getItem('vendors')) || [
+            { id: 1, name: "شركة المستقبل" },
+            { id: 2, name: "شركة التقدم" }
+        ];
+        let warehouses = JSON.parse(localStorage.getItem('warehouses')) || [
+            { id: 1, name: "المخزن الرئيسي" },
+            { id: 2, name: "مخزن الفرع الشمالي" }
+        ];
+        let settings = JSON.parse(localStorage.getItem('settings')) || {
+            language: "ar",
+            timezone: "Africa/Cairo",
+            theme: "light",
+            notificationMethod: "email",
+            smtp: {
+                host: "",
+                port: 587,
+                username: "",
+                password: "",
+                encryption: "tls"
+            }
+        };
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { 
+            role: "Super Admin",
+            name: "سوبر أدمن",
+            email: "superadmin@example.com",
+            password: "admin123",
+            plan: {
+                name: "SuperGrok",
+                status: "نشط",
+                expiryDate: "2026-07-17"
+            }
+        };
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+
+        // Default settings
+        const defaultSettings = {
+            language: "ar",
+            timezone: "Africa/Cairo",
+            theme: "light",
+            notificationMethod: "email",
+            smtp: {
+                host: "",
+                port: 587,
+                username: "",
+                password: "",
+                encryption: "tls"
+            }
+        };
+
+        // Update dropdowns
+        function updateDropdowns() {
+            const vendorDropdown = document.getElementById('vendorDropdown');
+            const warehouseDropdown = document.getElementById('warehouseDropdown');
+
+            vendorDropdown.innerHTML = '<option value="all">جميع الشركات</option>';
+            vendors.forEach(vendor => {
+                const option = document.createElement('option');
+                option.value = vendor.id;
+                option.textContent = vendor.name;
+                vendorDropdown.appendChild(option);
+            });
+
+            warehouseDropdown.innerHTML = '<option value="all">جميع المخازن</option>';
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                warehouseDropdown.appendChild(option);
+            });
+        }
+
+        // Load settings
+        function loadSettings() {
+            // Account Info
+            document.getElementById('userName').textContent = currentUser.name || "غير متوفر";
+            document.getElementById('userEmail').textContent = currentUser.email || "غير متوفر";
+            document.getElementById('userRole').textContent = currentUser.role || "غير متوفر";
+            document.getElementById('planName').textContent = currentUser.plan?.name || "غير متوفر";
+            document.getElementById('planStatus').textContent = currentUser.plan?.status || "غير متوفر";
+            document.getElementById('planExpiry').textContent = currentUser.plan?.expiryDate || "غير متوفر";
+            document.getElementById('userNameDisplay').textContent = currentUser.name || "سوبر أدمن";
+
+            // Account Settings
+            document.getElementById('language').value = settings.language;
+            document.getElementById('timezone').value = settings.timezone;
+            document.getElementById('theme').value = settings.theme;
+            document.getElementById('notificationMethod').value = settings.notificationMethod;
+
+            // SMTP Settings
+            document.getElementById('smtpHost').value = settings.smtp.host;
+            document.getElementById('smtpPort').value = settings.smtp.port;
+            document.getElementById('smtpUsername').value = settings.smtp.username;
+            document.getElementById('smtpPassword').value = settings.smtp.password;
+            document.getElementById('smtpEncryption').value = settings.smtp.encryption;
+
+            // Apply theme
+            document.body.className = settings.theme;
+
+            // Disable forms for non-Super Admins
+            if (currentUser.role !== "Super Admin") {
+                const forms = [document.getElementById('accountSettingsForm'), document.getElementById('passwordForm'), document.getElementById('smtpSettingsForm')];
+                forms.forEach(form => {
+                    form.querySelectorAll('input, select, button').forEach(element => {
+                        element.disabled = true;
+                    });
+                });
+                alert('فقط سوبر أدمن يمكنه تعديل الإعدادات');
+            }
+        }
+
+        // Create backup
+        function createBackup() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بإنشاء نسخة احتياطية');
+                return;
+            }
+
+            const backupData = {
+                currentUser,
+                settings,
+                transactions,
+                timestamp: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // Log backup action
+            const transaction = {
+                id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                date: new Date().toISOString(),
+                user: currentUser.name || "سوبر أدمن",
+                action: "إنشاء نسخة احتياطية"
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            alert('تم إنشاء النسخة الاحتياطية بنجاح');
+        }
+
+        // Show delete account confirmation modal
+        function showDeleteAccountConfirm() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بحذف الحساب');
+                return;
+            }
+            document.getElementById('deleteAccountConfirmModal').classList.add('active');
+        }
+
+        // Close delete account confirmation modal
+        function closeDeleteAccountConfirm() {
+            document.getElementById('deleteAccountConfirmModal').classList.remove('active');
+        }
+
+        // Delete account
+        function deleteAccount() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بحذف الحساب');
+                return;
+            }
+
+            // Log account deletion
+            const transaction = {
+                id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                date: new Date().toISOString(),
+                user: currentUser.name || "سوبر أدمن",
+                action: "حذف الحساب"
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            // Clear user-related data
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('settings');
+            localStorage.removeItem('transactions');
+
+            alert('تم حذف الحساب بنجاح');
+            window.location.href = '/Superadmin/login.html';
+        }
+
+        // Handle account settings form submission
+        document.getElementById('accountSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بتعديل الإعدادات');
+                return;
+            }
+
+            const language = document.getElementById('language').value;
+            const timezone = document.getElementById('timezone').value;
+            const theme = document.getElementById('theme').value;
+            const notificationMethod = document.getElementById('notificationMethod').value;
+
+            // Validation
+            if (!language || !timezone || !notificationMethod || !theme) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            const newSettings = {
+                ...settings,
+                language,
+                timezone,
+                theme,
+                notificationMethod
+            };
+
+            // Log changes
+            const changes = Object.keys(newSettings).filter(key => key !== 'smtp' && newSettings[key] !== settings[key]);
+            if (changes.length > 0) {
+                const transaction = {
+                    id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                    date: new Date().toISOString(),
+                    user: currentUser.name || "سوبر أدمن",
+                    action: `تعديل إعدادات الحساب: ${changes.join(', ')}`
+                };
+                transactions.push(transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+            }
+
+            // Update settings
+            settings = newSettings;
+            localStorage.setItem('settings', JSON.stringify(settings));
+
+            // Apply theme
+            document.body.className = theme;
+
+            // Apply language (placeholder)
+            if (language === 'en') {
+                alert('English language selected. Full UI translation requires additional implementation.');
+            }
+
+            alert('تم حفظ إعدادات الحساب بنجاح');
+        });
+
+        // Handle password change form submission
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بتغيير كلمة المرور');
+                return;
+            }
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            // Validation
+            if (!currentPassword || !newPassword || !confirmNewPassword) {
+                alert('يرجى ملء جميع حقول كلمة المرور');
+                return;
+            }
+            if (currentPassword !== currentUser.password) {
+                alert('كلمة المرور الحالية غير صحيحة');
+                return;
+            }
+            if (newPassword !== confirmNewPassword) {
+                alert('كلمة المرور الجديدة وتأكيدها غير متطابقين');
+                return;
+            }
+            if (newPassword.length < 8) {
+                alert('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل');
+                return;
+            }
+
+            // Update password
+            currentUser.password = newPassword;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+            // Log password change
+            const transaction = {
+                id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                date: new Date().toISOString(),
+                user: currentUser.name || "سوبر أدمن",
+                action: "تغيير كلمة المرور"
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            // Clear password fields
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+
+            alert('تم تغيير كلمة المرور بنجاح');
+        });
+
+        // Handle SMTP settings form submission
+        document.getElementById('smtpSettingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بتعديل إعدادات SMTP');
+                return;
+            }
+
+            const smtpHost = document.getElementById('smtpHost').value.trim();
+            const smtpPort = parseInt(document.getElementById('smtpPort').value);
+            const smtpUsername = document.getElementById('smtpUsername').value.trim();
+            const smtpPassword = document.getElementById('smtpPassword').value;
+            const smtpEncryption = document.getElementById('smtpEncryption').value;
+
+            // Validation
+            if (!smtpHost || !smtpUsername || !smtpPassword) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+            if (isNaN(smtpPort) || smtpPort < 1 || smtpPort > 65535) {
+                alert('منفذ SMTP يجب أن يكون رقمًا بين 1 و65535');
+                return;
+            }
+
+            const newSmtpSettings = {
+                host: smtpHost,
+                port: smtpPort,
+                username: smtpUsername,
+                password: smtpPassword,
+                encryption: smtpEncryption
+            };
+
+            // Log changes
+            const changes = Object.keys(newSmtpSettings).filter(key => newSmtpSettings[key] !== settings.smtp[key]);
+            if (changes.length > 0) {
+                const transaction = {
+                    id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                    date: new Date().toISOString(),
+                    user: currentUser.name || "سوبر أدمن",
+                    action: `تعديل إعدادات SMTP: ${changes.join(', ')}`
+                };
+                transactions.push(transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+            }
+
+            // Update settings
+            settings.smtp = newSmtpSettings;
+            localStorage.setItem('settings', JSON.stringify(settings));
+
+            alert('تم حفظ إعدادات SMTP بنجاح');
+        });
+
+        // Reset account settings to default
+        function resetAccountSettings() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بإعادة تعيين الإعدادات');
+                return;
+            }
+            if (confirm('هل أنت متأكد من إعادة تعيين إعدادات الحساب إلى الافتراضي؟')) {
+                settings.language = defaultSettings.language;
+                settings.timezone = defaultSettings.timezone;
+                settings.theme = defaultSettings.theme;
+                settings.notificationMethod = defaultSettings.notificationMethod;
+                localStorage.setItem('settings', JSON.stringify(settings));
+
+                // Log reset action
+                const transaction = {
+                    id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                    date: new Date().toISOString(),
+                    user: currentUser.name || "سوبر أدمن",
+                    action: "إعادة تعيين إعدادات الحساب إلى الافتراضي"
+                };
+                transactions.push(transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+
+                loadSettings();
+                alert('تم إعادة تعيين إعدادات الحساب بنجاح');
+            }
+        }
+
+        // Reset SMTP settings to default
+        function resetSmtpSettings() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بإعادة تعيين إعدادات SMTP');
+                return;
+            }
+            if (confirm('هل أنت متأكد من إعادة تعيين إعدادات SMTP إلى الافتراضي؟')) {
+                settings.smtp = { ...defaultSettings.smtp };
+                localStorage.setItem('settings', JSON.stringify(settings));
+
+                // Log reset action
+                const transaction = {
+                    id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                    date: new Date().toISOString(),
+                    user: currentUser.name || "سوبر أدمن",
+                    action: "إعادة تعيين إعدادات SMTP إلى الافتراضي"
+                };
+                transactions.push(transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+
+                loadSettings();
+                alert('تم إعادة تعيين إعدادات SMTP بنجاح');
+            }
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                this.classList.add('active');
+                document.getElementById(this.getAttribute('data-tab')).classList.add('active');
+            });
+        });
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        });
+
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('active');
+            this.classList.remove('active');
+        });
+
+        // Event listener for delete account confirmation
+        document.getElementById('confirmDeleteAccountBtn').addEventListener('click', deleteAccount);
+
+        // Initial setup
+        updateDropdowns();
+        loadSettings();
+    </script>
+</body>
+</html>
