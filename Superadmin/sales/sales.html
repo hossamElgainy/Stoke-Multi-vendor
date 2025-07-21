@@ -34,7 +34,6 @@
                     <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
                     <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
                     <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
-                    <li><a href="/Superadmin/clients/clients.html"><i class="fas fa-users"></i> إدارة العملاء</a></li>
                 </ul>
             </div>
         </div>
@@ -174,7 +173,6 @@
                                         <th>رقم الهاتف</th>
                                         <th>البريد الإلكتروني</th>
                                         <th>العنوان</th>
-                                        <th>إجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody id="clientsTableBody"></tbody>
@@ -507,22 +505,21 @@
         function loadClients() {
             const tableBody = document.getElementById('clientsTableBody');
             tableBody.innerHTML = '';
-            const start = (currentPage['clients'] - 1) * pageSize['clients'];
-            const end = start + pageSize['clients'];
+            let start = (currentPage['clients'] - 1) * pageSize['clients'];
+            let end = start + pageSize['clients'];
             const paginatedClients = clients.slice(start, end);
 
             paginatedClients.forEach(client => {
                 const row = document.createElement('tr');
+                row.style.cursor = 'pointer';
+                row.onclick = () => {
+                    window.location.href = `/Superadmin/clients/client-details.html?id=${client.id}`;
+                };
                 row.innerHTML = `
                     <td>${client.name}</td>
                     <td>${client.phone}</td>
                     <td>${client.email || 'غير متوفر'}</td>
                     <td>${client.address || 'غير متوفر'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary" onclick="showEditClientModal(${client.id})"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="showDeleteClientConfirm(${client.id})"><i class="fas fa-trash"></i></button>
-                        <a href="/Superadmin/clients/add-client-payment.html?id=${client.id}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> إضافة دفعة</a>
-                    </td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -532,7 +529,7 @@
 
         // Show edit client modal (placeholder)
         function showEditClientModal(clientId) {
-            alert('تعديل العميل سيتم تطويره كصفحة منفصلة لاحقًا');
+            window.location.href = `/Superadmin/clients/client-details.html?id=${clientId}#edit`;
         }
 
         // Show delete client confirmation

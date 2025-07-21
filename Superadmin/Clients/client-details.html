@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل العميل - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .client-details-card {
+            background: linear-gradient(135deg, #f5f7fa, #e4e7eb);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .client-details-card p {
+            margin: 0;
+            flex: 1 1 45%;
+            font-size: 16px;
+            color: #333;
+        }
+        .client-details-card strong {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: flex-end; /* Align buttons to the left (appears right in RTL) */
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+            border: none;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #333;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab:hover {
+            background-color: #f4f4f4;
+        }
+        .tab.active {
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .table th,
+        .table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: right;
+        }
+        .table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 700;
+        }
+        .table td {
+            background-color: #fff;
+        }
+        .table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .badge-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .badge-warning {
+            background-color: #ffc107;
+            color: black;
+        }
+        .badge-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .badge-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        @media print {
+            .sidebar, .header, .action-buttons, .tabs, .btn, .no-print {
+                display: none !important;
+            }
+            .main-content {
+                margin: 0;
+                padding: 0;
+            }
+            .table-responsive {
+                box-shadow: none;
+                padding: 0;
+            }
+            .table {
+                margin: 0;
+            }
+            .client-details-card {
+                display: block;
+                margin: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة المشتريات</a></li>
+                    <li class="active"><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">تفاصيل العميل</span>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span id="userNameDisplay">سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="/Superadmin/login.html">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>تفاصيل العميل</h3>
+                </div>
+                <div class="card-body">
+                    <div class="client-details-card">
+                        <p><strong>الاسم:</strong> <span id="clientName"></span></p>
+                        <p><strong>رقم الهاتف:</strong> <span id="clientPhone"></span></p>
+                        <p><strong>البريد الإلكتروني:</strong> <span id="clientEmail"></span></p>
+                        <p><strong>العنوان:</strong> <span id="clientAddress"></span></p>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="/Superadmin/suppliers/invoice/add-invoice.html" class="btn btn-primary"><i class="fas fa-file-invoice"></i> إنشاء فاتورة</a>
+                        <a id="addClientPaymentBtn" href="#" class="btn btn-success"><i class="fas fa-money-bill-wave"></i> إضافة رصيد مدفوعات</a>
+                        <button class="btn btn-danger" onclick="showDeleteClientConfirm()"><i class="fas fa-trash"></i> حذف العميل</button>
+                    </div>
+                    <div class="tabs">
+                        <div class="tab active" data-tab="details">تفاصيل</div>
+                        <div class="tab" data-tab="edit">تعديل</div>
+                        <div class="tab" data-tab="statement">كشف حساب</div>
+                    </div>
+                    <div class="tab-content active" id="details">
+                        <h4>المعلومات الرئيسية</h4>
+                        <p>الاسم: <span id="detailName"></span></p>
+                        <p>رقم الهاتف: <span id="detailPhone"></span></p>
+                        <p>البريد الإلكتروني: <span id="detailEmail"></span></p>
+                        <p>العنوان: <span id="detailAddress"></span></p>
+                    </div>
+                    <div class="tab-content" id="edit">
+                        <h4>تعديل بيانات العميل</h4>
+                        <div class="form-group">
+                            <label>الاسم</label>
+                            <input type="text" id="editName">
+                        </div>
+                        <div class="form-group">
+                            <label>رقم الهاتف</label>
+                            <input type="text" id="editPhone">
+                        </div>
+                        <div class="form-group">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" id="editEmail">
+                        </div>
+                        <div class="form-group">
+                            <label>العنوان</label>
+                            <input type="text" id="editAddress">
+                        </div>
+                        <button class="btn btn-primary" onclick="saveClientChanges()">حفظ التغييرات</button>
+                    </div>
+                    <div class="tab-content" id="statement">
+                        <h4>كشف حساب العميل</h4>
+                        <button class="btn btn-success no-print" onclick="printStatement()"><i class="fas fa-print"></i> طباعة كشف الحساب</button>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>رقم الفاتورة</th>
+                                        <th>التاريخ</th>
+                                        <th>الإجمالي</th>
+                                        <th>الحالة</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clientInvoicesTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let clients = JSON.parse(localStorage.getItem('clients')) || [
+            { id: 1, name: "أحمد محمد", phone: "01234567890", email: "ahmed@example.com", address: "القاهرة" },
+            { id: 2, name: "علي حسن", phone: "01123456789", email: "ali@example.com", address: "الجيزة" }
+        ];
+        let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { 
+            role: "Super Admin",
+            name: "سوبر أدمن"
+        };
+
+        // Get client ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const clientId = parseInt(urlParams.get('id'));
+
+        // Load client details
+        function loadClientDetails() {
+            console.log('Client ID from URL:', clientId);
+            console.log('Clients array:', clients);
+
+            if (isNaN(clientId)) {
+                console.error('Invalid client ID:', clientId);
+                alert('رقم العميل غير صالح');
+                window.location.href = '/Superadmin/sales/sales.html';
+                return;
+            }
+
+            const client = clients.find(c => c.id === clientId);
+            if (!client) {
+                console.error('Client not found for ID:', clientId);
+                alert('العميل غير موجود');
+                window.location.href = '/Superadmin/sales/sales.html';
+                return;
+            }
+
+            document.getElementById('clientName').textContent = client.name || 'غير متوفر';
+            document.getElementById('clientPhone').textContent = client.phone || 'غير متوفر';
+            document.getElementById('clientEmail').textContent = client.email || 'غير متوفر';
+            document.getElementById('clientAddress').textContent = client.address || 'غير متوفر';
+
+            document.getElementById('detailName').textContent = client.name || 'غير متوفر';
+            document.getElementById('detailPhone').textContent = client.phone || 'غير متوفر';
+            document.getElementById('detailEmail').textContent = client.email || 'غير متوفر';
+            document.getElementById('detailAddress').textContent = client.address || 'غير متوفر';
+
+            document.getElementById('editName').value = client.name || '';
+            document.getElementById('editPhone').value = client.phone || '';
+            document.getElementById('editEmail').value = client.email || '';
+            document.getElementById('editAddress').value = client.address || '';
+
+            loadClientInvoices(client);
+        }
+
+        // Load client invoices
+        function loadClientInvoices(client) {
+            const tableBody = document.getElementById('clientInvoicesTable');
+            tableBody.innerHTML = '';
+            const clientInvoices = invoices.filter(i => i.customerName === client.name);
+            console.log('Invoices for client:', clientInvoices);
+            clientInvoices.forEach(invoice => {
+                const row = document.createElement('tr');
+                let statusClass = 'badge-warning';
+                if (invoice.status === 'مدفوع') statusClass = 'badge-success';
+                if (invoice.status === 'مدفوع جزئيًا') statusClass = 'badge-info';
+                if (invoice.status === 'ملغى' || invoice.status === 'مرتجع') statusClass = 'badge-danger';
+                row.innerHTML = `
+                    <td>${invoice.invoiceNumber || 'غير متوفر'}</td>
+                    <td>${formatDate(invoice.date)}</td>
+                    <td>${invoice.total ? invoice.total.toLocaleString() + ' ج.م' : 'غير متوفر'}</td>
+                    <td><span class="badge ${statusClass}">${invoice.status || 'غير متوفر'}</span></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-EG');
+        }
+
+        // Save client changes
+        function saveClientChanges() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بتعديل العميل');
+                return;
+            }
+            const client = clients.find(c => c.id === clientId);
+            if (!client) {
+                alert('العميل غير موجود');
+                return;
+            }
+
+            const oldName = client.name;
+            client.name = document.getElementById('editName').value;
+            client.phone = document.getElementById('editPhone').value;
+            client.email = document.getElementById('editEmail').value;
+            client.address = document.getElementById('editAddress').value;
+
+            // Update invoices with new client name
+            invoices = invoices.map(i => i.customerName === oldName ? { ...i, customerName: client.name } : i);
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+            localStorage.setItem('clients', JSON.stringify(clients));
+
+            // Log transaction
+            const transaction = {
+                id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                date: new Date().toISOString(),
+                user: currentUser.name || "سوبر أدمن",
+                action: `تعديل بيانات العميل ${client.name}`
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            alert('تم حفظ التغييرات بنجاح');
+            loadClientDetails();
+        }
+
+        // Show delete client confirmation
+        function showDeleteClientConfirm() {
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بحذف العميل');
+                return;
+            }
+            const client = clients.find(c => c.id === clientId);
+            if (!client) {
+                alert('العميل غير موجود');
+                return;
+            }
+
+            if (confirm('هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                clients = clients.filter(c => c.id !== clientId);
+                invoices = invoices.map(i => i.customerName === client.name ? { ...i, customerName: 'غير متوفر' } : i);
+                localStorage.setItem('invoices', JSON.stringify(invoices));
+                localStorage.setItem('clients', JSON.stringify(clients));
+
+                // Log transaction
+                const transaction = {
+                    id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                    date: new Date().toISOString(),
+                    user: currentUser.name || "سوبر أدمن",
+                    action: `حذف العميل ${client.name}`
+                };
+                transactions.push(transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+
+                alert('تم حذف العميل بنجاح');
+                window.location.href = '/Superadmin/sales/sales.html';
+            }
+        }
+
+        // Print statement
+        function printStatement() {
+            window.print();
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                this.classList.add('active');
+                document.getElementById(this.getAttribute('data-tab')).classList.add('active');
+            });
+        });
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+        document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Load user info
+        function loadUserInfo() {
+            document.getElementById('userNameDisplay').textContent = currentUser.name || "سوبر أدمن";
+        }
+
+        // Initial setup
+        loadUserInfo();
+        loadClientDetails();
+
+        // Check URL hash for default tab
+        const hash = window.location.hash.replace('#', '');
+        if (hash) {
+            const tab = document.querySelector(`.tab[data-tab="${hash}"]`);
+            if (tab) {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(hash).classList.add('active');
+            }
+        }
+        // Set dynamic href for "إضافة رصيد مدفوعات" button
+        document.getElementById('addClientPaymentBtn').href = `/Superadmin/clients/add-client-payment.html?id=${clientId}`;
+    </script>
+</body>
+</html>
