@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة دفعة عميل - نظام إدارة المخازن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h3>نظام إدارة المخازن</h3>
+                <button class="sidebar-close" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="/Superadmin/index.html"><i class="fas fa-home"></i> لوحة التحكم</a></li>
+                    <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
+                    <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
+                    <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة المشتريات</a></li>
+                    <li class="active"><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
+                    <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
+                    <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
+                    <li><a href="/Superadmin/transactions.html"><i class="fas fa-history"></i> سجل المعاملات</a></li>
+                    <li><a href="/Superadmin/settings.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                    <li><a href="/Superadmin/clients/clients.html"><i class="fas fa-users"></i> إدارة العملاء</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div class="header-left">
+                    <div class="menu-toggle-container">
+                        <button class="menu-toggle" id="menuToggle">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <span class="mobile-header-title">إضافة دفعة عميل</span>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span id="userNameDisplay">سوبر أدمن</span>
+                    <div class="dropdown">
+                        <i class="fas fa-chevron-down"></i>
+                        <div class="dropdown-content">
+                            <a href="/Superadmin/settings.html">الإعدادات</a>
+                            <a href="/Superadmin/login.html">تسجيل الخروج</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>إضافة دفعة عميل</h3>
+                </div>
+                <div class="card-body">
+                    <form id="addClientPaymentForm">
+                        <div class="form-container">
+                            <div class="form-group">
+                                <label for="clientName">اسم العميل</label>
+                                <input type="text" class="form-control" id="clientName" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label for="paymentAmount">المبلغ</label>
+                                <input type="number" class="form-control" id="paymentAmount" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="paymentDate">التاريخ</label>
+                                <input type="date" class="form-control" id="paymentDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="paymentMethod">وسيلة الدفع</label>
+                                <select class="form-control" id="paymentMethod" required>
+                                    <option value="">اختر وسيلة الدفع</option>
+                                    <option value="cash">نقدي</option>
+                                    <option value="credit_card">بطاقة ائتمان</option>
+                                    <option value="bank_transfer">تحويل بنكي</option>
+                                    <option value="cheque">شيك</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="paymentStatus">الحالة</label>
+                                <select class="form-control" id="paymentStatus" required>
+                                    <option value="">اختر الحالة</option>
+                                    <option value="completed">مكتمل</option>
+                                    <option value="pending">معلق</option>
+                                    <option value="failed">فشل</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="collectedBy">تم التحصيل بواسطة</label>
+                                <input type="text" class="form-control" id="collectedBy" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="paymentDetails">بيانات الدفع</label>
+                                <textarea class="form-control" id="paymentDetails" rows="4"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="receiptNotes">ملاحظات الاستلام</label>
+                                <textarea class="form-control" id="receiptNotes" rows="4"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="attachments">المرفقات</label>
+                                <input type="file" class="form-control" id="attachments" multiple>
+                            </div>
+                            <div class="form-group full-width">
+                                <button type="submit" class="btn btn-primary">إضافة الدفعة</button>
+                                <a href="/Superadmin/sales/sales.html" class="btn btn-danger">إلغاء</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load data from localStorage
+        let clients = JSON.parse(localStorage.getItem('clients')) || [
+            { id: 1, name: "أحمد محمد", phone: "01234567890", email: "ahmed@example.com", address: "القاهرة" },
+            { id: 2, name: "علي حسن", phone: "01123456789", email: "ali@example.com", address: "الجيزة" }
+        ];
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let clientPayments = JSON.parse(localStorage.getItem('clientPayments')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { 
+            role: "Super Admin",
+            name: "سوبر أدمن",
+            email: "superadmin@example.com",
+            password: "admin123",
+            plan: {
+                name: "SuperGrok",
+                status: "نشط",
+                expiryDate: "2026-07-17"
+            }
+        };
+
+        // Load user info
+        function loadUserInfo() {
+            document.getElementById('userNameDisplay').textContent = currentUser.name || "سوبر أدمن";
+        }
+
+        // Load client info from URL parameter
+        function loadClientInfo() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const clientId = parseInt(urlParams.get('id'));
+            const client = clients.find(c => c.id === clientId);
+            if (client) {
+                document.getElementById('clientName').value = client.name;
+            } else {
+                alert('العميل غير موجود');
+                window.location.href = '/Superadmin/sales/sales.html';
+            }
+        }
+
+        // Add payment
+        document.getElementById('addClientPaymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (currentUser.role !== "Super Admin") {
+                alert('غير مصرح لك بإضافة دفعة');
+                return;
+            }
+
+            const clientName = document.getElementById('clientName').value;
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const date = document.getElementById('paymentDate').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+            const paymentStatus = document.getElementById('paymentStatus').value;
+            const collectedBy = document.getElementById('collectedBy').value;
+            const paymentDetails = document.getElementById('paymentDetails').value;
+            const receiptNotes = document.getElementById('receiptNotes').value;
+            const attachments = document.getElementById('attachments').files;
+
+            // Validation
+            if (!clientName || isNaN(amount) || !date || !paymentMethod || !paymentStatus || !collectedBy) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            // Handle file attachments (store file names for simplicity)
+            const attachmentNames = Array.from(attachments).map(file => file.name);
+
+            const payment = {
+                id: clientPayments.length ? Math.max(...clientPayments.map(p => p.id)) + 1 : 1,
+                clientName,
+                amount,
+                date,
+                paymentMethod,
+                paymentStatus,
+                collectedBy,
+                paymentDetails,
+                receiptNotes,
+                attachments: attachmentNames
+            };
+
+            clientPayments.push(payment);
+            localStorage.setItem('clientPayments', JSON.stringify(clientPayments));
+
+            // Log transaction
+            const transaction = {
+                id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
+                date: new Date().toISOString(),
+                user: currentUser.name || "سوبر أدمن",
+                action: `إضافة دفعة للعميل ${clientName}`
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            alert('تم إضافة الدفعة بنجاح');
+            window.location.href = '/Superadmin/sales/sales.html';
+        });
+
+        // Sidebar toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('active');
+            document.getElementById('sidebarOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
+        document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Initial setup
+        loadUserInfo();
+        loadClientInfo();
+    </script>
+</body>
+</html>

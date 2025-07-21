@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-       
     </style>
 </head>
 <body>
@@ -28,7 +27,7 @@
                     <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
                     <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
                     <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
-                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة الموردين</a></li>
+                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة المشتريات</a></li>
                     <li class="active"><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
                     <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
                     <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
@@ -71,13 +70,12 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3>إدارة الفواتير</h3>
+                    <h3>إدارة المبيعات</h3>
                 </div>
                 <div class="card-body">
                     <div class="tabs">
                         <div class="tab active" data-tab="invoices">الفواتير</div>
                         <div class="tab" data-tab="returned-invoices">الفواتير المرتجعة</div>
-                        <div class="tab" data-tab="customer-payments">مدفوعات العملاء</div>
                         <div class="tab" data-tab="clients">إدارة العملاء</div>
                     </div>
                     <div class="tab-content active" id="invoices">
@@ -120,7 +118,7 @@
                     </div>
                     <div class="tab-content" id="returned-invoices">
                         <div class="form-group full-width">
-                            <button type="button" class="btn btn-primary" onclick="showAddReturnedInvoiceModal()">إضافة فاتورة مرتجعة</button>
+                            <a href="/Superadmin/suppliers/invoice/add-invoice.html" class="btn btn-primary">إضافة فاتورة مرتجعة</a>
                         </div>
                         <div class="list-header">
                             <div class="page-size-selector">
@@ -151,42 +149,6 @@
                                 <button class="pagination-btn" id="prevPageReturnedInvoices" onclick="changePage(-1, 'returned-invoices')" disabled><i class="fas fa-chevron-right"></i> السابق</button>
                                 <div id="pageNumbersReturnedInvoices"></div>
                                 <button class="pagination-btn" id="nextPageReturnedInvoices" onclick="changePage(1, 'returned-invoices')">التالي <i class="fas fa-chevron-left"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tab-content" id="customer-payments">
-                        <div class="form-group full-width">
-                            <button type="button" class="btn btn-primary" onclick="showAddPaymentModal()">إضافة دفعة</button>
-                        </div>
-                        <div class="list-header">
-                            <div class="page-size-selector">
-                                <label>عدد السجلات لكل صفحة:</label>
-                                <select id="pageSizeSelectCustomerPayments" onchange="changePageSize('customer-payments')">
-                                    <option value="5">5</option>
-                                    <option value="10" selected>10</option>
-                                    <option value="20">20</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>رقم الدفعة</th>
-                                        <th>اسم العميل</th>
-                                        <th>المبلغ</th>
-                                        <th>تاريخ الدفعة</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="paymentsTable"></tbody>
-                            </table>
-                        </div>
-                        <div class="pagination-controls">
-                            <div class="pagination">
-                                <button class="pagination-btn" id="prevPageCustomerPayments" onclick="changePage(-1, 'customer-payments')" disabled><i class="fas fa-chevron-right"></i> السابق</button>
-                                <div id="pageNumbersCustomerPayments"></div>
-                                <button class="pagination-btn" id="nextPageCustomerPayments" onclick="changePage(1, 'customer-payments')">التالي <i class="fas fa-chevron-left"></i></button>
                             </div>
                         </div>
                     </div>
@@ -269,72 +231,6 @@
         </div>
     </div>
 
-    <!-- Add Returned Invoice Modal -->
-    <div class="modal" id="addReturnedInvoiceModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>إضافة فاتورة مرتجعة</h3>
-                <span class="close" onclick="closeAddReturnedInvoiceModal()">×</span>
-            </div>
-            <div class="modal-body">
-                <form id="addReturnedInvoiceForm">
-                    <div class="form-container">
-                        <div class="form-group">
-                            <label for="returnedInvoiceSelect">اختر الفاتورة</label>
-                            <select class="form-control" id="returnedInvoiceSelect" required>
-                                <option value="">اختر فاتورة</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="returnDate">تاريخ الإرجاع</label>
-                            <input type="date" class="form-control" id="returnDate" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <button type="submit" class="btn btn-primary">إضافة الفاتورة المرتجعة</button>
-                            <button type="button" class="btn btn-danger" onclick="closeAddReturnedInvoiceModal()">إلغاء</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Payment Modal -->
-    <div class="modal" id="addPaymentModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>إضافة دفعة عميل</h3>
-                <span class="close" onclick="closeAddPaymentModal()">×</span>
-            </div>
-            <div class="modal-body">
-                <form id="addPaymentForm">
-                    <div class="form-container">
-                        <div class="form-group">
-                            <label for="paymentNumber">رقم الدفعة</label>
-                            <input type="text" class="form-control" id="paymentNumber" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentCustomerName">اسم العميل</label>
-                            <input type="text" class="form-control" id="paymentCustomerName" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentAmount">المبلغ</label>
-                            <input type="number" class="form-control" id="paymentAmount" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentDate">تاريخ الدفعة</label>
-                            <input type="date" class="form-control" id="paymentDate" required>
-                        </div>
-                        <div class="form-group full-width">
-                            <button type="submit" class="btn btn-primary">إضافة الدفعة</button>
-                            <button type="button" class="btn btn-danger" onclick="closeAddPaymentModal()">إلغاء</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Load data from localStorage
         let companies = JSON.parse(localStorage.getItem('companies')) || [
@@ -376,7 +272,6 @@
             }
         ];
         let returnedInvoices = JSON.parse(localStorage.getItem('returnedInvoices')) || [];
-        let payments = JSON.parse(localStorage.getItem('payments')) || [];
         let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
         let clients = JSON.parse(localStorage.getItem('clients')) || [
             { id: 1, name: "أحمد محمد", phone: "01234567890", email: "ahmed@example.com", address: "القاهرة" },
@@ -386,13 +281,11 @@
         let currentPage = { 
             'invoices': 1,
             'returned-invoices': 1,
-            'customer-payments': 1,
             'clients': 1
         };
         let pageSize = { 
             'invoices': 10,
             'returned-invoices': 10,
-            'customer-payments': 10,
             'clients': 10
         };
         let invoiceToDelete = null;
@@ -491,7 +384,6 @@
                     currentPage[tab] = i;
                     if (tab === 'invoices') renderInvoices();
                     else if (tab === 'returned-invoices') loadReturnedInvoices();
-                    else if (tab === 'customer-payments') loadPayments();
                     else if (tab === 'clients') loadClients();
                 };
                 pageNumbers.appendChild(button);
@@ -507,7 +399,6 @@
             currentPage[tab] = 1;
             if (tab === 'invoices') renderInvoices();
             else if (tab === 'returned-invoices') loadReturnedInvoices();
-            else if (tab === 'customer-payments') loadPayments();
             else if (tab === 'clients') loadClients();
         }
 
@@ -515,13 +406,11 @@
         function changePage(direction, tab) {
             const totalItems = tab === 'invoices' ? filterInvoices().length : 
                              tab === 'returned-invoices' ? returnedInvoices.length : 
-                             tab === 'customer-payments' ? payments.length : 
                              clients.length;
             const totalPages = Math.ceil(totalItems / pageSize[tab]);
             currentPage[tab] = Math.min(Math.max(currentPage[tab] + direction, 1), totalPages);
             if (tab === 'invoices') renderInvoices();
             else if (tab === 'returned-invoices') loadReturnedInvoices();
-            else if (tab === 'customer-payments') loadPayments();
             else if (tab === 'clients') loadClients();
         }
 
@@ -614,183 +503,6 @@
             document.getElementById('returnedInvoiceDetailsModal').classList.remove('active');
         }
 
-        // Show add returned invoice modal
-        function showAddReturnedInvoiceModal() {
-            if (currentUser.role !== "Super Admin") {
-                alert('غير مصرح لك بإضافة فاتورة مرتجعة');
-                return;
-            }
-            const select = document.getElementById('returnedInvoiceSelect');
-            select.innerHTML = '<option value="">اختر فاتورة</option>';
-            const availableInvoices = invoices.filter(invoice => invoice.type === 'sale' && invoice.status !== 'مرتجع');
-            availableInvoices.forEach(invoice => {
-                const option = document.createElement('option');
-                option.value = invoice.id;
-                option.textContent = `رقم الفاتورة: ${invoice.invoiceNumber} - العميل: ${invoice.customerName}`;
-                select.appendChild(option);
-            });
-            document.getElementById('addReturnedInvoiceModal').classList.add('active');
-        }
-
-        // Close add returned invoice modal
-        function closeAddReturnedInvoiceModal() {
-            document.getElementById('addReturnedInvoiceModal').classList.remove('active');
-            document.getElementById('addReturnedInvoiceForm').reset();
-        }
-
-        // Add returned invoice
-        document.getElementById('addReturnedInvoiceForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (currentUser.role !== "Super Admin") {
-                alert('غير مصرح لك بإضافة فاتورة مرتجعة');
-                return;
-            }
-
-            const invoiceId = parseInt(document.getElementById('returnedInvoiceSelect').value);
-            const returnDate = document.getElementById('returnDate').value;
-
-            if (!invoiceId || !returnDate) {
-                alert('يرجى ملء جميع الحقول المطلوبة');
-                return;
-            }
-
-            const invoice = invoices.find(i => i.id === invoiceId);
-            if (!invoice) {
-                alert('الفاتورة غير موجودة');
-                return;
-            }
-
-            // Update invoice status
-            invoice.status = 'مرتجع';
-            localStorage.setItem('invoices', JSON.stringify(invoices));
-
-            // Add to returned invoices
-            const returnedInvoice = {
-                id: invoice.id,
-                invoiceNumber: invoice.invoiceNumber,
-                customerName: invoice.customerName,
-                items: invoice.items,
-                total: invoice.total,
-                date: invoice.date,
-                returnDate
-            };
-            returnedInvoices.push(returnedInvoice);
-            localStorage.setItem('returnedInvoices', JSON.stringify(returnedInvoices));
-
-            // Log transaction
-            const transaction = {
-                id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
-                date: new Date().toISOString(),
-                user: currentUser.name || "سوبر أدمن",
-                action: `إضافة فاتورة مرتجعة رقم ${invoice.invoiceNumber}`
-            };
-            transactions.push(transaction);
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-
-            loadReturnedInvoices();
-            renderInvoices();
-            closeAddReturnedInvoiceModal();
-            alert('تم إضافة الفاتورة المرتجعة بنجاح');
-        });
-
-        // Load payments
-        function loadPayments() {
-            const tableBody = document.getElementById('paymentsTable');
-            tableBody.innerHTML = '';
-            const start = (currentPage['customer-payments'] - 1) * pageSize['customer-payments'];
-            const end = start + pageSize['customer-payments'];
-            const paginatedPayments = payments.slice(start, end);
-
-            paginatedPayments.forEach(payment => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${payment.paymentNumber}</td>
-                    <td>${payment.customerName}</td>
-                    <td>${payment.amount}</td>
-                    <td>${formatDate(payment.date)}</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" onclick="viewPayment(${payment.id})">عرض التفاصيل</button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-
-            updatePagination(payments.length, 'customer-payments');
-        }
-
-        // Show add payment modal
-        function showAddPaymentModal() {
-            if (currentUser.role !== "Super Admin") {
-                alert('غير مصرح لك بإضافة دفعة');
-                return;
-            }
-            document.getElementById('addPaymentModal').classList.add('active');
-        }
-
-        // Close add payment modal
-        function closeAddPaymentModal() {
-            document.getElementById('addPaymentModal').classList.remove('active');
-            document.getElementById('addPaymentForm').reset();
-        }
-
-        // Add payment
-        document.getElementById('addPaymentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            if (currentUser.role !== "Super Admin") {
-                alert('غير مصرح لك بإضافة دفعة');
-                return;
-            }
-
-            const paymentNumber = document.getElementById('paymentNumber').value.trim();
-            const customerName = document.getElementById('paymentCustomerName').value.trim();
-            const amount = parseFloat(document.getElementById('paymentAmount').value);
-            const date = document.getElementById('paymentDate').value;
-
-            // Validation
-            if (!paymentNumber || !customerName || isNaN(amount) || !date) {
-                alert('يرجى ملء جميع الحقول المطلوبة');
-                return;
-            }
-
-            const payment = {
-                id: payments.length ? Math.max(...payments.map(p => p.id)) + 1 : 1,
-                paymentNumber,
-                customerName,
-                amount,
-                date
-            };
-
-            payments.push(payment);
-            localStorage.setItem('payments', JSON.stringify(payments));
-
-            // Log transaction
-            const transaction = {
-                id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
-                date: new Date().toISOString(),
-                user: currentUser.name || "سوبر أدمن",
-                action: `إضافة دفعة رقم ${paymentNumber}`
-            };
-            transactions.push(transaction);
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-
-            loadPayments();
-            closeAddPaymentModal();
-            alert('تم إضافة الدفعة بنجاح');
-        });
-
-        // View payment details
-        function viewPayment(paymentId) {
-            const payment = payments.find(p => p.id === paymentId);
-            if (!payment) return;
-
-            alert(`
-                رقم الدفعة: ${payment.paymentNumber}
-                اسم العميل: ${payment.customerName}
-                المبلغ: ${payment.amount}
-                تاريخ الدفعة: ${formatDate(payment.date)}
-            `);
-        }
-
         // Load clients
         function loadClients() {
             const tableBody = document.getElementById('clientsTableBody');
@@ -809,6 +521,7 @@
                     <td>
                         <button class="btn btn-sm btn-primary" onclick="showEditClientModal(${client.id})"><i class="fas fa-edit"></i></button>
                         <button class="btn btn-sm btn-danger" onclick="showDeleteClientConfirm(${client.id})"><i class="fas fa-trash"></i></button>
+                        <a href="/Superadmin/clients/add-client-payment.html?id=${client.id}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> إضافة دفعة</a>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -817,7 +530,7 @@
             updatePagination(clients.length, 'clients');
         }
 
-        // Show edit client modal (placeholder, can be expanded to a separate page if needed)
+        // Show edit client modal (placeholder)
         function showEditClientModal(clientId) {
             alert('تعديل العميل سيتم تطويره كصفحة منفصلة لاحقًا');
         }
@@ -865,8 +578,6 @@
                     renderInvoices();
                 } else if (this.getAttribute('data-tab') === 'returned-invoices') {
                     loadReturnedInvoices();
-                } else if (this.getAttribute('data-tab') === 'customer-payments') {
-                    loadPayments();
                 } else if (this.getAttribute('data-tab') === 'clients') {
                     loadClients();
                 }
@@ -905,9 +616,8 @@
         loadUserInfo();
         renderInvoices();
         loadReturnedInvoices();
-        loadPayments();
         loadClients();
-        console.log('sales.html: Initialized with companies:', companies, 'warehouses:', warehouses, 'invoices:', invoices, 'returnedInvoices:', returnedInvoices, 'payments:', payments, 'clients:', clients);
+        console.log('sales.html: Initialized with companies:', companies, 'warehouses:', warehouses, 'invoices:', invoices, 'returnedInvoices:', returnedInvoices, 'clients:', clients);
     </script>
 </body>
 </html>
