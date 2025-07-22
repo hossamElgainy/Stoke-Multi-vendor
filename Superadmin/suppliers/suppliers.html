@@ -75,6 +75,9 @@
                         <div class="tab" data-tab="purchase-returns">مرتجعات المشتريات</div>
                     </div>
                     <div class="tab-content active" id="suppliers">
+                        <div class="form-group full-width">
+                            <a href="/Superadmin/suppliers/add-supplier.html" class="btn btn-primary">إضافة مورد</a>
+                        </div>
                         <div class="list-header">
                             <div class="page-size-selector">
                                 <label>عدد السجلات لكل صفحة:</label>
@@ -84,20 +87,18 @@
                                     <option value="20">20</option>
                                 </select>
                             </div>
-                            <a href="/Superadmin/suppliers/add-supplier.html" class="btn btn-primary">إضافة مورد</a>
                         </div>
                         <div class="table-responsive">
-                            <table>
+                            <table class="table">
                                 <thead>
                                     <tr>
                                         <th>اسم المورد</th>
-                                        <th>جهة الاتصال</th>
-                                        <th>المخازن</th>
-                                        <th>إجراءات</th>
+                                        <th>رقم الهاتف</th>
+                                        <th>البريد الإلكتروني</th>
+                                        <th>العنوان</th>
                                     </tr>
                                 </thead>
-                                <tbody id="supplierTableBody">
-                                </tbody>
+                                <tbody id="supplierTableBody"></tbody>
                             </table>
                         </div>
                         <div class="pagination-controls">
@@ -121,7 +122,7 @@
                             <a href="/Superadmin/suppliers/invoice/add-invoice.html" class="btn btn-primary">إضافة فاتورة</a>
                         </div>
                         <div class="table-responsive">
-                            <table>
+                            <table class="table">
                                 <thead>
                                     <tr>
                                         <th>رقم الفاتورة</th>
@@ -134,8 +135,7 @@
                                         <th>إجراءات</th>
                                     </tr>
                                 </thead>
-                                <tbody id="invoiceTableBody">
-                                </tbody>
+                                <tbody id="invoiceTableBody"></tbody>
                             </table>
                         </div>
                         <div class="pagination-controls">
@@ -159,7 +159,7 @@
                             <a href="/Superadmin/suppliers/invoice/add-invoice.html" class="btn btn-primary">إضافة مرتجع</a>
                         </div>
                         <div class="table-responsive">
-                            <table>
+                            <table class="table">
                                 <thead>
                                     <tr>
                                         <th>رقم المرتجع</th>
@@ -170,8 +170,7 @@
                                         <th>إجراءات</th>
                                     </tr>
                                 </thead>
-                                <tbody id="returnsTableBody">
-                                </tbody>
+                                <tbody id="returnsTableBody"></tbody>
                             </table>
                         </div>
                         <div class="pagination-controls">
@@ -183,23 +182,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal for Suppliers -->
-    <div class="modal" id="deleteConfirmModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>تأكيد الحذف</h3>
-                <span class="close" onclick="closeDeleteConfirm()">×</span>
-            </div>
-            <div class="modal-body">
-                <p>هل أنت متأكد من حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء.</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" id="confirmDeleteBtn">حذف</button>
-                <button class="btn btn-primary" onclick="closeDeleteConfirm()">إلغاء</button>
             </div>
         </div>
     </div>
@@ -254,24 +236,21 @@
                 warehouseNames: ["المخزن الرئيسي"]
             }
         ];
-
         let vendors = JSON.parse(localStorage.getItem('vendors')) || [
             { id: 1, name: "شركة المستقبل" },
             { id: 2, name: "شركة التقدم" }
         ];
-
         let warehouses = JSON.parse(localStorage.getItem('warehouses')) || [
             { id: 1, name: "المخزن الرئيسي", vendorId: 1, vendorName: "شركة المستقبل", location: "القاهرة" },
             { id: 2, name: "مخزن الفرع الشمالي", vendorId: 2, vendorName: "شركة التقدم", location: "الإسكندرية" }
         ];
-
         let invoices = JSON.parse(localStorage.getItem('invoices')) || [
             {
                 id: 1,
                 invoiceNumber: "INV-001",
                 date: "2025-07-15",
                 vendorId: 1,
-                vendorName: "شركة التقنية المتقدمة",
+                vendorName: "شركة المستقبل",
                 warehouseId: 1,
                 warehouseName: "المخزن الرئيسي",
                 supplierId: 1,
@@ -287,7 +266,6 @@
                 notes: "فاتورة شراء معدات مكتبية"
             }
         ];
-
         let returns = JSON.parse(localStorage.getItem('returns')) || [];
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { 
             role: "Super Admin",
@@ -303,7 +281,7 @@
 
         let currentPage = { suppliers: 1, 'purchase-invoices': 1, 'purchase-returns': 1 };
         let pageSize = { suppliers: 10, 'purchase-invoices': 10, 'purchase-returns': 10 };
-        let itemToDelete = { suppliers: null, 'purchase-invoices': null, 'purchase-returns': null };
+        let itemToDelete = { 'purchase-invoices': null, 'purchase-returns': null };
 
         // Update dropdowns
         function updateDropdowns() {
@@ -332,6 +310,13 @@
             document.getElementById('userNameDisplay').textContent = currentUser.name || "سوبر أدمن";
         }
 
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-EG');
+        }
+
         // Render table content based on tab
         function renderTableContent(tab) {
             const tableBodyMap = {
@@ -343,34 +328,29 @@
             tableBody.innerHTML = '';
             const start = (currentPage[tab] - 1) * pageSize[tab];
             const end = start + pageSize[tab];
-            let filteredData, addUrl, editPrefix;
+            let filteredData;
 
             switch (tab) {
                 case 'suppliers':
                     filteredData = filterSuppliers();
-                    addUrl = '/Superadmin/suppliers/add-supplier.html';
-                    editPrefix = '/Superadmin/suppliers/add-supplier.html?id=';
-                    filteredData.forEach(supplier => {
+                    filteredData.slice(start, end).forEach(supplier => {
                         const row = document.createElement('tr');
-                        row.setAttribute('data-id', supplier.id);
+                        row.style.cursor = 'pointer';
+                        row.onclick = () => {
+                            window.location.href = `/Superadmin/suppliers/supplier-details.html?id=${supplier.id}`;
+                        };
                         row.innerHTML = `
                             <td>${supplier.name}</td>
-                            <td>${supplier.contactPerson} - ${supplier.phone}</td>
-                            <td>${supplier.warehouseNames.join(', ')}</td>
-                            <td>
-                                <a href="${editPrefix}${supplier.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
-                                <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${supplier.id}, '${tab}')"><i class="fas fa-trash"></i></button>
-                                <a href="/Superadmin/suppliers/payment/add-payment.html?id=${supplier.id}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> إضافة دفعة</a>
-                            </td>
+                            <td>${supplier.phone}</td>
+                            <td>${supplier.email || 'غير متوفر'}</td>
+                            <td>${supplier.address || 'غير متوفر'}</td>
                         `;
                         tableBody.appendChild(row);
                     });
                     break;
                 case 'purchase-invoices':
                     filteredData = filterInvoices();
-                    addUrl = '/Superadmin/suppliers/invoice/add-invoice.html';
-                    editPrefix = '/Superadmin/suppliers/invoice/add-invoice.html?id=';
-                    filteredData.forEach(invoice => {
+                    filteredData.slice(start, end).forEach(invoice => {
                         let statusClass = 'badge-warning';
                         if (invoice.status === 'مدفوع') statusClass = 'badge-success';
                         if (invoice.status === 'مدفوع جزئيًا') statusClass = 'badge-info';
@@ -379,14 +359,14 @@
                         row.setAttribute('data-id', invoice.id);
                         row.innerHTML = `
                             <td>${invoice.invoiceNumber || 'غير متوفر'}</td>
-                            <td>${invoice.date || 'غير متوفر'}</td>
+                            <td>${formatDate(invoice.date)}</td>
                             <td>${invoice.vendorName || 'غير متوفر'}</td>
                             <td>${invoice.warehouseName || 'غير متوفر'}</td>
                             <td>${invoice.supplierName || 'غير متوفر'}</td>
                             <td>${invoice.total ? invoice.total.toLocaleString() + ' ج.م' : 'غير متوفر'}</td>
                             <td><span class="badge ${statusClass}">${invoice.status || 'غير متوفر'}</span></td>
                             <td>
-                                <a href="${editPrefix}${invoice.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                                <a href="/Superadmin/suppliers/invoice/add-invoice.html?id=${invoice.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
                                 <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${invoice.id}, '${tab}')"><i class="fas fa-trash"></i></button>
                             </td>
                         `;
@@ -395,19 +375,17 @@
                     break;
                 case 'purchase-returns':
                     filteredData = filterReturns();
-                    addUrl = '/Superadmin/suppliers/invoice/add-invoice.html';
-                    editPrefix = '/Superadmin/suppliers/invoice/add-invoice.html?id=';
-                    filteredData.forEach(returnItem => {
+                    filteredData.slice(start, end).forEach(returnItem => {
                         const row = document.createElement('tr');
                         row.setAttribute('data-id', returnItem.id);
                         row.innerHTML = `
                             <td>${returnItem.returnNumber || 'غير متوفر'}</td>
-                            <td>${returnItem.date || 'غير متوفر'}</td>
+                            <td>${formatDate(returnItem.date)}</td>
                             <td>${returnItem.supplierName || 'غير متوفر'}</td>
                             <td>${returnItem.total ? returnItem.total.toLocaleString() + ' ج.م' : 'غير متوفر'}</td>
                             <td><span class="badge ${returnItem.status === 'معتمد' ? 'badge-success' : 'badge-warning'}">${returnItem.status || 'غير متوفر'}</span></td>
                             <td>
-                                <a href="${editPrefix}${returnItem.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
+                                <a href="/Superadmin/suppliers/invoice/add-invoice.html?id=${returnItem.id}" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>
                                 <button class="btn btn-sm btn-danger" onclick="showDeleteConfirm(${returnItem.id}, '${tab}')"><i class="fas fa-trash"></i></button>
                             </td>
                         `;
@@ -417,7 +395,7 @@
             }
 
             if (filteredData.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="8">لا توجد بيانات</td></tr>';
+                tableBody.innerHTML = `<tr><td colspan="${tab === 'suppliers' ? 4 : 8}">لا توجد بيانات</td></tr>`;
             }
 
             updatePagination(filteredData.length, tab);
@@ -498,7 +476,6 @@
             }
             itemToDelete[tab] = id;
             const modalMap = {
-                suppliers: 'deleteConfirmModal',
                 'purchase-invoices': 'deleteInvoiceConfirmModal',
                 'purchase-returns': 'deleteReturnConfirmModal'
             };
@@ -506,9 +483,14 @@
         }
 
         // Close delete confirmation modal
-        function closeDeleteConfirm() { document.getElementById('deleteConfirmModal').classList.remove('active'); itemToDelete.suppliers = null; }
-        function closeDeleteInvoiceConfirm() { document.getElementById('deleteInvoiceConfirmModal').classList.remove('active'); itemToDelete['purchase-invoices'] = null; }
-        function closeDeleteReturnConfirm() { document.getElementById('deleteReturnConfirmModal').classList.remove('active'); itemToDelete['purchase-returns'] = null; }
+        function closeDeleteInvoiceConfirm() {
+            document.getElementById('deleteInvoiceConfirmModal').classList.remove('active');
+            itemToDelete['purchase-invoices'] = null;
+        }
+        function closeDeleteReturnConfirm() {
+            document.getElementById('deleteReturnConfirmModal').classList.remove('active');
+            itemToDelete['purchase-returns'] = null;
+        }
 
         // Delete functions
         function deleteItem(tab) {
@@ -517,8 +499,8 @@
                 return;
             }
             if (itemToDelete[tab] !== null) {
-                const dataMap = { suppliers: suppliers, 'purchase-invoices': invoices, 'purchase-returns': returns };
-                const storageKeyMap = { suppliers: 'suppliers', 'purchase-invoices': 'invoices', 'purchase-returns': 'returns' };
+                const dataMap = { 'purchase-invoices': invoices, 'purchase-returns': returns };
+                const storageKeyMap = { 'purchase-invoices': 'invoices', 'purchase-returns': 'returns' };
                 const item = dataMap[tab].find(i => i.id === itemToDelete[tab]);
                 dataMap[tab] = dataMap[tab].filter(i => i.id !== itemToDelete[tab]);
                 localStorage.setItem(storageKeyMap[tab], JSON.stringify(dataMap[tab]));
@@ -529,21 +511,20 @@
                     id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
                     date: new Date().toISOString(),
                     user: currentUser.name || "سوبر أدمن",
-                    action: `حذف ${tab === 'suppliers' ? 'مورد' : tab === 'purchase-invoices' ? 'فاتورة شراء' : 'مرتجع'} ${item.name || item.invoiceNumber || item.returnNumber}`
+                    action: `حذف ${tab === 'purchase-invoices' ? 'فاتورة شراء' : 'مرتجع'} ${item.invoiceNumber || item.returnNumber}`
                 };
                 transactions.push(transaction);
                 localStorage.setItem('transactions', JSON.stringify(transactions));
 
-                currentPage[tab] = Math.min(currentPage[tab], Math.ceil((tab === 'suppliers' ? filterSuppliers() : tab === 'purchase-invoices' ? filterInvoices() : filterReturns()).length / pageSize[tab]) || 1);
+                currentPage[tab] = Math.min(currentPage[tab], Math.ceil((tab === 'purchase-invoices' ? filterInvoices() : filterReturns()).length / pageSize[tab]) || 1);
                 renderTableContent(tab);
                 const modalMap = {
-                    suppliers: 'deleteConfirmModal',
                     'purchase-invoices': 'deleteInvoiceConfirmModal',
                     'purchase-returns': 'deleteReturnConfirmModal'
                 };
                 document.getElementById(modalMap[tab]).classList.remove('active');
                 itemToDelete[tab] = null;
-                alert(`تم حذف ${tab === 'suppliers' ? 'المورد' : tab === 'purchase-invoices' ? 'الفاتورة' : 'المرتجع'} بنجاح`);
+                alert(`تم حذف ${tab === 'purchase-invoices' ? 'الفاتورة' : 'المرتجع'} بنجاح`);
             }
         }
 
@@ -581,7 +562,6 @@
         }
 
         // Event listeners
-        document.getElementById('confirmDeleteBtn').addEventListener('click', () => deleteItem('suppliers'));
         document.getElementById('confirmDeleteInvoiceBtn').addEventListener('click', () => deleteItem('purchase-invoices'));
         document.getElementById('confirmDeleteReturnBtn').addEventListener('click', () => deleteItem('purchase-returns'));
         document.getElementById('vendorDropdown').addEventListener('change', () => {

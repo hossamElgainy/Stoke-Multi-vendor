@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تفاصيل العميل - نظام إدارة المخازن</title>
+    <title>تفاصيل المورد - نظام إدارة المخازن</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-        .client-details-card {
+        .supplier-details-card {
             background: linear-gradient(135deg, #f5f7fa, #e4e7eb);
             border-radius: 10px;
             padding: 20px;
@@ -18,13 +18,13 @@
             flex-wrap: wrap;
             gap: 20px;
         }
-        .client-details-card p {
+        .supplier-details-card p {
             margin: 0;
             flex: 1 1 45%;
             font-size: 16px;
             color: #333;
         }
-        .client-details-card strong {
+        .supplier-details-card strong {
             color: #2c3e50;
             font-weight: 700;
             margin-left: 10px;
@@ -173,7 +173,7 @@
             .table {
                 margin: 0;
             }
-            .client-details-card {
+            .supplier-details-card {
                 display: block;
                 margin: 0;
                 box-shadow: none;
@@ -198,8 +198,8 @@
                     <li><a href="/Superadmin/vendor/vendors.html"><i class="fas fa-building"></i> إدارة الشركات</a></li>
                     <li><a href="/Superadmin/warehouse/warehouses.html"><i class="fas fa-warehouse"></i> إدارة المخازن</a></li>
                     <li><a href="/Superadmin/employee/employees.html"><i class="fas fa-users"></i> إدارة الموظفين</a></li>
-                    <li><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة المشتريات</a></li>
-                    <li class="active"><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
+                    <li class="active"><a href="/Superadmin/suppliers/suppliers.html"><i class="fas fa-truck"></i> إدارة المشتريات</a></li>
+                    <li><a href="/Superadmin/sales/sales.html"><i class="fas fa-truck"></i> إدارة المبيعات</a></li>
                     <li><a href="/Superadmin/stock/products/stock.html"><i class="fas fa-boxes"></i> إدارة المخزون</a></li>
                     <li><a href="/Superadmin/custody/custody.html"><i class="fas fa-hand-holding"></i> إدارة العهدة</a></li>
                     <li><a href="/Superadmin/reports.html"><i class="fas fa-chart-bar"></i> التقارير</a></li>
@@ -216,7 +216,7 @@
                         <button class="menu-toggle" id="menuToggle">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <span class="mobile-header-title">تفاصيل العميل</span>
+                        <span class="mobile-header-title">تفاصيل المورد</span>
                     </div>
                 </div>
                 <div class="user-info">
@@ -234,39 +234,49 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3>تفاصيل العميل</h3>
+                    <h3>تفاصيل المورد</h3>
                 </div>
                 <div class="card-body">
-                    <div class="client-details-card">
-                        <p><strong>الاسم:</strong> <span id="clientName"></span></p>
-                        <p><strong>رقم الهاتف:</strong> <span id="clientPhone"></span></p>
-                        <p><strong>البريد الإلكتروني:</strong> <span id="clientEmail"></span></p>
-                        <p><strong>العنوان:</strong> <span id="clientAddress"></span></p>
+                    <div class="supplier-details-card">
+                        <p><strong>الاسم:</strong> <span id="supplierName"></span></p>
+                        <p><strong>جهة الاتصال:</strong> <span id="supplierContactPerson"></span></p>
+                        <p><strong>رقم الهاتف:</strong> <span id="supplierPhone"></span></p>
+                        <p><strong>البريد الإلكتروني:</strong> <span id="supplierEmail"></span></p>
+                        <p><strong>العنوان:</strong> <span id="supplierAddress"></span></p>
+                        <p><strong>الشركة:</strong> <span id="supplierVendorName"></span></p>
+                        <p><strong>المخازن:</strong> <span id="supplierWarehouseNames"></span></p>
                     </div>
                     <div class="action-buttons">
                         <a href="/Superadmin/suppliers/invoice/add-invoice.html" class="btn btn-primary"><i class="fas fa-file-invoice"></i> إنشاء فاتورة</a>
-                        <a id="addClientPaymentBtn" href="#" class="btn btn-success"><i class="fas fa-money-bill-wave"></i> إضافة رصيد مدفوعات</a>
-                        <button class="btn btn-danger" onclick="showDeleteClientConfirm()"><i class="fas fa-trash"></i> حذف العميل</button>
+                        <a id="addSupplierPaymentBtn" href="#" class="btn btn-success"><i class="fas fa-money-bill-wave"></i> إضافة دفعة</a>
+                        <button class="btn btn-danger" onclick="showDeleteSupplierConfirm()"><i class="fas fa-trash"></i> حذف المورد</button>
                     </div>
                     <div class="tabs">
                         <div class="tab active" data-tab="details">تفاصيل</div>
                         <div class="tab" data-tab="edit">تعديل</div>
-                        <div class="tab" data-tab="invoices">الفواتير</div>
-                        <div class="tab" data-tab="returns">فواتير المرتجعات</div>
-                        <div class="tab" data-tab="statement">كشف حساب</div>
+                        <div class="tab" data-tab="invoices">فواتير الشراء</div>
+                        <div class="tab" data-tab="returns">مرتجعات المشتريات</div>
+                        <div class="tab" data-tab="statement">كشف الحساب</div>
                     </div>
                     <div class="tab-content active" id="details">
                         <h4>المعلومات الرئيسية</h4>
                         <p>الاسم: <span id="detailName"></span></p>
+                        <p>جهة الاتصال: <span id="detailContactPerson"></span></p>
                         <p>رقم الهاتف: <span id="detailPhone"></span></p>
                         <p>البريد الإلكتروني: <span id="detailEmail"></span></p>
                         <p>العنوان: <span id="detailAddress"></span></p>
+                        <p>الشركة: <span id="detailVendorName"></span></p>
+                        <p>المخازن: <span id="detailWarehouseNames"></span></p>
                     </div>
                     <div class="tab-content" id="edit">
-                        <h4>تعديل بيانات العميل</h4>
+                        <h4>تعديل بيانات المورد</h4>
                         <div class="form-group">
                             <label>الاسم</label>
                             <input type="text" id="editName">
+                        </div>
+                        <div class="form-group">
+                            <label>جهة الاتصال</label>
+                            <input type="text" id="editContactPerson">
                         </div>
                         <div class="form-group">
                             <label>رقم الهاتف</label>
@@ -280,28 +290,38 @@
                             <label>العنوان</label>
                             <input type="text" id="editAddress">
                         </div>
-                        <button class="btn btn-primary" onclick="saveClientChanges()">حفظ التغييرات</button>
+                        <div class="form-group">
+                            <label>الشركة</label>
+                            <select id="editVendorId"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>المخازن</label>
+                            <select id="editWarehouseIds" multiple></select>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveSupplierChanges()">حفظ التغييرات</button>
                     </div>
                     <div class="tab-content" id="invoices">
-                        <h4>الفواتير</h4>
-                        <button class="btn btn-success no-print" onclick="printInvoices()"><i class="fas fa-print"></i> طباعة الفواتير</button>
+                        <h4>فواتير الشراء</h4>
+                        <button class="btn btn-success no-print" onclick="printInvoices()"><i class="fas fa-print"></i> طباعة فواتير الشراء</button>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
                                     <tr>
                                         <th>رقم الفاتورة</th>
                                         <th>التاريخ</th>
+                                        <th>الشركة</th>
+                                        <th>المخزن</th>
                                         <th>الإجمالي</th>
                                         <th>الحالة</th>
                                     </tr>
                                 </thead>
-                                <tbody id="clientInvoicesTable"></tbody>
+                                <tbody id="supplierInvoicesTable"></tbody>
                             </table>
                         </div>
                     </div>
                     <div class="tab-content" id="returns">
-                        <h4>فواتير المرتجعات</h4>
-                        <button class="btn btn-success no-print" onclick="printReturns()"><i class="fas fa-print"></i> طباعة فواتير المرتجعات</button>
+                        <h4>مرتجعات المشتريات</h4>
+                        <button class="btn btn-success no-print" onclick="printReturns()"><i class="fas fa-print"></i> طباعة مرتجعات المشتريات</button>
                         <div class="table-responsive">
                             <table class="table">
                                 <thead>
@@ -312,12 +332,12 @@
                                         <th>الحالة</th>
                                     </tr>
                                 </thead>
-                                <tbody id="clientReturnsTable"></tbody>
+                                <tbody id="supplierReturnsTable"></tbody>
                             </table>
                         </div>
                     </div>
                     <div class="tab-content" id="statement">
-                        <h4>كشف حساب العميل</h4>
+                        <h4>كشف الحساب</h4>
                         <button class="btn btn-success no-print" onclick="printStatement()"><i class="fas fa-print"></i> طباعة كشف الحساب</button>
                         <div class="table-responsive">
                             <table class="table">
@@ -330,7 +350,7 @@
                                         <th>الرصيد</th>
                                     </tr>
                                 </thead>
-                                <tbody id="clientStatementTable"></tbody>
+                                <tbody id="supplierStatementTable"></tbody>
                             </table>
                         </div>
                     </div>
@@ -341,20 +361,48 @@
 
     <script>
         // Load data from localStorage
-        let clients = JSON.parse(localStorage.getItem('clients')) || [
-            { id: 1, name: "أحمد محمد", phone: "01234567890", email: "ahmed@example.com", address: "القاهرة" },
-            { id: 2, name: "علي حسن", phone: "01123456789", email: "ali@example.com", address: "الجيزة" }
+        let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [
+            {
+                id: 1,
+                name: "مورد التقنية",
+                contactPerson: "علي حسن",
+                phone: "01123456789",
+                email: "ali@techsupplier.com",
+                address: "القاهرة، مصر",
+                vendorId: 1,
+                vendorName: "شركة المستقبل",
+                warehouseIds: [1],
+                warehouseNames: ["المخزن الرئيسي"]
+            }
+        ];
+        let vendors = JSON.parse(localStorage.getItem('vendors')) || [
+            { id: 1, name: "شركة المستقبل" },
+            { id: 2, name: "شركة التقدم" }
+        ];
+        let warehouses = JSON.parse(localStorage.getItem('warehouses')) || [
+            { id: 1, name: "المخزن الرئيسي", vendorId: 1, vendorName: "شركة المستقبل", location: "القاهرة" },
+            { id: 2, name: "مخزن الفرع الشمالي", vendorId: 2, vendorName: "شركة التقدم", location: "الإسكندرية" }
         ];
         let invoices = JSON.parse(localStorage.getItem('invoices')) || [
             {
                 id: 1,
                 invoiceNumber: "INV-001",
                 date: "2025-07-15",
-                clientId: 1,
-                customerName: "أحمد محمد",
-                type: "sale",
+                vendorId: 1,
+                vendorName: "شركة المستقبل",
+                warehouseId: 1,
+                warehouseName: "المخزن الرئيسي",
+                supplierId: 1,
+                supplierName: "مورد التقنية",
+                type: "purchase",
+                items: [
+                    { name: "لابتوب ديل", quantity: 1, unitPrice: 5000, total: 5000 },
+                    { name: "ماوس لاسلكي", quantity: 2, unitPrice: 150, total: 300 }
+                ],
                 total: 5300,
-                status: "مدفوع"
+                status: "مدفوع",
+                dueDate: "2025-08-15",
+                notes: "فاتورة شراء معدات مكتبية"
             }
         ];
         let returns = JSON.parse(localStorage.getItem('returns')) || [];
@@ -365,87 +413,113 @@
             name: "سوبر أدمن",
             email: "superadmin@example.com",
             password: "admin123",
-            plan: { name: "SuperGrok", status: "نشط", expiryDate: "2026-07-17" }
+            plan: {
+                name: "SuperGrok",
+                status: "نشط",
+                expiryDate: "2026-07-17"
+            }
         };
 
-        // Get client ID from URL
+        // Get supplier ID from URL
         const urlParams = new URLSearchParams(window.location.search);
-        const clientId = parseInt(urlParams.get('id'));
+        const supplierId = parseInt(urlParams.get('id'));
 
-        // Load client details
-        function loadClientDetails() {
-            console.log('Client ID from URL:', clientId);
-            console.log('Clients array:', clients);
-
-            if (isNaN(clientId)) {
-                console.error('Invalid client ID:', clientId);
-                alert('رقم العميل غير صالح');
-                window.location.href = '/Superadmin/sales/sales.html';
+        // Load supplier details
+        function loadSupplierDetails() {
+            if (isNaN(supplierId)) {
+                alert('رقم المورد غير صالح');
+                window.location.href = '/Superadmin/suppliers/suppliers.html';
                 return;
             }
 
-            const client = clients.find(c => c.id === clientId);
-            if (!client) {
-                console.error('Client not found for ID:', clientId);
-                alert('العميل غير موجود');
-                window.location.href = '/Superadmin/sales/sales.html';
+            const supplier = suppliers.find(s => s.id === supplierId);
+            if (!supplier) {
+                alert('المورد غير موجود');
+                window.location.href = '/Superadmin/suppliers/suppliers.html';
                 return;
             }
 
-            document.getElementById('clientName').textContent = client.name || 'غير متوفر';
-            document.getElementById('clientPhone').textContent = client.phone || 'غير متوفر';
-            document.getElementById('clientEmail').textContent = client.email || 'غير متوفر';
-            document.getElementById('clientAddress').textContent = client.address || 'غير متوفر';
+            document.getElementById('supplierName').textContent = supplier.name || 'غير متوفر';
+            document.getElementById('supplierContactPerson').textContent = supplier.contactPerson || 'غير متوفر';
+            document.getElementById('supplierPhone').textContent = supplier.phone || 'غير متوفر';
+            document.getElementById('supplierEmail').textContent = supplier.email || 'غير متوفر';
+            document.getElementById('supplierAddress').textContent = supplier.address || 'غير متوفر';
+            document.getElementById('supplierVendorName').textContent = supplier.vendorName || 'غير متوفر';
+            document.getElementById('supplierWarehouseNames').textContent = supplier.warehouseNames.join(', ') || 'غير متوفر';
 
-            document.getElementById('detailName').textContent = client.name || 'غير متوفر';
-            document.getElementById('detailPhone').textContent = client.phone || 'غير متوفر';
-            document.getElementById('detailEmail').textContent = client.email || 'غير متوفر';
-            document.getElementById('detailAddress').textContent = client.address || 'غير متوفر';
+            document.getElementById('detailName').textContent = supplier.name || 'غير متوفر';
+            document.getElementById('detailContactPerson').textContent = supplier.contactPerson || 'غير متوفر';
+            document.getElementById('detailPhone').textContent = supplier.phone || 'غير متوفر';
+            document.getElementById('detailEmail').textContent = supplier.email || 'غير متوفر';
+            document.getElementById('detailAddress').textContent = supplier.address || 'غير متوفر';
+            document.getElementById('detailVendorName').textContent = supplier.vendorName || 'غير متوفر';
+            document.getElementById('detailWarehouseNames').textContent = supplier.warehouseNames.join(', ') || 'غير متوفر';
 
-            document.getElementById('editName').value = client.name || '';
-            document.getElementById('editPhone').value = client.phone || '';
-            document.getElementById('editEmail').value = client.email || '';
-            document.getElementById('editAddress').value = client.address || '';
+            document.getElementById('editName').value = supplier.name || '';
+            document.getElementById('editContactPerson').value = supplier.contactPerson || '';
+            document.getElementById('editPhone').value = supplier.phone || '';
+            document.getElementById('editEmail').value = supplier.email || '';
+            document.getElementById('editAddress').value = supplier.address || '';
 
-            document.getElementById('addClientPaymentBtn').href = `/Superadmin/clients/add-client-payment.html?id=${clientId}`;
+            // Populate vendor dropdown
+            const vendorSelect = document.getElementById('editVendorId');
+            vendorSelect.innerHTML = '<option value="">اختر الشركة</option>';
+            vendors.forEach(vendor => {
+                const option = document.createElement('option');
+                option.value = vendor.id;
+                option.textContent = vendor.name;
+                option.selected = vendor.id === supplier.vendorId;
+                vendorSelect.appendChild(option);
+            });
 
-            loadClientInvoices(client);
-            loadClientReturns(client);
-            loadClientStatement(client);
+            // Populate warehouse dropdown
+            const warehouseSelect = document.getElementById('editWarehouseIds');
+            warehouseSelect.innerHTML = '';
+            warehouses.forEach(warehouse => {
+                const option = document.createElement('option');
+                option.value = warehouse.id;
+                option.textContent = warehouse.name;
+                option.selected = supplier.warehouseIds.includes(warehouse.id);
+                warehouseSelect.appendChild(option);
+            });
+
+            loadSupplierInvoices(supplier);
+            loadSupplierReturns(supplier);
+            loadSupplierStatement(supplier);
+
+            // Set dynamic href for "إضافة دفعة" button
+            document.getElementById('addSupplierPaymentBtn').href = `/Superadmin/suppliers/payment/add-payment.html?id=${supplierId}`;
         }
 
-        // Load client invoices
-        function loadClientInvoices(client) {
-            const tableBody = document.getElementById('clientInvoicesTable');
+        // Load supplier invoices
+        function loadSupplierInvoices(supplier) {
+            const tableBody = document.getElementById('supplierInvoicesTable');
             tableBody.innerHTML = '';
-            const clientInvoices = invoices.filter(i => i.clientId === client.id && i.type === 'sale');
-            console.log('Invoices for client:', clientInvoices);
-            clientInvoices.forEach(invoice => {
+            const supplierInvoices = invoices.filter(i => i.supplierId === supplier.id && i.type === 'purchase');
+            supplierInvoices.forEach(invoice => {
                 const row = document.createElement('tr');
                 let statusClass = 'badge-warning';
                 if (invoice.status === 'مدفوع') statusClass = 'badge-success';
                 if (invoice.status === 'مدفوع جزئيًا') statusClass = 'badge-info';
-                if (invoice.status === 'ملغى' || invoice.status === 'مرتجع') statusClass = 'badge-danger';
+                if (invoice.status === 'ملغى') statusClass = 'badge-danger';
                 row.innerHTML = `
                     <td>${invoice.invoiceNumber || 'غير متوفر'}</td>
                     <td>${formatDate(invoice.date)}</td>
+                    <td>${invoice.vendorName || 'غير متوفر'}</td>
+                    <td>${invoice.warehouseName || 'غير متوفر'}</td>
                     <td>${invoice.total ? invoice.total.toLocaleString() + ' ج.م' : 'غير متوفر'}</td>
                     <td><span class="badge ${statusClass}">${invoice.status || 'غير متوفر'}</span></td>
                 `;
                 tableBody.appendChild(row);
             });
-            if (clientInvoices.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4">لا توجد فواتير</td></tr>';
-            }
         }
 
-        // Load client returns
-        function loadClientReturns(client) {
-            const tableBody = document.getElementById('clientReturnsTable');
+        // Load supplier returns
+        function loadSupplierReturns(supplier) {
+            const tableBody = document.getElementById('supplierReturnsTable');
             tableBody.innerHTML = '';
-            const clientReturns = returns.filter(r => r.clientId === client.id);
-            console.log('Returns for client:', clientReturns);
-            clientReturns.forEach(returnItem => {
+            const supplierReturns = returns.filter(r => r.supplierId === supplier.id);
+            supplierReturns.forEach(returnItem => {
                 const row = document.createElement('tr');
                 let statusClass = returnItem.status === 'معتمد' ? 'badge-success' : 'badge-warning';
                 row.innerHTML = `
@@ -456,38 +530,35 @@
                 `;
                 tableBody.appendChild(row);
             });
-            if (clientReturns.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4">لا توجد مرتجعات</td></tr>';
-            }
         }
 
-        // Load client statement
-        function loadClientStatement(client) {
-            const tableBody = document.getElementById('clientStatementTable');
+        // Load supplier statement
+        function loadSupplierStatement(supplier) {
+            const tableBody = document.getElementById('supplierStatementTable');
             tableBody.innerHTML = '';
-            const clientInvoices = invoices.filter(i => i.clientId === client.id && i.type === 'sale' && i.status !== 'ملغى');
-            const clientReturns = returns.filter(r => r.clientId === client.id && r.status === 'معتمد');
-            const clientPayments = payments.filter(p => p.clientId === client.id);
+            const supplierInvoices = invoices.filter(i => i.supplierId === supplier.id && i.type === 'purchase' && i.status !== 'ملغى');
+            const supplierReturns = returns.filter(r => r.supplierId === supplier.id && r.status === 'معتمد');
+            const supplierPayments = payments.filter(p => p.supplierId === supplier.id);
 
             const statementItems = [
-                ...clientInvoices.map(i => ({
+                ...supplierInvoices.map(i => ({
                     date: i.date,
                     type: 'فاتورة',
-                    description: `فاتورة بيع رقم ${i.invoiceNumber}`,
+                    description: `فاتورة شراء رقم ${i.invoiceNumber}`,
                     amount: i.total || 0,
                     isDebit: true
                 })),
-                ...clientReturns.map(r => ({
+                ...supplierReturns.map(r => ({
                     date: r.date,
                     type: 'مرتجع',
-                    description: `مرتجع بيع رقم ${r.returnNumber}`,
+                    description: `مرتجع مشتريات رقم ${r.returnNumber}`,
                     amount: r.total || 0,
                     isDebit: false
                 })),
-                ...clientPayments.map(p => ({
+                ...supplierPayments.map(p => ({
                     date: p.date,
                     type: 'دفعة',
-                    description: `دفعة من العميل`,
+                    description: `دفعة للمورد`,
                     amount: p.amount || 0,
                     isDebit: false
                 }))
@@ -525,30 +596,35 @@
             return date.toLocaleDateString('ar-EG');
         }
 
-        // Save client changes
-        function saveClientChanges() {
+        // Save supplier changes
+        function saveSupplierChanges() {
             if (currentUser.role !== "Super Admin") {
-                alert('غير مصرح لك بتعديل العميل');
+                alert('غير مصرح لك بتعديل المورد');
                 return;
             }
-            const client = clients.find(c => c.id === clientId);
-            if (!client) {
-                alert('العميل غير موجود');
+            const supplier = suppliers.find(s => s.id === supplierId);
+            if (!supplier) {
+                alert('المورد غير موجود');
                 return;
             }
 
-            const oldName = client.name;
-            client.name = document.getElementById('editName').value;
-            client.phone = document.getElementById('editPhone').value;
-            client.email = document.getElementById('editEmail').value;
-            client.address = document.getElementById('editAddress').value;
+            const oldName = supplier.name;
+            supplier.name = document.getElementById('editName').value;
+            supplier.contactPerson = document.getElementById('editContactPerson').value;
+            supplier.phone = document.getElementById('editPhone').value;
+            supplier.email = document.getElementById('editEmail').value;
+            supplier.address = document.getElementById('editAddress').value;
+            supplier.vendorId = parseInt(document.getElementById('editVendorId').value) || supplier.vendorId;
+            supplier.vendorName = vendors.find(v => v.id === supplier.vendorId)?.name || supplier.vendorName;
+            supplier.warehouseIds = Array.from(document.getElementById('editWarehouseIds').selectedOptions).map(opt => parseInt(opt.value));
+            supplier.warehouseNames = supplier.warehouseIds.map(id => warehouses.find(w => w.id === id)?.name || 'غير متوفر');
 
-            // Update invoices, returns, and payments with new client name
-            invoices = invoices.map(i => i.clientId === client.id ? { ...i, customerName: client.name } : i);
-            returns = returns.map(r => r.clientId === client.id ? { ...r, customerName: client.name } : r);
-            payments = payments.map(p => p.clientId === client.id ? { ...p, customerName: client.name } : p);
+            // Update invoices, returns, and payments with new supplier name
+            invoices = invoices.map(i => i.supplierId === supplier.id ? { ...i, supplierName: supplier.name } : i);
+            returns = returns.map(r => r.supplierId === supplier.id ? { ...r, supplierName: supplier.name } : r);
+            payments = payments.map(p => p.supplierId === supplier.id ? { ...p, supplierName: supplier.name } : p);
 
-            localStorage.setItem('clients', JSON.stringify(clients));
+            localStorage.setItem('suppliers', JSON.stringify(suppliers));
             localStorage.setItem('invoices', JSON.stringify(invoices));
             localStorage.setItem('returns', JSON.stringify(returns));
             localStorage.setItem('payments', JSON.stringify(payments));
@@ -558,34 +634,34 @@
                 id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
                 date: new Date().toISOString(),
                 user: currentUser.name || "سوبر أدمن",
-                action: `تعديل بيانات العميل ${client.name}`
+                action: `تعديل بيانات المورد ${supplier.name}`
             };
             transactions.push(transaction);
             localStorage.setItem('transactions', JSON.stringify(transactions));
 
             alert('تم حفظ التغييرات بنجاح');
-            loadClientDetails();
+            loadSupplierDetails();
         }
 
-        // Show delete client confirmation
-        function showDeleteClientConfirm() {
+        // Show delete supplier confirmation
+        function showDeleteSupplierConfirm() {
             if (currentUser.role !== "Super Admin") {
-                alert('غير مصرح لك بحذف العميل');
+                alert('غير مصرح لك بحذف المورد');
                 return;
             }
-            const client = clients.find(c => c.id === clientId);
-            if (!client) {
-                alert('العميل غير موجود');
+            const supplier = suppliers.find(s => s.id === supplierId);
+            if (!supplier) {
+                alert('المورد غير موجود');
                 return;
             }
 
-            if (confirm('هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء.')) {
-                clients = clients.filter(c => c.id !== clientId);
-                invoices = invoices.map(i => i.clientId === client.id ? { ...i, customerName: 'غير متوفر', clientId: null } : i);
-                returns = returns.map(r => r.clientId === client.id ? { ...r, customerName: 'غير متوفر', clientId: null } : r);
-                payments = payments.map(p => p.clientId === client.id ? { ...p, customerName: 'غير متوفر', clientId: null } : p);
+            if (confirm('هل أنت متأكد من حذف هذا المورد؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                suppliers = suppliers.filter(s => s.id !== supplierId);
+                invoices = invoices.map(i => i.supplierId === supplierId ? { ...i, supplierName: 'غير متوفر', supplierId: null } : i);
+                returns = returns.map(r => r.supplierId === supplierId ? { ...r, supplierName: 'غير متوفر', supplierId: null } : r);
+                payments = payments.map(p => p.supplierId === supplierId ? { ...p, supplierName: 'غير متوفر', supplierId: null } : p);
 
-                localStorage.setItem('clients', JSON.stringify(clients));
+                localStorage.setItem('suppliers', JSON.stringify(suppliers));
                 localStorage.setItem('invoices', JSON.stringify(invoices));
                 localStorage.setItem('returns', JSON.stringify(returns));
                 localStorage.setItem('payments', JSON.stringify(payments));
@@ -595,13 +671,13 @@
                     id: transactions.length ? Math.max(...transactions.map(t => t.id)) + 1 : 1,
                     date: new Date().toISOString(),
                     user: currentUser.name || "سوبر أدمن",
-                    action: `حذف العميل ${client.name}`
+                    action: `حذف المورد ${supplier.name}`
                 };
                 transactions.push(transaction);
                 localStorage.setItem('transactions', JSON.stringify(transactions));
 
-                alert('تم حذف العميل بنجاح');
-                window.location.href = '/Superadmin/sales/sales.html';
+                alert('تم حذف المورد بنجاح');
+                window.location.href = '/Superadmin/suppliers/suppliers.html';
             }
         }
 
@@ -652,7 +728,7 @@
 
         // Initial setup
         loadUserInfo();
-        loadClientDetails();
+        loadSupplierDetails();
 
         // Check URL hash for default tab
         const hash = window.location.hash.replace('#', '');
